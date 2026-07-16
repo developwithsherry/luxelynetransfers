@@ -1,0 +1,34 @@
+import { format } from "date-fns"
+
+// Convert kilometers to miles
+export function kmToMiles(km: number): number {
+  return km * 0.621371
+}
+
+// Format distance in miles
+export function formatDistance(km: number): string {
+  const miles = kmToMiles(km)
+  return `${miles.toFixed(2)} miles`
+}
+
+// Format duration with "Approx" prefix
+export function formatDuration(seconds: number): string {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+
+  if (hours > 0) {
+    return `Approx ${hours}h ${minutes}m`
+  }
+  return `Approx ${minutes} mins`
+}
+
+// Format date in UK format (DD Month YYYY)
+export function formatDateUK(dateInput: string | Date): string {
+  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput
+  return format(date, "dd MMMM yyyy")
+}
+
+// Format complete journey details
+export function formatJourneyDetails(distance: number, duration: number, date: string, time: string): string {
+  return `${formatDistance(distance)} • ${formatDuration(duration)} • ${formatDateUK(date)} at ${time}`
+}
