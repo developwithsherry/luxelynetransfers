@@ -9,7 +9,7 @@ export function Footer() {
           <div className="lg:col-span-4 space-y-6">
             <div className="flex items-center gap-3">
               <img
-                src="logo_lime.png"
+                src="/logo_lime.png"
                 alt="Luxelyne Transfers Logo"
                 className="w-14 h-14 object-contain"
                 width={56}
