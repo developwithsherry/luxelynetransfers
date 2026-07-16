@@ -106,9 +106,14 @@ export default function SelectVehiclePage() {
                             <Button
                               variant={isSelected ? "default" : "outline"}
                               size="sm"
-                              className={`${isSelected && "bg-lime-600"}`}
+                              className={`${isSelected ? "bg-black text-white hover:bg-neutral-900 border-none font-bold" : "bg-transparent text-neutral-850 hover:bg-neutral-100 font-bold"}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                selectVehicle(vehicle);
+                                router.push("/booking");
+                              }}
                             >
-                              {isSelected ? "Selected" : "Select"}
+                              {isSelected ? "Click to Continue" : "Book Now"}
                             </Button>
                           </div>
                         </div>
@@ -171,28 +176,7 @@ export default function SelectVehiclePage() {
         {/* Addons Section */}
 
 
-        {/* Floating Footer */}
-        {(selectedVehicle || selectedAddon) && (
-          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 min-w-[350px]">
-            <Card className="bg-primary text-primary-foreground border-gray-800">
-              <CardContent className="px-6 py-3 flex justify-between items-center">
-                <p className="text-sm font-medium">
-                  {selectedVehicle && `${selectedVehicle.name} selected • £${fares
-                    .get(selectedVehicle.id)
-                    ?.toFixed(2)}`}{" "}
-                  {selectedAddon && `+ (£${selectedAddon.price.toFixed(2)}) in Addons`}
-                </p>
-                <Button
-                  className="hover:bg-lime-400 text-black text-xs ml-1"
-                  size={"sm"}
-                  onClick={() => router.push("/booking")}
-                >
-                  Continue
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {/* Floating footer removed as per request */}
       </div>
       <Footer />
     </>

@@ -103,7 +103,7 @@ export function Footer() {
               {[
                 { name: "Home", href: "#" },
                 { name: "Fleet", href: "/fleets" },
-                { name: "Services", href: "/#services" },
+                { name: "Services", href: "/services" },
                 { name: "About Us", href: "/about" },
                 { name: "Blog", href: "/blog" },
                 { name: "Book Now", href: "/#book-now" },
