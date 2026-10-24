@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Book premium Luton airport transfers. Private taxi hire serving LTN terminals. Real-time flight tracking, delay management & meet and greet.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/luton-airport-transfers",
+    canonical: "https://luxelynetransfers.co.uk/luton-airport-transfers",
   },
 }
 

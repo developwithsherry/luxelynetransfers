@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Book premium Gatwick airport transfers. Private taxi hire serving LGW North and South terminals. Real-time flight tracking, flat rates & meet and greet.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/gatwick-airport-transfers",
+    canonical: "https://luxelynetransfers.co.uk/gatwick-airport-transfers",
   },
 }
 

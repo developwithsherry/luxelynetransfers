@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Book premium Stansted airport transfers. Private taxi hire serving STN terminals. Real-time flight tracking, flight delay management & meet and greet.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/stansted-airport-transfers",
+    canonical: "https://luxelynetransfers.co.uk/stansted-airport-transfers",
   },
 }
 

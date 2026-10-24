@@ -5,13 +5,13 @@ export function OrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Luxelyne Transfers LTD",
-    "url": "https://luxelynetransfers.com",
-    "logo": "https://luxelynetransfers.com/logo-main.png",
+    "url": "https://luxelynetransfers.co.uk",
+    "logo": "https://luxelynetransfers.co.uk/logo-main.png",
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+44 7882 733291",
+      "telephone": "+44 7460 019129",
       "contactType": "customer service",
-      "email": "official@luxelynetransfers.com",
+      "email": "info@luxelynetransfers.co.uk",
       "areaServed": "GB",
       "availableLanguage": ["en"]
     },
@@ -38,9 +38,9 @@ export function TaxiServiceSchema() {
     "provider": {
       "@type": "LocalBusiness",
       "name": "Luxelyne Transfers LTD",
-      "image": "https://luxelynetransfers.com/logo-main.png",
-      "telephone": "+44 7882 733291",
-      "email": "official@luxelynetransfers.com",
+      "image": "https://luxelynetransfers.co.uk/logo-main.png",
+      "telephone": "+44 7460 019129",
+      "email": "info@luxelynetransfers.co.uk",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "58 Peregrine Rd",

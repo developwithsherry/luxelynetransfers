@@ -71,21 +71,25 @@ export async function POST(request: Request) {
       }
 
       const adminEmail = {
-        email: process.env.NEXT_PUBLIC_ADMIN_EMAIL,
-        subject: "New booking recieved",
+        email: process.env.NEXT_PUBLIC_ADMIN_EMAIL || "info@luxelynetransfers.co.uk",
+        subject: "New booking received",
         message: `
-      New Email recieved from customer ${booking?.email} \n
-      Pickup:${booking?.pickup_location} \n
-      DropOff:${booking?.drop_off_location} \n
-      Date:${booking?.date} \n
-      Time:${booking?.time} \n
-      Total price:£${booking?.total_amount} \n
-      `}
+      New booking received from customer ${booking?.email} \n
+      Pickup: ${booking?.pickup_location} \n
+      Drop-off: ${booking?.drop_off_location} \n
+      Date: ${booking?.date} \n
+      Time: ${booking?.time} \n
+      Total price: £${booking?.total_amount} \n
+      `,
+      };
 
-      const customerEmail = {
-        email: booking?.email,
-        subject: `Booking Confirmation`,
-        message: `
+      try {
+        await sendEmail(adminEmail);
+        if (booking?.email) {
+          const customerEmail = {
+            email: booking.email,
+            subject: `Booking Confirmation`,
+            message: `
     Dear ${booking?.first_name || 'Customer'},
 
     We are pleased to confirm your booking.
@@ -100,17 +104,12 @@ export async function POST(request: Request) {
 
     Best regards,
     Team Luxelyne Transfers
-  `
-      }
-      const { error: adminEmailError } = await sendEmail(adminEmail);
-
-      if (adminEmailError) {
-        throw adminEmailError
-      }
-      const { error: customerEmailError } = await sendEmail(customerEmail);
-
-      if (customerEmailError) {
-        throw customerEmailError
+  `,
+          };
+          await sendEmail(customerEmail);
+        }
+      } catch (emailErr) {
+        console.error("Error sending notification emails:", emailErr);
       }
 
 

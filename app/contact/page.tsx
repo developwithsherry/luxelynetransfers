@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description:
     "Get in touch with Luxelyne Transfers. Contact us for London airport taxi bookings, corporate private hire services, and 24/7 customer support.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/contact",
+    canonical: "https://luxelynetransfers.co.uk/contact",
   },
 }
 

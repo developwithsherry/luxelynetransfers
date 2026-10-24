@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Best Way to Book Heathrow Airport Taxi (2026 Guide)",
   description: "Compare Heathrow taxi options, black cabs, Uber, and pre-booked private hire. Learn the best way to book Heathrow airport taxi for a stress-free ride.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/blog/best-way-to-book-heathrow-airport-taxi",
+    canonical: "https://luxelynetransfers.co.uk/blog/best-way-to-book-heathrow-airport-taxi",
   },
 }
 
@@ -19,25 +19,25 @@ export default function BlogAPage() {
     "@type": "Article",
     "headline": "Best Way to Book a Ride at Heathrow Airport (2026 Guide)",
     "description": "Compare Heathrow taxi options, black cabs, Uber, and pre-booked private hire. Learn the best way to book Heathrow airport taxi for a stress-free ride.",
-    "image": "https://luxelynetransfers.com/blog_heathrow_taxi_guide.png",
+    "image": "https://luxelynetransfers.co.uk/blog_heathrow_taxi_guide.png",
     "datePublished": "2026-07-16T12:00:00Z",
     "dateModified": "2026-07-16T12:00:00Z",
     "author": {
       "@type": "Organization",
       "name": "Luxelyne Transfers LTD",
-      "url": "https://luxelynetransfers.com"
+      "url": "https://luxelynetransfers.co.uk"
     },
     "publisher": {
       "@type": "Organization",
       "name": "Luxelyne Transfers LTD",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://luxelynetransfers.com/logo-main.png"
+        "url": "https://luxelynetransfers.co.uk/logo-main.png"
       }
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://luxelynetransfers.com/blog/best-way-to-book-heathrow-airport-taxi"
+      "@id": "https://luxelynetransfers.co.uk/blog/best-way-to-book-heathrow-airport-taxi"
     }
   }
 
@@ -425,12 +425,12 @@ export default function BlogAPage() {
                   <div className="flex flex-col text-center sm:text-right">
                     <span className="text-xs font-semibold uppercase tracking-wider text-black/75">Or coordinate via WhatsApp</span>
                     <a
-                      href="https://wa.me/447882733291"
+                      href="https://wa.me/447640019129"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base font-black hover:underline text-black flex items-center gap-1.5 justify-center sm:justify-end"
                     >
-                      +44 7882 733291
+                      +44 7640 019129
                     </a>
                   </div>
                 </div>

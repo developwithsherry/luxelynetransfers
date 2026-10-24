@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Official Blog | Luxelyne Transfers",
   description: "Read the latest London travel guides, airport taxi guides, local private hire tips, and comparisons. Get expert advice for Heathrow, Gatwick, and London travel.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/blog",
+    canonical: "https://luxelynetransfers.co.uk/blog",
   },
 }
 
@@ -49,7 +49,7 @@ export default function BlogListingPage() {
     "itemListElement": blogPosts.map((post, idx) => ({
       "@type": "ListItem",
       "position": idx + 1,
-      "url": `https://luxelynetransfers.com/blog/${post.slug}`
+      "url": `https://luxelynetransfers.co.uk/blog/${post.slug}`
     }))
   }
 

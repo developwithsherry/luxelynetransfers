@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description:
     "Book professional London airport transfers & private hire taxis. Reliable 24/7 taxi service to/from Heathrow, Gatwick, Stansted, Luton & London City airports.",
   alternates: {
-    canonical: "https://luxelynetransfers.com",
+    canonical: "https://luxelynetransfers.co.uk",
   },
 }
 

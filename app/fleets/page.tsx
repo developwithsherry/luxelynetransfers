@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description:
     "Explore the Luxelyne Transfers premium fleet. Choose from our executive saloons, business class vehicles, and spacious MPVs for London airport transfers.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/fleets",
+    canonical: "https://luxelynetransfers.co.uk/fleets",
   },
 }
 

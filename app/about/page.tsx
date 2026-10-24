@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description:
     "Learn about Luxelyne Transfers, a UK-licensed taxi & airport transfers company. Experience premium passenger comfort, real-time flight tracking, and vetted drivers.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/about",
+    canonical: "https://luxelynetransfers.co.uk/about",
   },
 }
 

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Affordable Private Hire Ilford & East London | Taxi",
   description: "Looking for affordable private hire Ilford & East London? Book flat-rate minicabs & airport transfers. No surge pricing, local DBS vetted drivers.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/blog/affordable-private-hire-ilford-east-london",
+    canonical: "https://luxelynetransfers.co.uk/blog/affordable-private-hire-ilford-east-london",
   },
 }
 
@@ -19,25 +19,25 @@ export default function BlogCPage() {
     "@type": "Article",
     "headline": "Affordable Private Hire in Ilford & East London",
     "description": "Looking for affordable private hire Ilford & East London? Book flat-rate minicabs & airport transfers. No surge pricing, local DBS vetted drivers.",
-    "image": "https://luxelynetransfers.com/blog_ilford_private_hire.png",
+    "image": "https://luxelynetransfers.co.uk/blog_ilford_private_hire.png",
     "datePublished": "2026-07-16T12:00:00Z",
     "dateModified": "2026-07-16T12:00:00Z",
     "author": {
       "@type": "Organization",
       "name": "Luxelyne Transfers LTD",
-      "url": "https://luxelynetransfers.com"
+      "url": "https://luxelynetransfers.co.uk"
     },
     "publisher": {
       "@type": "Organization",
       "name": "Luxelyne Transfers LTD",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://luxelynetransfers.com/logo-main.png"
+        "url": "https://luxelynetransfers.co.uk/logo-main.png"
       }
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://luxelynetransfers.com/blog/affordable-private-hire-ilford-east-london"
+      "@id": "https://luxelynetransfers.co.uk/blog/affordable-private-hire-ilford-east-london"
     }
   }
 
@@ -335,12 +335,12 @@ export default function BlogCPage() {
                   <div className="flex flex-col text-center sm:text-right">
                     <span className="text-xs font-semibold uppercase tracking-wider text-black/75">Or coordinate via WhatsApp</span>
                     <a
-                      href="https://wa.me/447882733291"
+                      href="https://wa.me/447640019129"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base font-black hover:underline text-black flex items-center gap-1.5 justify-center sm:justify-end"
                     >
-                      +44 7882 733291
+                      +44 7640 019129
                     </a>
                   </div>
                 </div>

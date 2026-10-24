@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     "Discover our premium private hire taxi and chauffeur services in London and the UK. Airport transfers, wedding & corporate event travel, tailored day tours, and vetted school transport.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/services",
+    canonical: "https://luxelynetransfers.co.uk/services",
   },
 }
 

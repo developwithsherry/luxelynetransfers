@@ -27,17 +27,17 @@ export function Footer() {
 
             <div className="space-y-4 pt-2">
               <a
-                href="tel:+447882733291"
+                href="tel:+447460019129"
                 className="flex items-center gap-3 text-neutral-400 hover:text-accent transition-colors duration-200 group text-sm"
               >
                 <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center group-hover:bg-accent/15 group-hover:text-accent transition-colors duration-200 shrink-0">
                   <Phone className="w-4 h-4 text-accent" />
                 </div>
-                <span>+44 7882 733291</span>
+                <span>+44 7460 019129</span>
               </a>
 
               <a
-                href="https://wa.me/447882733291"
+                href="https://wa.me/447640019129"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-neutral-400 hover:text-accent transition-colors duration-200 group text-sm"
@@ -51,13 +51,13 @@ export function Footer() {
               </a>
 
               <a
-                href="mailto:official@luxelynetransfers.com"
+                href="mailto:info@luxelynetransfers.co.uk"
                 className="flex items-center gap-3 text-neutral-400 hover:text-accent transition-colors duration-200 group text-sm"
               >
                 <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center group-hover:bg-accent/15 group-hover:text-accent transition-colors duration-200 shrink-0">
                   <Mail className="w-4 h-4 text-accent" />
                 </div>
-                <span>official@luxelynetransfers.com</span>
+                <span>info@luxelynetransfers.co.uk</span>
               </a>
 
               <div className="flex items-center gap-3 text-neutral-400 text-sm">

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Book premium London City airport transfers. Private taxi hire serving LCY. Real-time flight tracking, flat rates & meet and greet services.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/london-city-airport-transfers",
+    canonical: "https://luxelynetransfers.co.uk/london-city-airport-transfers",
   },
 }
 

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "Book premium Heathrow airport transfers. Reliable private taxi hire serving LHR Terminals 2, 3, 4, and 5. Flat rates, flight tracking & meet and greet.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/heathrow-airport-transfers",
+    canonical: "https://luxelynetransfers.co.uk/heathrow-airport-transfers",
   },
 }
 

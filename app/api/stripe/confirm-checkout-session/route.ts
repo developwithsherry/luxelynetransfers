@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
       // Send emails
       const adminEmail = {
-        email: process.env.NEXT_PUBLIC_ADMIN_EMAIL || "official@luxelynetransfers.com",
+        email: process.env.NEXT_PUBLIC_ADMIN_EMAIL || "info@luxelynetransfers.co.uk",
         subject: "New booking received",
         message: `
       New booking received from customer ${booking?.email} \n
@@ -65,10 +65,13 @@ export async function POST(request: Request) {
       `,
       };
 
-      const customerEmail = {
-        email: booking?.email,
-        subject: `Booking Confirmation`,
-        message: `
+      try {
+        await sendEmail(adminEmail);
+        if (booking?.email) {
+          const customerEmail = {
+            email: booking.email,
+            subject: `Booking Confirmation`,
+            message: `
     Dear ${booking?.first_name || 'Customer'},
 
     We are pleased to confirm your booking.
@@ -85,11 +88,9 @@ export async function POST(request: Request) {
     Best regards,
     Team Luxelyne Transfers
   `,
-      };
-
-      try {
-        await sendEmail(adminEmail);
-        await sendEmail(customerEmail);
+          };
+          await sendEmail(customerEmail);
+        }
       } catch (emailErr) {
         console.error("Error sending notification emails:", emailErr);
       }

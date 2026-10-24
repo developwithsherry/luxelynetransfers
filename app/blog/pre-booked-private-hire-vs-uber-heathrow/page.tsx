@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "Pre-Booked Private Hire vs Uber Heathrow | Guide",
   description: "Compare pre-booked taxi vs Uber Heathrow. Read about pickup walks, surge pricing, cancellations & why pre-booked private hire is the stress-free choice.",
   alternates: {
-    canonical: "https://luxelynetransfers.com/blog/pre-booked-private-hire-vs-uber-heathrow",
+    canonical: "https://luxelynetransfers.co.uk/blog/pre-booked-private-hire-vs-uber-heathrow",
   },
 }
 
@@ -19,25 +19,25 @@ export default function BlogBPage() {
     "@type": "Article",
     "headline": "Why Choose a Pre-Booked Private Hire Over Uber at Heathrow?",
     "description": "Compare pre-booked taxi vs Uber Heathrow. Read about pickup walks, surge pricing, cancellations & why pre-booked private hire is the stress-free choice.",
-    "image": "https://luxelynetransfers.com/blog_chauffeur_meet_greet.png",
+    "image": "https://luxelynetransfers.co.uk/blog_chauffeur_meet_greet.png",
     "datePublished": "2026-07-16T12:00:00Z",
     "dateModified": "2026-07-16T12:00:00Z",
     "author": {
       "@type": "Organization",
       "name": "Luxelyne Transfers LTD",
-      "url": "https://luxelynetransfers.com"
+      "url": "https://luxelynetransfers.co.uk"
     },
     "publisher": {
       "@type": "Organization",
       "name": "Luxelyne Transfers LTD",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://luxelynetransfers.com/logo-main.png"
+        "url": "https://luxelynetransfers.co.uk/logo-main.png"
       }
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://luxelynetransfers.com/blog/pre-booked-private-hire-vs-uber-heathrow"
+      "@id": "https://luxelynetransfers.co.uk/blog/pre-booked-private-hire-vs-uber-heathrow"
     }
   }
 
@@ -419,12 +419,12 @@ export default function BlogBPage() {
                   <div className="flex flex-col text-center sm:text-right">
                     <span className="text-xs font-semibold uppercase tracking-wider text-black/75">Or coordinate via WhatsApp</span>
                     <a
-                      href="https://wa.me/447882733291"
+                      href="https://wa.me/447640019129"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base font-black hover:underline text-black flex items-center gap-1.5 justify-center sm:justify-end"
                     >
-                      +44 7882 733291
+                      +44 7640 019129
                     </a>
                   </div>
                 </div>

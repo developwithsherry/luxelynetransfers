@@ -10,7 +10,7 @@ import { AddonProvider } from "@/context/addon-context"
 import { OrganizationSchema, TaxiServiceSchema } from "@/components/seo/schema-markup"
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://luxelynetransfers.com"),
+  metadataBase: new URL("https://luxelynetransfers.co.uk"),
   title: {
     default: "Luxelyne Transfers | London Airport Transfers & Private Hire Taxi",
     template: "%s | Luxelyne Transfers",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_GB",
-    url: "https://luxelynetransfers.com",
+    url: "https://luxelynetransfers.co.uk",
     title: "Luxelyne Transfers | London Airport Transfers & Private Hire Taxi",
     description:
       "Luxelyne Transfers is a premier UK private hire & airport transfers supplier. Reliable taxi service serving Heathrow, Gatwick, Stansted, Luton, and London City airports.",

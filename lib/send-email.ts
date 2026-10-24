@@ -3,10 +3,10 @@
 
 import { Resend } from "resend";
 
-interface EmailData{
-    email:string;
-    message:string;
-    subject:string;
+export interface EmailData {
+    email?: string | null;
+    message: string;
+    subject: string;
 }
 export async function sendEmail(emailData:EmailData) {
   try {
@@ -19,7 +19,7 @@ export async function sendEmail(emailData:EmailData) {
      }
 
     const { data, error } = await resend.emails.send({
-      from: "official@luxelynetransfers.com", // must be verified in Resend
+      from: "info@luxelynetransfers.co.uk", // must be verified in Resend
       to:emailData.email, // your receiving address
       subject:emailData.subject,
       html:emailData.message,

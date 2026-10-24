@@ -56,21 +56,21 @@ export function ContactSection() {
 
                     <div className="space-y-5">
                         <a
-                            href="tel:+447882733291"
+                            href="tel:+447460019129"
                             className="flex items-center gap-3 text-gray-700 hover:text-lime-400 underline transition-colors"
                         >
                             <Phone className="w-5 h-5 text-primary" />
-                            <span>+44 7882 733291</span>
+                            <span>+44 7460 019129</span>
                         </a>
 
                         <WhatsappButton className="text-gray-700 underline hover:text-lime-400" />
 
                         <a
-                            href="mailto:official@luxelynetransfers.com"
+                            href="mailto:info@luxelynetransfers.co.uk"
                             className="flex items-center gap-3 text-gray-700 hover:text-lime-400 underline transition-colors"
                         >
                             <Mail className="w-5 h-5 text-gray-700 hover:text-lime-400 underline" />
-                            <span>official@luxelynetransfers.com</span>
+                            <span>info@luxelynetransfers.co.uk</span>
                         </a>
 
                         <div className="flex items-center gap-3 text-gray-700">
