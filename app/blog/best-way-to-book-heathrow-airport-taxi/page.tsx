@@ -425,12 +425,12 @@ export default function BlogAPage() {
                   <div className="flex flex-col text-center sm:text-right">
                     <span className="text-xs font-semibold uppercase tracking-wider text-black/75">Or coordinate via WhatsApp</span>
                     <a
-                      href="https://wa.me/447640019129"
+                      href="https://wa.me/447460019129"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-base font-black hover:underline text-black flex items-center gap-1.5 justify-center sm:justify-end"
                     >
-                      +44 7640 019129
+                      +44 7460 019129
                     </a>
                   </div>
                 </div>

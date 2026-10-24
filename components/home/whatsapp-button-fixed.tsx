@@ -3,7 +3,7 @@
 import Image from "next/image"
 
 export default function WhatsAppContactButton() {
-  const number = "447640019129" // your WhatsApp number
+  const number = "447460019129" // your WhatsApp number
   const waLink = `https://wa.me/${number}`
 
   return (

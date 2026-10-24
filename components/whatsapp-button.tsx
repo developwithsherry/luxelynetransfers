@@ -7,10 +7,10 @@ interface Props{
 export  function WhatsappButton({className = ""}:Props){
     return(
         <a
-  href="https://wa.me/447640019129"
+  href="https://wa.me/447460019129"
   target="_blank"
   rel="noopener noreferrer"
-  aria-label="Chat on WhatsApp with +44 7640 019129"
+  aria-label="Chat on WhatsApp with +44 7460 019129"
   className={`flex items-center gap-3  text-background/80 hover:text-background transition-colors ${className}`}
 >
   <svg
@@ -27,7 +27,7 @@ export  function WhatsappButton({className = ""}:Props){
     />
   </svg>
 
-  <span>+44 7640 019129</span>
+  <span>+44 7460 019129</span>
 </a>
 
     )

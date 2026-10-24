@@ -32,7 +32,7 @@ export default function TermsPage() {
             <li>
               For changes or cancellations, contact us via the website form, email{" "}
               <span className="font-medium text-green-700">info@luxelynetransfers.co.uk</span>, or WhatsApp{" "}
-              <span className="font-medium text-green-700">+44 7640 019129</span>. Keep your Luxelyne reference number handy.
+              <span className="font-medium text-green-700">+44 7460 019129</span>. Keep your Luxelyne reference number handy.
             </li>
             <li>
               All changes and cancellations are free if requested at least 3 hours before your pickup time. You'll get a full refund.
