@@ -1,27 +1,80 @@
-"use client"
-
 import { useState, useMemo } from "react"
-import { Loader2 } from "lucide-react"
+import Link from "next/link"
+import { Loader2, Trash2 } from "lucide-react"
 import BookingRow from "./booking-row"
 import { Button } from "@/components/ui/button"
+import { deleteBooking } from "@/app/admin/bookings/action"
+import { toast } from "sonner"
+import type { ColumnKey } from "./column-visibility-toggle"
+import { DEFAULT_VISIBLE_COLUMNS } from "./column-visibility-toggle"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface BookingsTableProps {
   bookings: any[]
   isLoading: boolean
   isError: boolean
   hasFilters: boolean
+  onBookingDeleted?: (id: string) => void
+  visibleColumns?: Record<ColumnKey, boolean>
 }
 
-const ITEMS_PER_PAGE = 5
+const DEFAULT_ITEMS_PER_PAGE = 30
 
-export default function BookingsTable({ bookings, isLoading, isError, hasFilters }: BookingsTableProps) {
+export default function BookingsTable({
+  bookings,
+  isLoading,
+  isError,
+  hasFilters,
+  onBookingDeleted,
+  visibleColumns = DEFAULT_VISIBLE_COLUMNS,
+}: BookingsTableProps) {
   const [currentPage, setCurrentPage] = useState(1)
-  const totalPages = Math.ceil(bookings.length / ITEMS_PER_PAGE)
+  const [mobileDeleteTarget, setMobileDeleteTarget] = useState<any | null>(null)
+  const [isDeletingMobile, setIsDeletingMobile] = useState(false)
+
+  const cols = visibleColumns || DEFAULT_VISIBLE_COLUMNS
+
+  // When filters are active, show ALL matching records (no 5 or 30 cut-off)
+  // When no filters are active, show up to 30 bookings per page
+  const itemsPerPage = hasFilters ? Math.max(bookings.length, 1) : DEFAULT_ITEMS_PER_PAGE
+  const totalPages = Math.max(1, Math.ceil(bookings.length / itemsPerPage))
 
   const paginatedBookings = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE
-    return bookings.slice(start, start + ITEMS_PER_PAGE)
-  }, [bookings, currentPage])
+    if (hasFilters) return bookings
+    const start = (currentPage - 1) * itemsPerPage
+    return bookings.slice(start, start + itemsPerPage)
+  }, [bookings, currentPage, hasFilters, itemsPerPage])
+
+  const handleMobileDelete = async () => {
+    if (!mobileDeleteTarget?.id) return
+    setIsDeletingMobile(true)
+    try {
+      const res = await deleteBooking(mobileDeleteTarget.id)
+      if (!res.success) {
+        throw new Error(res.error || "Failed to delete booking")
+      }
+      toast.success(
+        `Booking #${mobileDeleteTarget.id.substring(0, 4).toUpperCase()} deleted successfully`
+      )
+      setMobileDeleteTarget(null)
+      if (onBookingDeleted) {
+        onBookingDeleted(mobileDeleteTarget.id)
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete booking")
+    } finally {
+      setIsDeletingMobile(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -65,96 +118,236 @@ export default function BookingsTable({ bookings, isLoading, isError, hasFilters
   }
 
   return (
-    <div className="bg-white shadow overflow-hidden rounded-xl border border-black/10 max-w-screen">
-      {/* ✅ Desktop Table */}
-      <div className="hidden md:block">
-        <div className="w-full max-w-screen overflow-x-auto overflow-y-hidden rounded-xl relative">
-          <table className="min-w-full border-collapse text-sm">
-            <thead className="bg-black">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
-                  Booking ID
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Customer</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
-                  Date & Time
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">From</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">To</th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
-                  Price
-                </th>
-                <th className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-black/5">
-              {paginatedBookings.map((booking) => (
-                <BookingRow key={booking.id} booking={booking} />
-              ))}
-            </tbody>
-          </table>
+    <>
+      <div className="bg-white shadow-2xs overflow-hidden rounded-xl border border-slate-200 w-full">
+        {/* ✅ Desktop Table */}
+        <div className="hidden md:block w-full">
+          <div className="w-full overflow-x-auto rounded-xl relative">
+            <table className="w-full border-collapse text-xs">
+              <thead className="bg-slate-950">
+                <tr>
+                  {cols.id && (
+                    <th className="px-3 py-2.5 text-left text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                      Booking ID
+                    </th>
+                  )}
+                  {cols.source && (
+                    <th className="px-3 py-2.5 text-left text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                      Source / Supplier
+                    </th>
+                  )}
+                  {cols.customer && (
+                    <th className="px-3 py-2.5 text-left text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                      Customer
+                    </th>
+                  )}
+                  {cols.dateTime && (
+                    <th className="px-3 py-2.5 text-left text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                      Date & Time
+                    </th>
+                  )}
+                  {cols.journey && (
+                    <th className="px-3 py-2.5 text-left text-[11px] font-bold text-white uppercase tracking-wider">
+                      Journey
+                    </th>
+                  )}
+                  {cols.driver && (
+                    <th className="px-3 py-2.5 text-left text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                      Driver
+                    </th>
+                  )}
+                  {cols.status && (
+                    <th className="px-3 py-2.5 text-center text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                      Status
+                    </th>
+                  )}
+                  {cols.price && (
+                    <th className="px-3 py-2.5 text-right text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                      Price
+                    </th>
+                  )}
+                  {cols.actions && (
+                    <th className="px-3 py-2.5 text-center text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
+                      Actions
+                    </th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-black/5">
+                {paginatedBookings.map((booking) => (
+                  <BookingRow
+                    key={booking.id}
+                    booking={booking}
+                    onDeleted={onBookingDeleted}
+                    visibleColumns={cols}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ✅ Mobile Cards */}
+        <div className="block md:hidden p-4 space-y-4">
+          {paginatedBookings.map((booking) => {
+            const customer = `${booking.first_name || ""} ${booking.last_name || ""}`.trim() || booking.customer_name || "N/A"
+            const bookingCode = booking.id ? booking.id.substring(0, 4).toUpperCase() : "N/A"
+            const isWebsite = booking.source === "website" || (!booking.supplier_id && booking.type !== "offline")
+            return (
+              <div key={booking.id} className="border border-black/10 rounded-lg p-4 shadow-sm bg-white space-y-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-lime-700">#{bookingCode}</span>
+                    {isWebsite ? (
+                      <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium border border-blue-200">
+                        Website
+                      </span>
+                    ) : booking.supplier?.name ? (
+                      <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full font-medium border border-purple-200">
+                        {booking.supplier.name}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full font-medium">
+                        Offline
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-medium capitalize">
+                    {booking.status}
+                  </span>
+                </div>
+                <p className="text-sm">
+                  <strong>Customer:</strong> {customer}
+                </p>
+                <p className="text-sm">
+                  <strong>Date & Time:</strong> {booking.date || ""} {booking.time || ""}
+                </p>
+                <p className="text-sm break-words whitespace-normal">
+                  <strong>From:</strong> {booking.pickup_location || "N/A"}
+                </p>
+                <p className="text-sm break-words whitespace-normal">
+                  <strong>To:</strong> {booking.drop_off_location || "N/A"}
+                </p>
+                <p className="text-sm">
+                  <strong>Driver:</strong>{" "}
+                  {booking.driver ? (
+                    <span className="text-emerald-700 font-medium">
+                      {booking.driver.name} (£{Number(booking.driver_price || 0).toFixed(2)})
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">Unassigned</span>
+                  )}
+                </p>
+                <p className="text-sm">
+                  <strong>Price:</strong> £{booking.final_amount?.toFixed(2) || booking.price || "0.00"}
+                </p>
+                <div className="pt-2 flex justify-end gap-2 border-t">
+                  <Link href={`/admin/bookings/${booking.id}`}>
+                    <Button size="sm" variant="outline" className="border-lime-600 text-lime-700">
+                      View Details
+                    </Button>
+                  </Link>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => setMobileDeleteTarget(booking)}
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* ✅ Pagination & Count Footer */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 p-4 border-t border-black/10 bg-gray-50 text-xs text-gray-700">
+          <div>
+            {hasFilters ? (
+              <span className="font-semibold text-lime-800">
+                Showing all {bookings.length} filtered bookings
+              </span>
+            ) : (
+              <span>
+                Showing {Math.min(bookings.length, (currentPage - 1) * DEFAULT_ITEMS_PER_PAGE + 1)}–
+                {Math.min(bookings.length, currentPage * DEFAULT_ITEMS_PER_PAGE)} of {bookings.length} total bookings
+              </span>
+            )}
+          </div>
+
+          {!hasFilters && totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                className="h-8 text-xs"
+              >
+                Previous
+              </Button>
+              <span className="font-medium text-xs px-2">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                className="h-8 text-xs"
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ✅ Mobile Cards */}
-      <div className="block md:hidden p-4 space-y-4">
-        {paginatedBookings.map((booking) => (
-          <div key={booking.id} className="border border-black/10 rounded-lg p-4 shadow-sm">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-semibold text-lime-700">#{booking.id}</span>
-              <span className="text-xs text-gray-500">{booking.status}</span>
-            </div>
-            <p className="text-sm">
-              <strong>Customer:</strong> {booking.customer_name || "N/A"}
-            </p>
-            <p className="text-sm">
-              <strong>Date & Time:</strong> {booking.date_time}
-            </p>
-            <p className="text-sm break-words whitespace-normal">
-              <strong>From:</strong> {booking.from_location}
-            </p>
-            <p className="text-sm break-words whitespace-normal">
-              <strong>To:</strong> {booking.to_location}
-            </p>
-            <p className="text-sm">
-              <strong>Price:</strong> £{booking.price}
-            </p>
-            <div className="mt-3 flex justify-end">
-              <Button size="sm" variant="secondary">
-                View
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ✅ Pagination */}
-      <div className="flex justify-center items-center gap-3 p-4 border-t border-black/10 bg-gray-50">
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+      {/* Mobile Delete Alert Dialog */}
+      {mobileDeleteTarget && (
+        <AlertDialog
+          open={Boolean(mobileDeleteTarget)}
+          onOpenChange={(open) => !open && setMobileDeleteTarget(null)}
         >
-          Previous
-        </Button>
-        <span className="text-sm text-gray-700">
-          Page {currentPage} of {totalPages}
-        </span>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-        >
-          Next
-        </Button>
-      </div>
-    </div>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Delete Booking #{mobileDeleteTarget.id?.substring(0, 4).toUpperCase()}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2">
+                <p>
+                  Are you sure you want to permanently delete this booking for{" "}
+                  <strong>
+                    {mobileDeleteTarget.first_name} {mobileDeleteTarget.last_name}
+                  </strong>
+                  ?
+                </p>
+                <p className="text-red-600 font-medium text-xs">
+                  This action cannot be undone and will delete the job from your database.
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeletingMobile}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleMobileDelete}
+                disabled={isDeletingMobile}
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold"
+              >
+                {isDeletingMobile ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Booking"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </>
   )
 }

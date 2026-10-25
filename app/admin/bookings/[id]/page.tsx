@@ -22,7 +22,7 @@ export default function BookingDetailsPage() {
   date,
   time,
 }: {
-  status: "pending" | "confirmed" | "completed" | "cancelled";
+  status: Booking["status"];
   date: string;
   time: string;
 }) => {
@@ -41,7 +41,7 @@ export default function BookingDetailsPage() {
         const result = await getBookingByID(bookingId);
         console.log('Booking details:', result);
         if (result.error) {
-          throw new Error(result.error)
+          throw new Error(typeof result.error === "string" ? result.error : (result.error as any)?.message || "Failed to fetch booking")
         }
         setBooking(result.data);
       } catch (error) {

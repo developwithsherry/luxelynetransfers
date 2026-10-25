@@ -1,7 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import type { Booking } from "@/types/booking"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   ArrowLeft,
   MapPin,
@@ -18,45 +20,96 @@ import {
   Calendar,
   Route,
   Briefcase,
+  Trash2,
+  Loader2,
+  Building2,
+  Globe,
+  UserCheck,
+  UserPlus,
+  Edit3,
+  MessageSquare,
 } from "lucide-react"
 import { formatDateUK } from "@/lib/format-util"
 import { ChangeBookingStatusDialog } from "./change-booking-status-dialog"
+import { AssignDriverDialog } from "./assign-driver-dialog"
+import { EditBookingDialog } from "./edit-booking-dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { capitalizeFirstLetter } from "@/lib/capatilze-firstletter"
+import { deleteBooking } from "@/app/admin/bookings/action"
+import { toast } from "sonner"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface Props {
   booking: Booking
-  onBookingStatusChange: (status: "pending" | "confirmed" | "completed" | "cancelled") => void
+  onBookingStatusChange: (data: {
+    status: Booking["status"]
+    date: string
+    time: string
+    payment_status?: string
+  }) => void
 }
 
-export function BookingDetailsTable({ booking, onBookingStatusChange }: Props) {
-  const { no_laguage, no_passengers, no_hand_laguage } = booking
+export function BookingDetailsTable({ booking: initialBooking, onBookingStatusChange }: Props) {
+  const router = useRouter()
+  const [booking, setBooking] = useState<Booking>(initialBooking)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getJobStatusBadge = (status?: string | null) => {
+    switch ((status || "").toLowerCase()) {
       case "confirmed":
-        return "bg-lime-500 text-white border-lime-500"
-      case "cancelled":
-        return "bg-black text-white border-black"
-      case "pending":
-        return "bg-lime-400 text-black border-lime-400"
+        return "bg-lime-500 text-white"
+      case "covered":
+        return "bg-blue-600 text-white"
+      case "pob":
+        return "bg-amber-500 text-white"
       case "completed":
-        return "bg-lime-600 text-white border-lime-600"
+        return "bg-emerald-600 text-white"
+      case "complaint":
+        return "bg-rose-600 text-white"
+      case "cancelled":
+        return "bg-gray-800 text-white"
+      case "pending":
       default:
-        return "bg-white text-black border-black"
+        return "bg-lime-400 text-slate-950"
     }
   }
 
-  const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-lime-500 text-white border-lime-500"
+  const getPaymentStatusBadge = (status?: string | null) => {
+    switch ((status || "pending").toLowerCase()) {
+      case "paid":
+        return "bg-emerald-50 text-emerald-700 border-emerald-300"
+      case "paid_to_driver":
+        return "bg-purple-50 text-purple-700 border-purple-300"
       case "pending":
-        return "bg-lime-400 text-black border-lime-400"
       default:
-        return "bg-black text-white border-black"
+        return "bg-amber-50 text-amber-700 border-amber-300"
     }
+  }
+
+  const formatStatus = (status?: string | null) => {
+    if (!status) return "Pending"
+    if (status.toLowerCase() === "pob") return "POB"
+    return status.charAt(0).toUpperCase() + status.slice(1)
+  }
+
+  const formatPaymentStatus = (status?: string | null) => {
+    if (!status) return "Pending"
+    if (status === "paid_to_driver") return "Paid to Driver"
+    return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
   // Parse stops if they exist
@@ -65,35 +118,351 @@ export function BookingDetailsTable({ booking, onBookingStatusChange }: Props) {
     stops = booking.stops.locations
   }
 
+  const handleDelete = async () => {
+    if (!booking.id) return
+    try {
+      setIsDeleting(true)
+      const res = await deleteBooking(booking.id)
+      if (!res.success) {
+        throw new Error(res.error || "Failed to delete booking")
+      }
+      toast.success("Booking deleted successfully")
+      setDeleteDialogOpen(false)
+      router.replace("/admin/bookings")
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete booking")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const isWebsite = booking.source === "website" || (!booking.supplier_id && booking.type !== "offline")
+
+  const handleStatusChangeInternal = (data: {
+    status: Booking["status"]
+    date: string
+    time: string
+    payment_status?: string
+  }) => {
+    setBooking((prev) => ({
+      ...prev,
+      status: data.status,
+      date: data.date,
+      time: data.time,
+      payment_status: data.payment_status || prev.payment_status,
+    }))
+    onBookingStatusChange(data)
+  }
+
   return (
     <div className="space-y-8 p-6 bg-white min-h-screen">
       {/* Header Section */}
-      <div className="flex items-center justify-between border-b border-lime-200 pb-6">
-        <div className="flex items-center space-x-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-lime-200 pb-6 gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <Link
             href="/admin/bookings"
-            className="flex items-center justify-center w-12 h-12 rounded-xl bg-lime-50 hover:bg-lime-100 transition-all duration-200 border border-lime-200"
+            className="flex items-center justify-center w-11 h-11 rounded-xl bg-lime-50 hover:bg-lime-100 transition-all duration-200 border border-lime-200"
           >
             <ArrowLeft className="h-5 w-5 text-lime-700" />
           </Link>
-          <div className="flex items-center space-x-4">
-            <h1 className=" font-bold text-xl text-black tracking-tight">#{booking.id?.slice(0, 5)}</h1>
-            <Badge
-              variant="outline"
-              className={`px-4 py-2 text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}
-            >
-              {booking?.status?.toUpperCase()}
-            </Badge>
-            {booking.with_return && (
-              <Badge variant="outline" className="bg-lime-50 text-lime-700 border-lime-300 px-4 py-2 rounded-full">
-                <Route className="w-4 h-4 mr-2" />
-                RETURN TRIP
-              </Badge>
-            )}
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="font-bold text-2xl text-black tracking-tight">#{booking.id?.slice(0, 5).toUpperCase()}</h1>
+              <span
+                className={`px-3 py-1 text-xs font-bold rounded-full ${getJobStatusBadge(booking.status)}`}
+              >
+                {formatStatus(booking.status)}
+              </span>
+              <span
+                className={`px-3 py-1 text-xs font-bold rounded-full border ${getPaymentStatusBadge(booking.payment_status)}`}
+              >
+                {formatPaymentStatus(booking.payment_status)}
+              </span>
+              {booking.with_return && (
+                <span className="bg-lime-100 text-lime-800 border border-lime-300 px-3 py-1 text-xs font-bold rounded-full inline-flex items-center gap-1">
+                  <Route className="w-3.5 h-3.5" />
+                  Return Trip
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Created: {booking.created_at ? formatDateUK(booking.created_at) : "N/A"} • Source:{" "}
+              {isWebsite ? "Website" : booking.supplier?.name || "Offline Direct"}
+            </p>
           </div>
         </div>
-        <ChangeBookingStatusDialog bookingId={booking.id} booking={booking} onStatusChange={onBookingStatusChange} />
+
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-start md:justify-end">
+          <Button
+            variant="outline"
+            onClick={() => setEditDialogOpen(true)}
+            className="border-gray-300 hover:bg-gray-100 text-xs font-semibold h-9"
+          >
+            <Edit3 className="w-3.5 h-3.5 mr-1 text-gray-600" />
+            Edit Booking
+          </Button>
+
+          <Button
+            onClick={() => setAssignDialogOpen(true)}
+            className="bg-lime-400 hover:bg-lime-500 text-slate-950 text-xs font-semibold h-9"
+          >
+            {booking.driver ? (
+              <>
+                <UserCheck className="w-3.5 h-3.5 mr-1" />
+                Change Driver
+              </>
+            ) : (
+              <>
+                <UserPlus className="w-3.5 h-3.5 mr-1" />
+                Assign Driver
+              </>
+            )}
+          </Button>
+
+          <ChangeBookingStatusDialog
+            bookingId={booking.id}
+            booking={booking}
+            onStatusChange={handleStatusChangeInternal}
+          />
+
+          <Button
+            variant="outline"
+            onClick={() => setDeleteDialogOpen(true)}
+            disabled={isDeleting}
+            className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 text-xs font-semibold h-9"
+          >
+            {isDeleting ? (
+              <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+            ) : (
+              <Trash2 className="w-3.5 h-3.5 mr-1" />
+            )}
+            Delete
+          </Button>
+        </div>
       </div>
+
+      {/* Top Cards Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* Source / Supplier Card */}
+        <Card className="border-purple-200 shadow-sm bg-purple-50/20">
+          <CardHeader className="pb-3 bg-purple-50/70 rounded-t-lg">
+            <CardTitle className="flex items-center justify-between text-sm font-bold text-purple-950">
+              <span className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-purple-600" />
+                Supplier & Source
+              </span>
+              <button
+                type="button"
+                onClick={() => setEditDialogOpen(true)}
+                className="text-xs text-purple-700 hover:underline font-normal"
+              >
+                Edit
+              </button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 space-y-2 text-xs">
+            {isWebsite ? (
+              <div className="flex items-center gap-2 p-2.5 bg-blue-50 text-blue-900 rounded-lg border border-blue-200">
+                <Globe className="w-4 h-4 text-blue-600 shrink-0" />
+                <div>
+                  <p className="font-bold">Website</p>
+                  <p className="text-[11px] text-blue-700">Online customer booking</p>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className="font-bold text-gray-900 text-sm">
+                  {booking.supplier?.name || "Direct Offline"}
+                </p>
+                {booking.supplier?.support_email && (
+                  <p className="text-gray-500 text-[11px]">{booking.supplier.support_email}</p>
+                )}
+                {booking.supplier_reference && (
+                  <p className="text-purple-800 font-mono mt-1 font-semibold">
+                    Ref: {booking.supplier_reference}
+                  </p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Assigned Driver Card */}
+        <Card className="border-emerald-200 shadow-sm bg-emerald-50/20">
+          <CardHeader className="pb-3 bg-emerald-50/70 rounded-t-lg">
+            <CardTitle className="flex items-center justify-between text-sm font-bold text-emerald-950">
+              <span className="flex items-center gap-2">
+                <UserCheck className="h-4 w-4 text-emerald-600" />
+                Assigned Driver
+              </span>
+              <button
+                type="button"
+                onClick={() => setAssignDialogOpen(true)}
+                className="text-xs text-emerald-700 hover:underline font-normal"
+              >
+                {booking.driver ? "Change" : "Assign"}
+              </button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 text-xs">
+            {booking.driver ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2.5">
+                  {booking.driver.photo_url ? (
+                    <img
+                      src={booking.driver.photo_url}
+                      alt={booking.driver.name}
+                      className="w-9 h-9 rounded-full object-cover border"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-emerald-200 text-emerald-800 font-bold flex items-center justify-center text-xs">
+                      {booking.driver.name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 truncate">{booking.driver.name}</p>
+                    <p className="text-gray-500 text-[11px]">{booking.driver.phone}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1 border-t border-emerald-100">
+                  <span className="font-semibold text-emerald-900">
+                    Pay: £{Number(booking.driver_price || 0).toFixed(2)}
+                  </span>
+                  <a
+                    href={`https://wa.me/${booking.driver.phone.replace(/[^0-9]/g, "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200 px-2 py-0.5 rounded transition"
+                  >
+                    <MessageSquare className="w-3 h-3 text-emerald-600" />
+                    WhatsApp
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-2 space-y-1">
+                <p className="text-gray-400">No driver assigned</p>
+                <Button
+                  size="sm"
+                  onClick={() => setAssignDialogOpen(true)}
+                  className="bg-lime-400 hover:bg-lime-500 text-black text-xs font-semibold h-7"
+                >
+                  <UserPlus className="w-3 h-3 mr-1" />
+                  Assign Now
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Flight Information Card */}
+        <Card className="border-sky-200 shadow-sm bg-sky-50/20">
+          <CardHeader className="pb-3 bg-sky-50/70 rounded-t-lg">
+            <CardTitle className="flex items-center justify-between text-sm font-bold text-sky-950">
+              <span className="flex items-center gap-2">
+                <Plane className="h-4 w-4 text-sky-600" />
+                Flight Details
+              </span>
+              <button
+                type="button"
+                onClick={() => setEditDialogOpen(true)}
+                className="text-xs text-sky-700 hover:underline font-normal"
+              >
+                Edit
+              </button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 text-xs space-y-1.5">
+            {booking.flight_no || booking.arriving_from ? (
+              <>
+                {booking.flight_no && (
+                  <div>
+                    <span className="text-gray-400 text-[10px] block">Flight #</span>
+                    <span className="font-bold text-gray-900 text-sm">{booking.flight_no}</span>
+                  </div>
+                )}
+                {booking.arriving_from && (
+                  <div>
+                    <span className="text-gray-400 text-[10px] block">Arriving From</span>
+                    <span className="font-medium text-gray-800">{booking.arriving_from}</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-2 text-gray-400">
+                <p>No flight details</p>
+                <button
+                  type="button"
+                  onClick={() => setEditDialogOpen(true)}
+                  className="text-sky-700 hover:underline text-[11px]"
+                >
+                  + Add Flight #
+                </button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Financial Summary */}
+        <Card className="border-lime-200 shadow-sm bg-lime-50/20">
+          <CardHeader className="pb-3 bg-lime-50/70 rounded-t-lg">
+            <CardTitle className="text-sm font-bold text-lime-950 flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-lime-600" />
+              Price & Margin
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 text-xs space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Customer Total:</span>
+              <span className="font-bold text-black text-sm">
+                £{Number(booking.final_amount || booking.total_amount || 0).toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-gray-600">
+              <span>Driver Pay:</span>
+              <span className="font-semibold text-emerald-700">
+                £{Number(booking.driver_price || 0).toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center pt-1 border-t border-lime-200">
+              <span className="font-semibold text-gray-900">Profit:</span>
+              <span className="font-bold text-lime-800 text-sm">
+                £{(
+                  Number(booking.final_amount || booking.total_amount || 0) -
+                  Number(booking.driver_price || 0)
+                ).toFixed(2)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Driver Instructions Banner (if any) */}
+      {(booking.driver_instructions || booking.intructions) && (
+        <Card className="border-amber-200 bg-amber-50/40 shadow-sm">
+          <CardHeader className="pb-2 bg-amber-50/70 rounded-t-lg">
+            <CardTitle className="text-sm font-bold text-amber-950 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-amber-600" />
+                Driver Instructions
+              </span>
+              <button
+                type="button"
+                onClick={() => setEditDialogOpen(true)}
+                className="text-xs text-amber-800 hover:underline font-normal"
+              >
+                Edit
+              </button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <p className="text-sm text-amber-950 leading-relaxed font-medium">
+              {booking.driver_instructions || booking.intructions}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-8 lg:grid-cols-3">
         {/* Customer Information */}
@@ -359,8 +728,8 @@ export function BookingDetailsTable({ booking, onBookingStatusChange }: Props) {
                   </div>
                 )}
                 <div>
-                  <p className="font-bold text-white text-xl">{booking.vehicle.name}</p>
-                  <p className="text-lime-400 font-medium">{capitalizeFirstLetter(booking.vehicle.type)}</p>
+                  <p className="font-bold text-white text-xl">{booking.vehicle?.name || "Vehicle"}</p>
+                  <p className="text-lime-400 font-medium">{capitalizeFirstLetter(booking.vehicle?.type || "")}</p>
                 </div>
               </div>
             </CardContent>
@@ -390,9 +759,9 @@ export function BookingDetailsTable({ booking, onBookingStatusChange }: Props) {
               <span className="text-lg font-bold text-black">Payment Status</span>
               <Badge
                 variant="outline"
-                className={`px-4 py-2 text-sm font-bold rounded-full ${getPaymentStatusColor(booking.payment_status || "pending")}`}
+                className={`px-4 py-2 text-sm font-bold rounded-full ${getPaymentStatusBadge(booking.payment_status || "pending")}`}
               >
-                {(booking.payment_status || "pending").toUpperCase()}
+                {formatPaymentStatus(booking.payment_status)}
               </Badge>
             </div>
           </CardContent>
@@ -417,6 +786,68 @@ export function BookingDetailsTable({ booking, onBookingStatusChange }: Props) {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Alert Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold text-gray-900">
+              Delete Booking #{booking.id?.slice(0, 5)}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2 text-sm text-gray-600">
+              <p>
+                Are you sure you want to permanently delete this booking for{" "}
+                <strong>
+                  {booking.first_name} {booking.last_name}
+                </strong>
+                ?
+              </p>
+              <p className="text-red-600 font-medium">
+                This will delete this job and any associated add-ons from your database. This action
+                cannot be undone.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete Booking"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Assign Driver Dialog */}
+      <AssignDriverDialog
+        open={assignDialogOpen}
+        setOpen={setAssignDialogOpen}
+        booking={booking}
+        onSuccess={() => {
+          router.refresh()
+        }}
+      />
+
+      {/* Edit Booking Dialog */}
+      <EditBookingDialog
+        open={editDialogOpen}
+        setOpen={setEditDialogOpen}
+        booking={booking}
+        onUpdated={(updated) => {
+          setBooking(updated)
+          router.refresh()
+        }}
+      />
     </div>
   )
 }

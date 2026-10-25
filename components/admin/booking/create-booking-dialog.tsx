@@ -13,12 +13,13 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, Clock, Plus, X, MapPin, Loader2 } from "lucide-react"
+import { CalendarIcon, Clock, Plus, X, MapPin, Loader2, Building2, Plane, FileText } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { formatDateUK } from "@/lib/format-util"
@@ -27,6 +28,10 @@ import type { Booking } from "@/types/booking"
 import type { Vehicle } from "@/types/vehicle"
 
 import { getActiveVehicles } from "@/app/select-vehicle/action"
+import { getSuppliers } from "@/app/admin/suppliers/action"
+import { createBooking } from "@/lib/create-booking"
+import type { Supplier } from "@/types/supplier"
+
 interface CreateBookingDialogProps {
   onBookingCreated: (booking: Booking) => void
   trigger?: React.ReactNode
@@ -43,11 +48,19 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
 
   // Form state
   const [formData, setFormData] = useState({
+    // Supplier Information
+    supplierId: "",
+    supplierReference: "",
+
     // Customer information
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
+
+    // Flight Information
+    flightNo: "",
+    arrivingFrom: "",
 
     // Journey details
     pickupLocation: "",
@@ -65,6 +78,9 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
     totalDistance: "",
     totalAmount: "",
 
+    // Driver Instructions
+    driverInstructions: "",
+
     // Booking details
     status: "confirmed" as const,
     paymentStatus: "pending" as const,
@@ -72,13 +88,26 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [vehiclesLoading, setVehiclesLoading] = useState(false)
+  const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [stops, setStops] = useState<string[]>([])
 
   useEffect(() => {
     if (open) {
       loadVehicles()
+      loadSuppliers()
     }
   }, [open])
+
+  const loadSuppliers = async () => {
+    try {
+      const res = await getSuppliers()
+      if (res.data) {
+        setSuppliers(res.data)
+      }
+    } catch (err) {
+      console.error("Failed to load suppliers:", err)
+    }
+  }
 
   const loadVehicles = async () => {
     setVehiclesLoading(true)
@@ -130,10 +159,14 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
 
   const resetForm = () => {
     setFormData({
+      supplierId: "",
+      supplierReference: "",
       firstName: "",
       lastName: "",
       email: "",
       phone: "",
+      flightNo: "",
+      arrivingFrom: "",
       pickupLocation: "",
       dropOffLocation: "",
       date: new Date(),
@@ -144,6 +177,7 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
       vehicleId: "",
       totalDistance: "",
       totalAmount: "",
+      driverInstructions: "",
       status: "confirmed",
       paymentStatus: "pending",
     })
@@ -179,11 +213,20 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
     try {
       // Prepare booking data
       const bookingData: Partial<Booking> = {
+        // Supplier details
+        supplier_id: formData.supplierId && formData.supplierId !== "none" ? formData.supplierId : null,
+        supplier_reference: formData.supplierReference || null,
+        source: "offline",
+
         // Customer information
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
         phone: formData.phone,
+
+        // Flight details
+        flight_no: formData.flightNo || null,
+        arriving_from: formData.arrivingFrom || null,
 
         // Journey details
         pickup_location: formData.pickupLocation,
@@ -200,14 +243,16 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
         stops:
           stops.filter((stop) => stop.trim()).length > 0 ? { locations: stops.filter((stop) => stop.trim()) } : null,
 
+        // Driver instructions
+        driver_instructions: formData.driverInstructions || null,
+
         // Vehicle and pricing
         vehicle_id: formData.vehicleId,
         total_distance: formData.totalDistance ? Number.parseFloat(formData.totalDistance) : null,
         unit: "miles",
         total_amount: Number.parseFloat(formData.totalAmount),
 
-        // Booking metadata - Note: status will be overridden to "pending" in the server function
-        type: "offline", // Set type to offline for manual bookings
+        type: "offline",
       }
 
       // Call server action to create booking
@@ -224,11 +269,17 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
           drop_off_location: formData.dropOffLocation,
           date: format(formData.date, "yyyy-MM-dd"),
           time: formData.time,
+          supplier_id: formData.supplierId && formData.supplierId !== "none" ? formData.supplierId : undefined,
+          supplier_reference: formData.supplierReference || undefined,
+          source: "offline",
+          flight_no: formData.flightNo || undefined,
+          arriving_from: formData.arrivingFrom || undefined,
+          driver_instructions: formData.driverInstructions || undefined,
           stops:
             stops.filter((stop) => stop.trim()).length > 0 ? { locations: stops.filter((stop) => stop.trim()) } : null,
           total_distance: formData.totalDistance ? Number.parseFloat(formData.totalDistance) : null,
           unit: "miles",
-          status: "pending", // Server function sets this to pending
+          status: "confirmed",
           total_amount: Number.parseFloat(formData.totalAmount),
           vehicle_id: formData.vehicleId,
           first_name: formData.firstName,
@@ -245,10 +296,6 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
           vehicle: vehicles.find((v) => v.id.toString() === formData.vehicleId) || ({} as Vehicle),
         }
 
-        
-
-       
-        toast.success("Booking created successfully")
         onBookingCreated(createdBooking)
         resetForm()
         setOpen(false)
@@ -309,6 +356,46 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Supplier Section (Optional) */}
+          <div className="p-4 rounded-xl border border-purple-200 bg-purple-50/40 space-y-3">
+            <div className="flex items-center gap-2 text-purple-900 font-semibold text-sm">
+              <Building2 className="w-4 h-4 text-purple-600" />
+              <span>Supplier & Source (Optional)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="supplierId" className="text-xs font-medium">Select Supplier</Label>
+                <Select
+                  value={formData.supplierId || "none"}
+                  onValueChange={(val) => handleInputChange("supplierId", val === "none" ? "" : val)}
+                >
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="Select supplier (or leave direct)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Direct Offline Booking (No Supplier)</SelectItem>
+                    {suppliers.map((sup) => (
+                      <SelectItem key={sup.id} value={sup.id!}>
+                        {sup.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="supplierReference" className="text-xs font-medium">Supplier Reference # (Optional)</Label>
+                <Input
+                  id="supplierReference"
+                  value={formData.supplierReference}
+                  onChange={(e) => handleInputChange("supplierReference", e.target.value)}
+                  placeholder="e.g. SUP-48201"
+                  className="bg-white"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Customer Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Customer Information</h3>
@@ -588,6 +675,52 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
                 />
               </div>
             </div>
+          </div>
+
+          {/* Flight Details (Optional) */}
+          <div className="p-4 rounded-xl border border-sky-200 bg-sky-50/40 space-y-3">
+            <div className="flex items-center gap-2 text-sky-950 font-semibold text-sm">
+              <Plane className="w-4 h-4 text-sky-600" />
+              <span>Flight Details (Optional)</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="flightNo" className="text-xs font-medium">Flight Number</Label>
+                <Input
+                  id="flightNo"
+                  value={formData.flightNo}
+                  onChange={(e) => handleInputChange("flightNo", e.target.value)}
+                  placeholder="e.g. BA 117"
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="arrivingFrom" className="text-xs font-medium">Arriving From</Label>
+                <Input
+                  id="arrivingFrom"
+                  value={formData.arrivingFrom}
+                  onChange={(e) => handleInputChange("arrivingFrom", e.target.value)}
+                  placeholder="e.g. New York JFK"
+                  className="bg-white"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Driver Instructions (Optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="driverInstructions" className="text-sm font-semibold flex items-center gap-1.5">
+              <FileText className="w-4 h-4 text-gray-500" />
+              Driver Instructions (Optional)
+            </Label>
+            <Textarea
+              id="driverInstructions"
+              rows={2}
+              value={formData.driverInstructions}
+              onChange={(e) => handleInputChange("driverInstructions", e.target.value)}
+              placeholder="e.g. Meet passenger with nameboard inside arrivals. Assist with luggage."
+            />
           </div>
 
           {/* Form Actions */}
