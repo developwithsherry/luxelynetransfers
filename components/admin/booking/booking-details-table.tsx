@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { Booking } from "@/types/booking"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -28,6 +28,7 @@ import {
   UserPlus,
   Edit3,
   MessageSquare,
+  Send,
 } from "lucide-react"
 import { formatDateUK } from "@/lib/format-util"
 import { ChangeBookingStatusDialog } from "./change-booking-status-dialog"
@@ -67,6 +68,116 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
   const [assignDialogOpen, setAssignDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    setBooking(initialBooking)
+  }, [initialBooking])
+
+  const buildDriverWhatsAppMessage = () => {
+    const blocks: string[] = ["*Journey Details*"]
+
+    const refNo = booking.id ? `#${booking.id.slice(0, 5).toUpperCase()}` : ""
+    if (refNo) {
+      blocks.push(`Reference No: ${refNo}`)
+    }
+
+    const formattedDate = booking.date ? formatDateUK(booking.date) : ""
+    const formattedTime = booking.time ? booking.time.trim() : ""
+    const dateTimeStr = [formattedDate, formattedTime].filter(Boolean).join(" ")
+    if (dateTimeStr) {
+      blocks.push(`Date/Time: ${dateTimeStr}`)
+    }
+
+    if (booking.pickup_location?.trim()) {
+      blocks.push(`Pickup: ${booking.pickup_location.trim()}`)
+    }
+
+    if (booking.drop_off_location?.trim()) {
+      blocks.push(`Drop off: ${booking.drop_off_location.trim()}`)
+    }
+
+    const countsLines: string[] = []
+    if (booking.no_passengers != null && Number(booking.no_passengers) > 0) {
+      countsLines.push(`No of Passengers: ${booking.no_passengers}`)
+    }
+    if (booking.no_laguage != null && Number(booking.no_laguage) > 0) {
+      countsLines.push(`No of Luggages: ${booking.no_laguage}`)
+    }
+    if (booking.no_hand_laguage != null && Number(booking.no_hand_laguage) > 0) {
+      countsLines.push(`No of Handbags: ${booking.no_hand_laguage}`)
+    }
+    if (countsLines.length > 0) {
+      blocks.push(countsLines.join("\n"))
+    }
+
+    const passengerName = `${booking.first_name || ""} ${booking.last_name || ""}`.trim()
+    const passengerLines: string[] = []
+    if (passengerName) {
+      passengerLines.push(`Passenger Name:\n${passengerName}`)
+    }
+    if (booking.phone?.trim()) {
+      passengerLines.push(`Mobile:\n${booking.phone.trim()}`)
+    }
+    if (passengerLines.length > 0) {
+      blocks.push(passengerLines.join("\n"))
+    }
+
+    const flightLines: string[] = []
+    if (booking.flight_no?.trim()) {
+      flightLines.push(`Flight No: ${booking.flight_no.trim()}`)
+    }
+    if (booking.arriving_from?.trim()) {
+      flightLines.push(`Arriving From: ${booking.arriving_from.trim()}`)
+    }
+    if (flightLines.length > 0) {
+      blocks.push(flightLines.join("\n"))
+    }
+
+    if (booking.driver_price != null && Number(booking.driver_price) > 0) {
+      blocks.push(`Fare:\n£${Number(booking.driver_price).toFixed(2)} Net`)
+    }
+
+    if (blocks.length > 1 && blocks[1].startsWith("Reference No:")) {
+      const header = `${blocks[0]}\n${blocks[1]}`
+      return [header, ...blocks.slice(2)].join("\n\n")
+    }
+    return blocks.join("\n\n")
+  }
+
+  const handlePushToDriver = async () => {
+    const message = buildDriverWhatsAppMessage()
+
+    try {
+      await navigator.clipboard.writeText(message)
+    } catch {
+      const textarea = document.createElement("textarea")
+      textarea.value = message
+      textarea.style.position = "fixed"
+      textarea.style.opacity = "0"
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand("copy")
+      document.body.removeChild(textarea)
+    }
+
+    const driverPhone = booking.driver?.phone?.trim()
+    if (!driverPhone) {
+      toast.info("Journey details copied! Please assign a driver with a phone number to open WhatsApp.")
+      return
+    }
+
+    const cleanPhone = driverPhone.replace(/[^0-9]/g, "")
+    const formattedPhone = cleanPhone.startsWith("0") ? `44${cleanPhone.slice(1)}` : cleanPhone
+
+    if (!formattedPhone) {
+      toast.info("Journey details copied! Driver phone number is invalid for WhatsApp.")
+      return
+    }
+
+    toast.success(`Message copied & opening WhatsApp for ${booking.driver?.name || "Driver"}`)
+    const waUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`
+    window.open(waUrl, "_blank", "noopener,noreferrer")
+  }
 
   const getJobStatusBadge = (status?: string | null) => {
     switch ((status || "").toLowerCase()) {
@@ -167,7 +278,12 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="font-bold text-2xl text-black tracking-tight">#{booking.id?.slice(0, 5).toUpperCase()}</h1>
+              <div className="flex items-baseline gap-2">
+                <h1 className="font-bold text-2xl text-black tracking-tight">#{booking.id?.slice(0, 5).toUpperCase()}</h1>
+                <span className="text-[10px] font-semibold text-lime-800 bg-lime-100 px-2 py-0.5 rounded-full border border-lime-300">
+                  System Reference
+                </span>
+              </div>
               <span
                 className={`px-3 py-1 text-xs font-bold rounded-full ${getJobStatusBadge(booking.status)}`}
               >
@@ -193,6 +309,15 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
         </div>
 
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-start md:justify-end">
+          <Button
+            type="button"
+            onClick={handlePushToDriver}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold h-9 shadow-xs"
+          >
+            <Send className="w-3.5 h-3.5 mr-1.5" />
+            Push to Driver
+          </Button>
+
           <Button
             variant="outline"
             onClick={() => setEditDialogOpen(true)}
@@ -270,18 +395,28 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
                 </div>
               </div>
             ) : (
-              <div>
-                <p className="font-bold text-gray-900 text-sm">
-                  {booking.supplier?.name || "Direct Offline"}
-                </p>
-                {booking.supplier?.support_email && (
-                  <p className="text-gray-500 text-[11px]">{booking.supplier.support_email}</p>
-                )}
-                {booking.supplier_reference && (
-                  <p className="text-purple-800 font-mono mt-1 font-semibold">
-                    Ref: {booking.supplier_reference}
+              <div className="space-y-2">
+                <div>
+                  <p className="font-bold text-gray-900 text-sm">
+                    {booking.supplier?.name || "Direct Offline"}
                   </p>
-                )}
+                  {booking.supplier?.support_email && (
+                    <p className="text-gray-500 text-[11px]">{booking.supplier.support_email}</p>
+                  )}
+                  {booking.supplier?.phone && (
+                    <p className="text-gray-500 text-[11px]">{booking.supplier.phone}</p>
+                  )}
+                </div>
+                <div className="pt-2 border-t border-purple-100 flex items-center justify-between">
+                  <span className="text-[11px] font-medium text-gray-600">Supplier Reference:</span>
+                  {booking.supplier_reference ? (
+                    <span className="text-xs text-purple-900 font-mono font-bold bg-purple-100 px-2 py-0.5 rounded border border-purple-200">
+                      {booking.supplier_reference}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-gray-400 italic">None</span>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>
@@ -329,15 +464,14 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
                   <span className="font-semibold text-emerald-900">
                     Pay: £{Number(booking.driver_price || 0).toFixed(2)}
                   </span>
-                  <a
-                    href={`https://wa.me/${booking.driver.phone.replace(/[^0-9]/g, "")}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200 px-2 py-0.5 rounded transition"
+                  <button
+                    type="button"
+                    onClick={handlePushToDriver}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200 px-2 py-0.5 rounded transition cursor-pointer"
                   >
                     <MessageSquare className="w-3 h-3 text-emerald-600" />
                     WhatsApp
-                  </a>
+                  </button>
                 </div>
               </div>
             ) : (

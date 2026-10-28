@@ -78,7 +78,7 @@ export default function BookingsFilters({
           <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by ID, customer, route, flight #, driver..."
+            placeholder="Search by ref #, customer, route, stops, flight, driver, vehicle, notes..."
             value={filters.search}
             onChange={(e) => onFiltersChange({ search: e.target.value })}
             className="w-full pl-9 pr-7 py-1.5 text-xs font-medium border border-slate-300 rounded-lg bg-white shadow-2xs focus:outline-none focus:ring-2 focus:ring-lime-500 focus:border-transparent transition"

@@ -5,6 +5,7 @@ import { Driver } from "@/types/driver"
 import { getDrivers } from "@/app/admin/drivers/action"
 import DriversHeader from "./header"
 import DriverCard from "./driver-card"
+import { DriverList } from "./driver-list"
 import DriverDialog from "./driver-dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,8 @@ import {
   Plus,
   Copy,
   Check,
+  LayoutList,
+  LayoutGrid,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -26,13 +29,36 @@ export function DriversClient() {
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<"list" | "cards">("list")
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive" | "expired">("all")
 
   // Dialog State
   const [dialogOpen, setDialogOpen] = useState<boolean>(false)
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [copiedSql, setCopiedSql] = useState<boolean>(false)
+
+  const isDriverDocExpired = (d: Driver) => {
+    const todayMs = new Date().setHours(0, 0, 0, 0)
+    const expiries = [
+      d.driving_license_expiry,
+      d.phv_license_expiry,
+      d.log_book_expiry,
+      d.insurance_expiry,
+      d.mot_expiry,
+    ]
+    return expiries.some((exp) => {
+      if (!exp) return false
+      const parts = exp.split("-").map(Number)
+      let dt: Date
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        dt = new Date(parts[0], parts[1] - 1, parts[2])
+      } else {
+        dt = new Date(exp)
+      }
+      return !isNaN(dt.getTime()) && dt.setHours(0, 0, 0, 0) < todayMs
+    })
+  }
 
   const fetchDrivers = async () => {
     setLoading(true)
@@ -55,6 +81,25 @@ export function DriversClient() {
   useEffect(() => {
     fetchDrivers()
   }, [])
+
+  // Check URL query parameters for ?edit=<id> or ?filter=expired
+  useEffect(() => {
+    if (typeof window !== "undefined" && drivers.length > 0) {
+      const params = new URLSearchParams(window.location.search)
+      const editId = params.get("edit")
+      const filterParam = params.get("filter")
+      if (editId) {
+        const found = drivers.find((d) => d.id === editId)
+        if (found) {
+          setSelectedDriver(found)
+          setDialogOpen(true)
+        }
+      }
+      if (filterParam === "expired") {
+        setStatusFilter("expired")
+      }
+    }
+  }, [drivers])
 
   const handleAddNew = () => {
     setSelectedDriver(null)
@@ -105,7 +150,8 @@ export function DriversClient() {
       const matchesStatus =
         statusFilter === "all" ||
         (statusFilter === "active" && (d.is_active ?? true)) ||
-        (statusFilter === "inactive" && !(d.is_active ?? true))
+        (statusFilter === "inactive" && !(d.is_active ?? true)) ||
+        (statusFilter === "expired" && isDriverDocExpired(d))
 
       return matchesSearch && matchesStatus
     })
@@ -119,7 +165,8 @@ export function DriversClient() {
     const withVehicle = drivers.filter(
       (d) => Boolean(d.vehicle_model || d.vehicle_reg || (d.vehicle_images && d.vehicle_images.length > 0))
     ).length
-    return { total, active, withLicense, withVehicle }
+    const expiredDocs = drivers.filter((d) => isDriverDocExpired(d)).length
+    return { total, active, withLicense, withVehicle, expiredDocs }
   }, [drivers])
 
   const copySqlInstruction = async () => {
@@ -287,9 +334,89 @@ export function DriversClient() {
             >
               Inactive ({drivers.length - stats.active})
             </button>
+            <button
+              onClick={() => setStatusFilter("expired")}
+              className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 ${
+                statusFilter === "expired"
+                  ? "bg-rose-600 text-white shadow-sm font-bold"
+                  : stats.expiredDocs > 0
+                  ? "text-rose-700 hover:bg-rose-50 font-semibold"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <span>Expired Docs</span>
+              {stats.expiredDocs > 0 && (
+                <span
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                    statusFilter === "expired" ? "bg-white text-rose-700" : "bg-rose-500 text-white animate-pulse"
+                  }`}
+                >
+                  {stats.expiredDocs}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* View Mode Switcher: List (default) vs Cards */}
+          <div className="flex p-1 bg-gray-100 rounded-lg text-xs font-medium border border-gray-200/60 shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                viewMode === "list"
+                  ? "bg-white text-gray-900 shadow-xs font-bold"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+              title="List View"
+            >
+              <LayoutList className="w-3.5 h-3.5 text-lime-700" />
+              <span>List</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("cards")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                viewMode === "cards"
+                  ? "bg-white text-gray-900 shadow-xs font-bold"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+              title="Cards View"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Cards</span>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Driver Compliance Warning Banner */}
+      {stats.expiredDocs > 0 && statusFilter !== "expired" && (
+        <div className="mb-6 p-4 rounded-xl border border-rose-300 bg-rose-50/70 text-rose-950 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-rose-200 text-rose-800 rounded-lg shrink-0">
+              <ShieldCheck className="w-5 h-5 text-rose-700" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-rose-900 flex items-center gap-2">
+                <span>Driver Compliance Notice</span>
+                <span className="text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full bg-rose-200 text-rose-900">
+                  {stats.expiredDocs} Driver{stats.expiredDocs > 1 ? "s" : ""} Expired
+                </span>
+              </h4>
+              <p className="text-xs text-rose-700 mt-0.5">
+                Some driver documents have passed their expiration dates. Please upload renewed certificates and update the expiry dates.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => setStatusFilter("expired")}
+            className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shrink-0 shadow-xs"
+          >
+            Review {stats.expiredDocs} Expired Driver{stats.expiredDocs > 1 ? "s" : ""}
+          </Button>
+        </div>
+      )}
 
       {/* Content Area */}
       {loading ? (
@@ -298,17 +425,26 @@ export function DriversClient() {
           <p className="text-gray-600 text-sm font-medium">Loading drivers...</p>
         </div>
       ) : filteredDrivers.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredDrivers.map((driver) => (
-            <DriverCard
-              key={driver.id}
-              driver={driver}
-              onEdit={handleEdit}
-              onDeleted={handleDeleted}
-              onStatusChange={handleStatusChange}
-            />
-          ))}
-        </div>
+        viewMode === "list" ? (
+          <DriverList
+            drivers={filteredDrivers}
+            onEdit={handleEdit}
+            onDeleted={handleDeleted}
+            onStatusChange={handleStatusChange}
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredDrivers.map((driver) => (
+              <DriverCard
+                key={driver.id}
+                driver={driver}
+                onEdit={handleEdit}
+                onDeleted={handleDeleted}
+                onStatusChange={handleStatusChange}
+              />
+            ))}
+          </div>
+        )
       ) : (
         <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-xl border border-dashed border-gray-300 text-center">
           <div className="w-16 h-16 rounded-full bg-lime-50 text-lime-600 flex items-center justify-center mb-4">

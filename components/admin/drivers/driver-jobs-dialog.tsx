@@ -467,10 +467,10 @@ export function DriverJobsDialog({ open, setOpen, driver }: DriverJobsDialogProp
 
                           <div>
                             <span className="text-gray-400 text-[10px] block">Journey Route</span>
-                            <div className="truncate text-gray-800" title={job.pickup_location}>
+                            <div className="truncate text-gray-800" title={job.pickup_location || undefined}>
                               From: {formatLocation(job.pickup_location)}
                             </div>
-                            <div className="truncate text-gray-600 text-[11px]" title={job.drop_off_location}>
+                            <div className="truncate text-gray-600 text-[11px]" title={job.drop_off_location || undefined}>
                               To: {formatLocation(job.drop_off_location)}
                             </div>
                           </div>

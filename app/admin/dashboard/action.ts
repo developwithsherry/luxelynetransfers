@@ -30,3 +30,13 @@ export async function getVehicles() {
     return { error }
   }
 }
+
+export async function getDriverAlerts() {
+  try {
+    const { getDriverDocumentAlerts } = await import("@/app/admin/drivers/action")
+    return await getDriverDocumentAlerts()
+  } catch (err: any) {
+    console.error("Error fetching driver alerts for dashboard:", err)
+    return { alerts: [], expiredCount: 0, expiringSoonCount: 0, error: err.message }
+  }
+}

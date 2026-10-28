@@ -28,6 +28,7 @@ export interface Booking {
 
   // Vehicle
   vehicle_id?: string | null
+  vehicle_type?: string | null
   vehicle?: Vehicle
 
   // Customer

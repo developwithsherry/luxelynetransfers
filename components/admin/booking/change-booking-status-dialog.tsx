@@ -21,6 +21,9 @@ import { Label } from "@/components/ui/label"
 import { changeBookingStatus } from "@/lib/admin/change-booking-status"
 import { Booking } from "@/types/booking"
 import { Input } from "@/components/ui/input"
+import { format, isValid } from "date-fns"
+import { DatePickerInput } from "./date-picker-input"
+import { TimePickerInput } from "./time-picker-input"
 
 interface ChangeBookingStatusDialogProps {
   booking: Booking;
@@ -60,8 +63,12 @@ export function ChangeBookingStatusDialog({
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const [date, setDate] = useState(booking.date || "");
-  const [time, setTime] = useState(booking.time || "");
+  const [date, setDate] = useState<Date | null>(() => {
+    if (!booking.date) return null
+    const d = new Date(booking.date)
+    return isValid(d) ? d : null
+  });
+  const [time, setTime] = useState(booking.time || "09:00 AM");
 
   const onChangeStatusConfirm = async () => {
     try {
@@ -69,10 +76,12 @@ export function ChangeBookingStatusDialog({
       const targetId = booking.id || bookingId;
       if (!targetId) throw new Error("No booking ID found");
 
+      const dateStr = date && isValid(date) ? format(date, "yyyy-MM-dd") : (booking.date || "");
+
       const response = await changeBookingStatus(
         targetId,
         bookingStatus || "pending",
-        date,
+        dateStr,
         time,
         paymentStatus
       );
@@ -82,7 +91,7 @@ export function ChangeBookingStatusDialog({
       if (onStatusChange) {
         onStatusChange({
           status: (bookingStatus || "pending") as Booking["status"],
-          date,
+          date: dateStr,
           time,
           payment_status: paymentStatus,
         });
@@ -147,15 +156,21 @@ export function ChangeBookingStatusDialog({
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1">
               <Label className="text-xs font-semibold text-slate-700">Date</Label>
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <DatePickerInput
+                value={date}
+                onChange={setDate}
+              />
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-700">Time</Label>
-              <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            <div className="space-y-1">
+              <Label className="text-xs font-semibold text-slate-700">Time (AM/PM)</Label>
+              <TimePickerInput
+                value={time}
+                onChange={setTime}
+              />
             </div>
           </div>
 

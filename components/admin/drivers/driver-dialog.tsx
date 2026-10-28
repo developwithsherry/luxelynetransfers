@@ -26,6 +26,7 @@ import {
   Loader2,
   FileCheck,
   User,
+  Calendar,
 } from "lucide-react"
 import type { Driver } from "@/types/driver"
 import { saveDriver } from "@/app/admin/drivers/action"
@@ -67,6 +68,13 @@ export default function DriverDialog({
   const [motUrl, setMotUrl] = useState<string>("")
   const [vehicleImages, setVehicleImages] = useState<string[]>([])
 
+  // Document expiry dates state (optional)
+  const [drivingLicenseExpiry, setDrivingLicenseExpiry] = useState<string>("")
+  const [phvLicenseExpiry, setPhvLicenseExpiry] = useState<string>("")
+  const [logBookExpiry, setLogBookExpiry] = useState<string>("")
+  const [insuranceExpiry, setInsuranceExpiry] = useState<string>("")
+  const [motExpiry, setMotExpiry] = useState<string>("")
+
   const isEditing = Boolean(driver?.id)
 
   const {
@@ -103,10 +111,15 @@ export default function DriverDialog({
       })
       setPhotoUrl(driver.photo_url || "")
       setDrivingLicenseUrl(driver.driving_license_url || "")
+      setDrivingLicenseExpiry(driver.driving_license_expiry || "")
       setPhvLicenseUrl(driver.phv_license_url || "")
+      setPhvLicenseExpiry(driver.phv_license_expiry || "")
       setLogBookUrl(driver.log_book_url || "")
+      setLogBookExpiry(driver.log_book_expiry || "")
       setInsuranceUrl(driver.insurance_url || "")
+      setInsuranceExpiry(driver.insurance_expiry || "")
       setMotUrl(driver.mot_url || "")
+      setMotExpiry(driver.mot_expiry || "")
       setVehicleImages(Array.isArray(driver.vehicle_images) ? driver.vehicle_images : [])
     } else {
       reset({
@@ -120,10 +133,15 @@ export default function DriverDialog({
       })
       setPhotoUrl("")
       setDrivingLicenseUrl("")
+      setDrivingLicenseExpiry("")
       setPhvLicenseUrl("")
+      setPhvLicenseExpiry("")
       setLogBookUrl("")
+      setLogBookExpiry("")
       setInsuranceUrl("")
+      setInsuranceExpiry("")
       setMotUrl("")
+      setMotExpiry("")
       setVehicleImages([])
     }
     setActiveTab("profile")
@@ -139,13 +157,18 @@ export default function DriverDialog({
         area_operates: values.area_operates || null,
         photo_url: photoUrl || null,
         driving_license_url: drivingLicenseUrl || null,
+        driving_license_expiry: drivingLicenseExpiry || null,
         phv_license_url: phvLicenseUrl || null,
+        phv_license_expiry: phvLicenseExpiry || null,
         vehicle_model: values.vehicle_model || null,
         vehicle_reg: values.vehicle_reg || null,
         vehicle_images: vehicleImages,
         log_book_url: logBookUrl || null,
+        log_book_expiry: logBookExpiry || null,
         insurance_url: insuranceUrl || null,
+        insurance_expiry: insuranceExpiry || null,
         mot_url: motUrl || null,
+        mot_expiry: motExpiry || null,
         notes: values.notes || null,
         is_active: values.is_active,
       })
@@ -277,22 +300,85 @@ export default function DriverDialog({
               />
 
               {/* Driver Licenses */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                <DriverFileDropzone
-                  label="Driving License"
-                  sublabel="PDF, JPEG or PNG"
-                  value={drivingLicenseUrl}
-                  onChange={setDrivingLicenseUrl}
-                  folder="licenses"
-                />
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    Driver Licenses & Expiry Dates
+                  </p>
+                  <span className="text-[11px] text-gray-400">Expiry dates are optional</span>
+                </div>
 
-                <DriverFileDropzone
-                  label="PHV License (PCO)"
-                  sublabel="PDF, JPEG or PNG"
-                  value={phvLicenseUrl}
-                  onChange={setPhvLicenseUrl}
-                  folder="phv"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* Driving License */}
+                  <div className="p-3 rounded-xl border border-gray-200 bg-gray-50/50 space-y-2">
+                    <DriverFileDropzone
+                      label="Driving License"
+                      sublabel="PDF, JPEG or PNG"
+                      value={drivingLicenseUrl}
+                      onChange={setDrivingLicenseUrl}
+                      folder="licenses"
+                    />
+                    <div className="pt-2 border-t border-gray-200/80">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <Label htmlFor="driving-license-expiry" className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5 text-lime-600" />
+                          License Expiry Date
+                        </Label>
+                        {drivingLicenseExpiry && (
+                          <button
+                            type="button"
+                            onClick={() => setDrivingLicenseExpiry("")}
+                            className="text-[10px] text-gray-400 hover:text-red-500 font-medium"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      <Input
+                        id="driving-license-expiry"
+                        type="date"
+                        value={drivingLicenseExpiry}
+                        onChange={(e) => setDrivingLicenseExpiry(e.target.value)}
+                        className="h-8 text-xs bg-white border-gray-200 focus:border-lime-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* PHV License */}
+                  <div className="p-3 rounded-xl border border-gray-200 bg-gray-50/50 space-y-2">
+                    <DriverFileDropzone
+                      label="PHV License (PCO)"
+                      sublabel="PDF, JPEG or PNG"
+                      value={phvLicenseUrl}
+                      onChange={setPhvLicenseUrl}
+                      folder="phv"
+                    />
+                    <div className="pt-2 border-t border-gray-200/80">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <Label htmlFor="phv-license-expiry" className="text-[11px] font-semibold text-gray-700 flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5 text-lime-600" />
+                          PHV Expiry Date
+                        </Label>
+                        {phvLicenseExpiry && (
+                          <button
+                            type="button"
+                            onClick={() => setPhvLicenseExpiry("")}
+                            className="text-[10px] text-gray-400 hover:text-red-500 font-medium"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      <Input
+                        id="phv-license-expiry"
+                        type="date"
+                        value={phvLicenseExpiry}
+                        onChange={(e) => setPhvLicenseExpiry(e.target.value)}
+                        className="h-8 text-xs bg-white border-gray-200 focus:border-lime-500"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
@@ -344,34 +430,118 @@ export default function DriverDialog({
 
               {/* Log Book, Insurance, MOT */}
               <div className="space-y-3 pt-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                  Compliance & Vehicle Certificates
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    Compliance & Vehicle Certificates
+                  </p>
+                  <span className="text-[11px] text-gray-400">Optional expiry dates</span>
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <DriverFileDropzone
-                    label="Log Book (V5C)"
-                    sublabel="PDF, JPEG or PNG"
-                    value={logBookUrl}
-                    onChange={setLogBookUrl}
-                    folder="logbooks"
-                  />
+                  {/* Log Book */}
+                  <div className="p-3 rounded-xl border border-gray-200 bg-gray-50/50 space-y-2 flex flex-col justify-between">
+                    <DriverFileDropzone
+                      label="Log Book (V5C)"
+                      sublabel="PDF, JPEG or PNG"
+                      value={logBookUrl}
+                      onChange={setLogBookUrl}
+                      folder="logbooks"
+                    />
+                    <div className="pt-2 border-t border-gray-200/80">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <Label htmlFor="log-book-expiry" className="text-[10px] font-semibold text-gray-700 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-lime-600" />
+                          Expiry Date
+                        </Label>
+                        {logBookExpiry && (
+                          <button
+                            type="button"
+                            onClick={() => setLogBookExpiry("")}
+                            className="text-[9px] text-gray-400 hover:text-red-500 font-medium"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      <Input
+                        id="log-book-expiry"
+                        type="date"
+                        value={logBookExpiry}
+                        onChange={(e) => setLogBookExpiry(e.target.value)}
+                        className="h-8 text-xs bg-white border-gray-200 focus:border-lime-500"
+                      />
+                    </div>
+                  </div>
 
-                  <DriverFileDropzone
-                    label="Insurance Certificate"
-                    sublabel="PDF, JPEG or PNG"
-                    value={insuranceUrl}
-                    onChange={setInsuranceUrl}
-                    folder="insurance"
-                  />
+                  {/* Insurance */}
+                  <div className="p-3 rounded-xl border border-gray-200 bg-gray-50/50 space-y-2 flex flex-col justify-between">
+                    <DriverFileDropzone
+                      label="Insurance Certificate"
+                      sublabel="PDF, JPEG or PNG"
+                      value={insuranceUrl}
+                      onChange={setInsuranceUrl}
+                      folder="insurance"
+                    />
+                    <div className="pt-2 border-t border-gray-200/80">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <Label htmlFor="insurance-expiry" className="text-[10px] font-semibold text-gray-700 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-lime-600" />
+                          Insurance Expiry
+                        </Label>
+                        {insuranceExpiry && (
+                          <button
+                            type="button"
+                            onClick={() => setInsuranceExpiry("")}
+                            className="text-[9px] text-gray-400 hover:text-red-500 font-medium"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      <Input
+                        id="insurance-expiry"
+                        type="date"
+                        value={insuranceExpiry}
+                        onChange={(e) => setInsuranceExpiry(e.target.value)}
+                        className="h-8 text-xs bg-white border-gray-200 focus:border-lime-500"
+                      />
+                    </div>
+                  </div>
 
-                  <DriverFileDropzone
-                    label="MOT Certificate"
-                    sublabel="PDF, JPEG or PNG"
-                    value={motUrl}
-                    onChange={setMotUrl}
-                    folder="mot"
-                  />
+                  {/* MOT */}
+                  <div className="p-3 rounded-xl border border-gray-200 bg-gray-50/50 space-y-2 flex flex-col justify-between">
+                    <DriverFileDropzone
+                      label="MOT Certificate"
+                      sublabel="PDF, JPEG or PNG"
+                      value={motUrl}
+                      onChange={setMotUrl}
+                      folder="mot"
+                    />
+                    <div className="pt-2 border-t border-gray-200/80">
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <Label htmlFor="mot-expiry" className="text-[10px] font-semibold text-gray-700 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-lime-600" />
+                          MOT Expiry
+                        </Label>
+                        {motExpiry && (
+                          <button
+                            type="button"
+                            onClick={() => setMotExpiry("")}
+                            className="text-[9px] text-gray-400 hover:text-red-500 font-medium"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      <Input
+                        id="mot-expiry"
+                        type="date"
+                        value={motExpiry}
+                        onChange={(e) => setMotExpiry(e.target.value)}
+                        className="h-8 text-xs bg-white border-gray-200 focus:border-lime-500"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </TabsContent>

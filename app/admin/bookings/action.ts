@@ -3,6 +3,7 @@
 import { Booking } from "@/types/booking"
 import { createClient } from "@/util/supabase/server"
 import { revalidatePath } from "next/cache"
+import { getHardcodedVehicle } from "@/lib/fleet-categories"
 
 export async function getPendingBooking(): Promise<{ success: boolean; data?: Booking[]; error?: string }> {
     try {
@@ -29,14 +30,16 @@ export async function getPendingBooking(): Promise<{ success: boolean; data?: Bo
             throw new Error(error.message);
         }
 
-        // 2. Fetch suppliers and drivers in parallel to safely enrich without strict join dependencies
-        const [suppliersRes, driversRes] = await Promise.all([
+        // 2. Fetch suppliers, drivers, and vehicles in parallel to safely enrich bookings
+        const [suppliersRes, driversRes, vehiclesRes] = await Promise.all([
             supabase.from("suppliers").select("id, name, support_email, phone"),
             supabase.from("drivers").select("id, name, phone, photo_url, area_operates"),
+            supabase.from("vehicle").select("id, name, type, sittingCapacity, laguageCapacity, imageUrl"),
         ]);
 
         const suppliersMap = new Map((suppliersRes.data || []).map((s: any) => [s.id, s]));
         const driversMap = new Map((driversRes.data || []).map((d: any) => [d.id, d]));
+        const vehiclesMap = new Map((vehiclesRes.data || []).map((v: any) => [String(v.id), v]));
 
         const enriched = (bookingsData || []).map((b: any) => {
             const addons = b.booking_addons?.map((ba: any) => ba.add_on) || [];
@@ -44,6 +47,10 @@ export async function getPendingBooking(): Promise<{ success: boolean; data?: Bo
 
             const supplier = b.supplier_id ? suppliersMap.get(b.supplier_id) || null : null;
             const driver = b.driver_id ? driversMap.get(b.driver_id) || null : null;
+            const vehicle =
+                b.vehicle ||
+                (b.vehicle_id ? vehiclesMap.get(String(b.vehicle_id)) || null : null) ||
+                (b.vehicle_type ? getHardcodedVehicle(b.vehicle_type) : null);
 
             return {
                 ...b,
@@ -52,6 +59,7 @@ export async function getPendingBooking(): Promise<{ success: boolean; data?: Bo
                 source: b.source || (b.type === "offline" || b.supplier_id ? "offline" : "website"),
                 supplier,
                 driver,
+                vehicle,
             } as Booking;
         });
 

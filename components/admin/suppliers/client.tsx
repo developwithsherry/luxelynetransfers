@@ -5,6 +5,7 @@ import { Supplier } from "@/types/supplier"
 import { getSuppliers } from "@/app/admin/suppliers/action"
 import SuppliersHeader from "./header"
 import SupplierCard from "./supplier-card"
+import { SupplierList } from "./supplier-list"
 import SupplierDialog from "./supplier-dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,8 @@ import {
   Plus,
   Copy,
   Check,
+  LayoutList,
+  LayoutGrid,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -28,6 +31,7 @@ export function SuppliersClient() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<"list" | "cards">("list")
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all")
 
@@ -286,6 +290,36 @@ export function SuppliersClient() {
               Inactive ({suppliers.length - stats.active})
             </button>
           </div>
+
+          {/* View Mode Switcher: List (default) vs Cards */}
+          <div className="flex p-1 bg-gray-100 rounded-lg text-xs font-medium border border-gray-200/60 shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                viewMode === "list"
+                  ? "bg-white text-gray-900 shadow-xs font-bold"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+              title="List View"
+            >
+              <LayoutList className="w-3.5 h-3.5 text-purple-700" />
+              <span>List</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("cards")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all ${
+                viewMode === "cards"
+                  ? "bg-white text-gray-900 shadow-xs font-bold"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+              title="Cards View"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Cards</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -296,17 +330,26 @@ export function SuppliersClient() {
           <p className="text-gray-600 text-sm font-medium">Loading suppliers...</p>
         </div>
       ) : filteredSuppliers.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredSuppliers.map((supplier) => (
-            <SupplierCard
-              key={supplier.id}
-              supplier={supplier}
-              onEdit={handleEdit}
-              onDeleted={handleDeleted}
-              onStatusChange={handleStatusChange}
-            />
-          ))}
-        </div>
+        viewMode === "list" ? (
+          <SupplierList
+            suppliers={filteredSuppliers}
+            onEdit={handleEdit}
+            onDeleted={handleDeleted}
+            onStatusChange={handleStatusChange}
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredSuppliers.map((supplier) => (
+              <SupplierCard
+                key={supplier.id}
+                supplier={supplier}
+                onEdit={handleEdit}
+                onDeleted={handleDeleted}
+                onStatusChange={handleStatusChange}
+              />
+            ))}
+          </div>
+        )
       ) : (
         <div className="flex flex-col items-center justify-center py-16 px-4 bg-white rounded-xl border border-dashed border-gray-300 text-center">
           <div className="w-16 h-16 rounded-full bg-lime-50 text-lime-600 flex items-center justify-center mb-4">

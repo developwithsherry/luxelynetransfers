@@ -24,8 +24,18 @@ export function formatDuration(seconds: number): string {
 
 // Format date in UK format (DD Month YYYY)
 export function formatDateUK(dateInput: string | Date): string {
-  const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput
-  return format(date, "dd MMMM yyyy")
+  if (typeof dateInput === "string") {
+    const trimmed = dateInput.trim()
+    const ymdMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/)
+    if (ymdMatch) {
+      const y = Number(ymdMatch[1])
+      const m = Number(ymdMatch[2])
+      const d = Number(ymdMatch[3])
+      return format(new Date(y, m - 1, d), "dd MMMM yyyy")
+    }
+    return format(new Date(trimmed), "dd MMMM yyyy")
+  }
+  return format(dateInput, "dd MMMM yyyy")
 }
 
 // Format complete journey details

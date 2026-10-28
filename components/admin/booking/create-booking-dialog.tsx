@@ -19,27 +19,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, Clock, Plus, X, MapPin, Loader2, Building2, Plane, FileText } from "lucide-react"
+import { CalendarIcon, Clock, Plus, X, MapPin, Loader2, Building2, Plane, FileText, Users, Luggage, Briefcase } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { formatDateUK } from "@/lib/format-util"
 import { toast } from "sonner"
 import type { Booking } from "@/types/booking"
 import type { Vehicle } from "@/types/vehicle"
-
-import { getActiveVehicles } from "@/app/select-vehicle/action"
+import { HARDCODED_FLEET_CATEGORIES, getHardcodedVehicle } from "@/lib/fleet-categories"
 import { getSuppliers } from "@/app/admin/suppliers/action"
 import { createBooking } from "@/lib/create-booking"
 import type { Supplier } from "@/types/supplier"
+import { DatePickerInput } from "./date-picker-input"
+import { TimePickerInput } from "./time-picker-input"
 
 interface CreateBookingDialogProps {
   onBookingCreated: (booking: Booking) => void
   trigger?: React.ReactNode
-}
-
-type TimeOption = {
-  value: string
-  label: string
 }
 
 export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBookingDialogProps) {
@@ -58,6 +54,11 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
     email: "",
     phone: "",
 
+    // Passengers & Luggage (optional)
+    noPassengers: "1",
+    noLaguage: "0",
+    noHandLaguage: "0",
+
     // Flight Information
     flightNo: "",
     arrivingFrom: "",
@@ -66,15 +67,15 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
     pickupLocation: "",
     dropOffLocation: "",
     date: new Date(),
-    time: "09:00",
+    time: "09:00 AM",
 
     // Return trip
     withReturn: false,
     returnDate: new Date(),
-    returnTime: "17:00",
+    returnTime: "05:00 PM",
 
-    // Vehicle and pricing
-    vehicleId: "",
+    // Vehicle and pricing (Hardcoded offline categories: Saloon, Estate, MPV, Minibus, Executive Saloon, Executive Minibus)
+    vehicleCategory: "Saloon",
     totalDistance: "",
     totalAmount: "",
 
@@ -86,14 +87,11 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
     paymentStatus: "pending" as const,
   })
 
-  const [vehicles, setVehicles] = useState<Vehicle[]>([])
-  const [vehiclesLoading, setVehiclesLoading] = useState(false)
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [stops, setStops] = useState<string[]>([])
 
   useEffect(() => {
     if (open) {
-      loadVehicles()
       loadSuppliers()
     }
   }, [open])
@@ -106,35 +104,6 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
       }
     } catch (err) {
       console.error("Failed to load suppliers:", err)
-    }
-  }
-
-  const loadVehicles = async () => {
-    setVehiclesLoading(true)
-    try {
-      const result = await getActiveVehicles()
-      if (result.success && result.data) {
-        setVehicles(result.data)
-      } else {
-        toast.error(`Failed to load vehicles: ${result.error}`)
-      }
-    } catch (error) {
-      console.error("Error loading vehicles:", error)
-      toast.error("Failed to load vehicles")
-    } finally {
-      setVehiclesLoading(false)
-    }
-  }
-
-  // Generate time options in 15-minute intervals
-  const timeOptions: TimeOption[] = []
-  for (let hour = 0; hour < 24; hour++) {
-    for (let minute = 0; minute < 60; minute += 15) {
-      const hourStr = hour.toString().padStart(2, "0")
-      const minuteStr = minute.toString().padStart(2, "0")
-      const value = `${hourStr}:${minuteStr}`
-      const label = `${hourStr}:${minuteStr}`
-      timeOptions.push({ value, label })
     }
   }
 
@@ -165,16 +134,19 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
       lastName: "",
       email: "",
       phone: "",
+      noPassengers: "1",
+      noLaguage: "0",
+      noHandLaguage: "0",
       flightNo: "",
       arrivingFrom: "",
       pickupLocation: "",
       dropOffLocation: "",
       date: new Date(),
-      time: "09:00",
+      time: "09:00 AM",
       withReturn: false,
       returnDate: new Date(),
-      returnTime: "17:00",
-      vehicleId: "",
+      returnTime: "05:00 PM",
+      vehicleCategory: "Saloon",
       totalDistance: "",
       totalAmount: "",
       driverInstructions: "",
@@ -187,9 +159,9 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Basic validation
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
-      toast.error("Please fill in all customer information fields")
+    // Basic validation: Only lead customer/passenger name and journey details are required
+    if (!formData.firstName.trim()) {
+      toast.error("Please enter customer name or passenger lead name")
       return
     }
 
@@ -198,8 +170,8 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
       return
     }
 
-    if (!formData.vehicleId) {
-      toast.error("Please select a vehicle")
+    if (!formData.vehicleCategory) {
+      toast.error("Please select a vehicle category")
       return
     }
 
@@ -215,14 +187,19 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
       const bookingData: Partial<Booking> = {
         // Supplier details
         supplier_id: formData.supplierId && formData.supplierId !== "none" ? formData.supplierId : null,
-        supplier_reference: formData.supplierReference || null,
+        supplier_reference: formData.supplierReference ? formData.supplierReference.trim() : null,
         source: "offline",
 
-        // Customer information
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
+        // Customer information (email and phone are optional)
+        first_name: formData.firstName.trim(),
+        last_name: formData.lastName.trim() || null,
+        email: formData.email.trim() || null,
+        phone: formData.phone.trim() || null,
+
+        // Passengers & Luggage (optional)
+        no_passengers: formData.noPassengers ? Number.parseInt(formData.noPassengers) : 1,
+        no_laguage: formData.noLaguage ? Number.parseInt(formData.noLaguage) : 0,
+        no_hand_laguage: formData.noHandLaguage ? Number.parseInt(formData.noHandLaguage) : 0,
 
         // Flight details
         flight_no: formData.flightNo || null,
@@ -247,7 +224,8 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
         driver_instructions: formData.driverInstructions || null,
 
         // Vehicle and pricing
-        vehicle_id: formData.vehicleId,
+        vehicle_type: formData.vehicleCategory,
+        vehicle_id: null,
         total_distance: formData.totalDistance ? Number.parseFloat(formData.totalDistance) : null,
         unit: "miles",
         total_amount: Number.parseFloat(formData.totalAmount),
@@ -259,18 +237,20 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
       const result = await createBooking(bookingData)
 
       if (result.success && result.data) {
-        toast.success("Booking created successfully!")
+        const createdId = result.data.id || result.data.booking_id || ""
+        const systemRef = createdId ? `#${createdId.slice(0, 5).toUpperCase()}` : ""
+        toast.success(`Booking created successfully! ${systemRef ? `Reference: ${systemRef}` : ""}`)
 
-        // Create a mock booking object for the callback
+        // Create a booking object for the callback
         const createdBooking: Booking = {
-          id: result.data.booking_id,
+          id: createdId,
           created_at: new Date().toISOString(),
           pickup_location: formData.pickupLocation,
           drop_off_location: formData.dropOffLocation,
           date: format(formData.date, "yyyy-MM-dd"),
           time: formData.time,
           supplier_id: formData.supplierId && formData.supplierId !== "none" ? formData.supplierId : undefined,
-          supplier_reference: formData.supplierReference || undefined,
+          supplier_reference: formData.supplierReference ? formData.supplierReference.trim() : undefined,
           source: "offline",
           flight_no: formData.flightNo || undefined,
           arriving_from: formData.arrivingFrom || undefined,
@@ -281,11 +261,15 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
           unit: "miles",
           status: "confirmed",
           total_amount: Number.parseFloat(formData.totalAmount),
-          vehicle_id: formData.vehicleId,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          phone: formData.phone,
-          email: formData.email,
+          vehicle_id: null,
+          vehicle_type: formData.vehicleCategory,
+          first_name: formData.firstName.trim(),
+          last_name: formData.lastName.trim() || undefined,
+          phone: formData.phone.trim() || undefined,
+          email: formData.email.trim() || undefined,
+          no_passengers: formData.noPassengers ? Number.parseInt(formData.noPassengers) : 1,
+          no_laguage: formData.noLaguage ? Number.parseInt(formData.noLaguage) : 0,
+          no_hand_laguage: formData.noHandLaguage ? Number.parseInt(formData.noHandLaguage) : 0,
           payment_id: null,
           payment_status: "pending",
           with_return: formData.withReturn,
@@ -293,7 +277,7 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
           return_time: formData.withReturn ? formData.returnTime : null,
           type: "offline",
           payments: [],
-          vehicle: vehicles.find((v) => v.id.toString() === formData.vehicleId) || ({} as Vehicle),
+          vehicle: getHardcodedVehicle(formData.vehicleCategory) || ({} as Vehicle),
         }
 
         onBookingCreated(createdBooking)
@@ -308,32 +292,6 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  // Show loading state while vehicles are being fetched
-  if (vehiclesLoading && open) {
-    return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          {trigger || (
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Offline Booking
-            </Button>
-          )}
-        </DialogTrigger>
-
-        <DialogContent className="max-w-md">
-          <div className="flex flex-col items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Loading Vehicles</h3>
-            <p className="text-sm text-muted-foreground text-center">
-              Please wait while we fetch the available vehicles...
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    )
   }
 
   return (
@@ -392,16 +350,22 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
                   placeholder="e.g. SUP-48201"
                   className="bg-white"
                 />
+                <p className="text-[10px] text-purple-700">
+                  Our system reference will always be assigned by default. The supplier reference will be saved inside the job.
+                </p>
               </div>
             </div>
           </div>
 
           {/* Customer Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Customer Information</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Customer Information</h3>
+              <span className="text-xs text-gray-500">Contact details optional for supplier jobs</span>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name *</Label>
+                <Label htmlFor="firstName">First Name / Lead Name *</Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
@@ -411,38 +375,95 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name *</Label>
+                <Label htmlFor="lastName">Last Name (Optional)</Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
                   onChange={(e) => handleInputChange("lastName", e.target.value)}
                   placeholder="Doe"
-                  required
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="email">Email (Optional)</Label>
                 <Input
                   id="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
-                  placeholder="john.doe@example.com"
-                  required
+                  placeholder="john.doe@example.com (optional)"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
+                <Label htmlFor="phone">Phone Number (Optional)</Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
-                  placeholder="+44 7123 456789"
-                  required
+                  placeholder="+44 7123 456789 (optional)"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Passengers & Luggage (Optional) */}
+          <div className="p-4 rounded-xl border border-lime-200 bg-lime-50/40 space-y-3">
+            <div className="flex items-center gap-2 text-lime-950 font-semibold text-sm">
+              <Users className="w-4 h-4 text-lime-700" />
+              <span>Passengers & Luggage Details (Optional)</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="noPassengers" className="text-xs font-medium flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-slate-500" />
+                  Passengers
+                </Label>
+                <Input
+                  id="noPassengers"
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={formData.noPassengers}
+                  onChange={(e) => handleInputChange("noPassengers", e.target.value)}
+                  placeholder="1"
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="noLaguage" className="text-xs font-medium flex items-center gap-1.5">
+                  <Luggage className="w-3.5 h-3.5 text-slate-500" />
+                  Luggage / Suitcases
+                </Label>
+                <Input
+                  id="noLaguage"
+                  type="number"
+                  min="0"
+                  max="50"
+                  value={formData.noLaguage}
+                  onChange={(e) => handleInputChange("noLaguage", e.target.value)}
+                  placeholder="0"
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="noHandLaguage" className="text-xs font-medium flex items-center gap-1.5">
+                  <Briefcase className="w-3.5 h-3.5 text-slate-500" />
+                  Hand Luggage
+                </Label>
+                <Input
+                  id="noHandLaguage"
+                  type="number"
+                  min="0"
+                  max="50"
+                  value={formData.noHandLaguage}
+                  onChange={(e) => handleInputChange("noHandLaguage", e.target.value)}
+                  placeholder="0"
+                  className="bg-white"
                 />
               </div>
             </div>
@@ -487,52 +508,25 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Date *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !formData.date && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.date ? formatDateUK(format(formData.date, "yyyy-MM-dd")) : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={formData.date}
-                      onSelect={(date) => date && handleInputChange("date", date)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="pickupDate">Date *</Label>
+                <DatePickerInput
+                  id="pickupDate"
+                  value={formData.date}
+                  onChange={(date) => handleInputChange("date", date)}
+                  required
+                />
               </div>
 
-              <div className="space-y-2">
-                <Label>Time *</Label>
-                <Select value={formData.time} onValueChange={(value) => handleInputChange("time", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select time">
-                      <div className="flex items-center">
-                        <Clock className="mr-2 h-4 w-4" />
-                        {formData.time}
-                      </div>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
-                    {timeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-1">
+                <Label htmlFor="pickupTime">Time (AM/PM) *</Label>
+                <TimePickerInput
+                  id="pickupTime"
+                  value={formData.time}
+                  onChange={(time) => handleInputChange("time", time)}
+                  required
+                />
               </div>
             </div>
           </div>
@@ -542,56 +536,25 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
             <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
               <h3 className="text-lg font-semibold">Return Journey</h3>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Return Date *</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !formData.returnDate && "text-muted-foreground",
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.returnDate ? (
-                          formatDateUK(format(formData.returnDate, "yyyy-MM-dd"))
-                        ) : (
-                          <span>Pick return date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={formData.returnDate}
-                        onSelect={(date) => date && handleInputChange("returnDate", date)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="returnDate">Return Date *</Label>
+                  <DatePickerInput
+                    id="returnDate"
+                    value={formData.returnDate}
+                    onChange={(date) => handleInputChange("returnDate", date)}
+                    required
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Return Time *</Label>
-                  <Select value={formData.returnTime} onValueChange={(value) => handleInputChange("returnTime", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select return time">
-                        <div className="flex items-center">
-                          <Clock className="mr-2 h-4 w-4" />
-                          {formData.returnTime}
-                        </div>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[200px]">
-                      {timeOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="space-y-1">
+                  <Label htmlFor="returnTime">Return Time (AM/PM) *</Label>
+                  <TimePickerInput
+                    id="returnTime"
+                    value={formData.returnTime}
+                    onChange={(time) => handleInputChange("returnTime", time)}
+                    required
+                  />
                 </div>
               </div>
             </div>
@@ -629,23 +592,20 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="vehicleId">Vehicle *</Label>
-                <Select value={formData.vehicleId} onValueChange={(value) => handleInputChange("vehicleId", value)}>
-                  <SelectTrigger>
+                <Label htmlFor="vehicleCategory">Vehicle *</Label>
+                <Select
+                  value={formData.vehicleCategory}
+                  onValueChange={(value) => handleInputChange("vehicleCategory", value)}
+                >
+                  <SelectTrigger id="vehicleCategory">
                     <SelectValue placeholder="Select vehicle" />
                   </SelectTrigger>
                   <SelectContent>
-                    {vehicles.length === 0 ? (
-                      <SelectItem value="" disabled>
-                        No vehicles available
+                    {HARDCODED_FLEET_CATEGORIES.map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
                       </SelectItem>
-                    ) : (
-                      vehicles.map((vehicle) => (
-                        <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                          {vehicle.name} - {vehicle.type}
-                        </SelectItem>
-                      ))
-                    )}
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

@@ -2,6 +2,7 @@ import { useState, useMemo } from "react"
 import Link from "next/link"
 import { Loader2, Trash2 } from "lucide-react"
 import BookingRow from "./booking-row"
+import { QuickStatusPopover } from "./quick-status-popover"
 import { Button } from "@/components/ui/button"
 import { deleteBooking } from "@/app/admin/bookings/action"
 import { toast } from "sonner"
@@ -63,7 +64,7 @@ export default function BookingsTable({
         throw new Error(res.error || "Failed to delete booking")
       }
       toast.success(
-        `Booking #${mobileDeleteTarget.id.substring(0, 4).toUpperCase()} deleted successfully`
+        `Booking #${mobileDeleteTarget.id.slice(0, 5).toUpperCase()} deleted successfully`
       )
       setMobileDeleteTarget(null)
       if (onBookingDeleted) {
@@ -191,7 +192,7 @@ export default function BookingsTable({
         <div className="block md:hidden p-4 space-y-4">
           {paginatedBookings.map((booking) => {
             const customer = `${booking.first_name || ""} ${booking.last_name || ""}`.trim() || booking.customer_name || "N/A"
-            const bookingCode = booking.id ? booking.id.substring(0, 4).toUpperCase() : "N/A"
+            const bookingCode = booking.id ? booking.id.slice(0, 5).toUpperCase() : "N/A"
             const isWebsite = booking.source === "website" || (!booking.supplier_id && booking.type !== "offline")
             return (
               <div key={booking.id} className="border border-black/10 rounded-lg p-4 shadow-sm bg-white space-y-2">
@@ -212,9 +213,15 @@ export default function BookingsTable({
                       </span>
                     )}
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-medium capitalize">
-                    {booking.status}
-                  </span>
+                  <QuickStatusPopover
+                    booking={booking}
+                    showPaymentBadge={true}
+                    onSuccess={() => {
+                      if (onBookingDeleted) {
+                        onBookingDeleted("")
+                      }
+                    }}
+                  />
                 </div>
                 <p className="text-sm">
                   <strong>Customer:</strong> {customer}

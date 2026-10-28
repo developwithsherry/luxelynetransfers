@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/util/supabase/server"
+import { getHardcodedVehicle } from "@/lib/fleet-categories"
 
 export async function getBookingByID(id: string) {
   try {
@@ -42,12 +43,16 @@ export async function getBookingByID(id: string) {
       driver = d || null
     }
 
+    // Resolve vehicle: live vehicle relation or hardcoded offline category
+    const vehicle = data.vehicle || (data.vehicle_type ? getHardcodedVehicle(data.vehicle_type) : null)
+
     // Compute final_amount including add-ons
     const addons = data?.booking_addons?.map((ba: any) => ba.add_on) || []
     const addonsTotal = addons.reduce((sum: number, a: any) => sum + (a?.price || 0), 0)
 
     const bookingWithTotal = {
       ...data,
+      vehicle,
       addons,
       final_amount: (data?.total_amount || 0) + addonsTotal,
       source: data.source || (data.type === "offline" || data.supplier_id ? "offline" : "website"),

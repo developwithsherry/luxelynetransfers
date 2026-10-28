@@ -177,10 +177,10 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
                   </span>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-gray-300 mt-1">
-                  {supplier.email && (
+                  {supplier.support_email && (
                     <span className="flex items-center gap-1">
                       <Mail className="w-3.5 h-3.5 text-purple-300" />
-                      {supplier.email}
+                      {supplier.support_email}
                     </span>
                   )}
                   {supplier.username && (
@@ -376,10 +376,10 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
 
                           <div>
                             <span className="text-gray-400 text-[10px] block">Journey Route</span>
-                            <div className="truncate text-gray-800" title={job.pickup_location}>
+                            <div className="truncate text-gray-800" title={job.pickup_location || undefined}>
                               From: {formatLocation(job.pickup_location)}
                             </div>
-                            <div className="truncate text-gray-600 text-[11px]" title={job.drop_off_location}>
+                            <div className="truncate text-gray-600 text-[11px]" title={job.drop_off_location || undefined}>
                               To: {formatLocation(job.drop_off_location)}
                             </div>
                           </div>

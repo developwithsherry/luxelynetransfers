@@ -94,6 +94,28 @@ export function AssignDriverDialog({
     return drivers.find((d) => d.id === selectedDriverId) || null
   }, [drivers, selectedDriverId])
 
+  const isDriverExpired = (d: Driver) => {
+    const todayMs = new Date().setHours(0, 0, 0, 0)
+    const expiries = [
+      d.driving_license_expiry,
+      d.phv_license_expiry,
+      d.log_book_expiry,
+      d.insurance_expiry,
+      d.mot_expiry,
+    ]
+    return expiries.some((exp) => {
+      if (!exp) return false
+      const parts = exp.split("-").map(Number)
+      let dt: Date
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        dt = new Date(parts[0], parts[1] - 1, parts[2])
+      } else {
+        dt = new Date(exp)
+      }
+      return !isNaN(dt.getTime()) && dt.setHours(0, 0, 0, 0) < todayMs
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!booking?.id) return
@@ -233,7 +255,12 @@ export function AssignDriverDialog({
                         </div>
                       </div>
 
-                      <div className="text-right shrink-0">
+                      <div className="text-right shrink-0 flex items-center gap-1.5">
+                        {isDriverExpired(d) && (
+                          <span className="text-[10px] bg-rose-100 text-rose-800 border border-rose-300 font-bold px-1.5 py-0.5 rounded">
+                            ⚠️ Expired Doc
+                          </span>
+                        )}
                         {d.area_operates && (
                           <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border">
                             {d.area_operates}

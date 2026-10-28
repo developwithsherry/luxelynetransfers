@@ -18,6 +18,8 @@ import {
   ExternalLink,
   FileCheck,
   Image as ImageIcon,
+  AlertTriangle,
+  Clock,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -119,8 +121,41 @@ export default function DriverCard({
   const formattedPhone = cleanPhone.startsWith("0") ? `44${cleanPhone.slice(1)}` : cleanPhone
   const whatsappUrl = formattedPhone ? `https://wa.me/${formattedPhone}` : null
 
-  // Document helper
-  const renderDocBadge = (title: string, url?: string | null) => {
+  // Check if driver has any expired documents
+  const hasExpiredDoc = Boolean(
+    (driver.driving_license_expiry && new Date(driver.driving_license_expiry).setHours(0,0,0,0) < new Date().setHours(0,0,0,0)) ||
+    (driver.phv_license_expiry && new Date(driver.phv_license_expiry).setHours(0,0,0,0) < new Date().setHours(0,0,0,0)) ||
+    (driver.log_book_expiry && new Date(driver.log_book_expiry).setHours(0,0,0,0) < new Date().setHours(0,0,0,0)) ||
+    (driver.insurance_expiry && new Date(driver.insurance_expiry).setHours(0,0,0,0) < new Date().setHours(0,0,0,0)) ||
+    (driver.mot_expiry && new Date(driver.mot_expiry).setHours(0,0,0,0) < new Date().setHours(0,0,0,0))
+  )
+
+  // Document helper with expiration checks
+  const renderDocBadge = (title: string, url?: string | null, expiryDate?: string | null) => {
+    let isExpired = false
+    let isExpiringSoon = false
+    let formattedDate = ""
+
+    if (expiryDate) {
+      const parts = expiryDate.split("-").map(Number)
+      let d: Date
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        d = new Date(parts[0], parts[1] - 1, parts[2])
+      } else {
+        d = new Date(expiryDate)
+      }
+
+      if (!isNaN(d.getTime())) {
+        d.setHours(0, 0, 0, 0)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const diffDays = Math.round((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        isExpired = diffDays < 0
+        isExpiringSoon = diffDays >= 0 && diffDays <= 30
+        formattedDate = d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "2-digit" })
+      }
+    }
+
     if (!url) {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] bg-gray-100 text-gray-400 border border-gray-200">
@@ -130,16 +165,48 @@ export default function DriverCard({
       )
     }
 
+    if (isExpired) {
+      return (
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-300 font-bold transition-colors shadow-2xs"
+          title={`${title} EXPIRED on ${formattedDate}. Click to view.`}
+        >
+          <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
+          <span>{title}: Expired ({formattedDate})</span>
+          <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+        </a>
+      )
+    }
+
+    if (isExpiringSoon) {
+      return (
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-300 font-semibold transition-colors shadow-2xs"
+          title={`${title} expires soon on ${formattedDate}. Click to view.`}
+        >
+          <Clock className="w-3 h-3 text-amber-600 shrink-0" />
+          <span>{title}: Exp {formattedDate}</span>
+          <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+        </a>
+      )
+    }
+
     return (
       <a
         href={url}
         target="_blank"
         rel="noreferrer"
         className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] bg-lime-50 text-lime-800 hover:bg-lime-100 border border-lime-300 font-medium transition-colors"
-        title={`View ${title}`}
+        title={formattedDate ? `${title} valid until ${formattedDate}` : `View ${title}`}
       >
         <FileCheck className="w-3 h-3 text-lime-700" />
-        <span>{title}</span>
+        <span>{title}{formattedDate ? `: Exp ${formattedDate}` : ""}</span>
         <ExternalLink className="w-2.5 h-2.5 opacity-60" />
       </a>
     )
@@ -172,20 +239,28 @@ export default function DriverCard({
                 <h3 className="font-bold text-gray-900 text-lg leading-tight truncate group-hover:text-lime-700 transition-colors">
                   {driver.name}
                 </h3>
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
-                    isActive
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-gray-100 text-gray-600 border border-gray-200"
-                  }`}
-                >
+                <div className="flex flex-wrap items-center gap-1.5 mt-1">
                   <span
-                    className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                      isActive ? "bg-emerald-500" : "bg-gray-400"
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      isActive
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-gray-100 text-gray-600 border border-gray-200"
                     }`}
-                  />
-                  {isActive ? "Active Driver" : "Inactive"}
-                </span>
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                        isActive ? "bg-emerald-500" : "bg-gray-400"
+                      }`}
+                    />
+                    {isActive ? "Active Driver" : "Inactive"}
+                  </span>
+                  {hasExpiredDoc && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300">
+                      <AlertTriangle className="w-2.5 h-2.5 text-rose-600" />
+                      Doc Expired
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -317,11 +392,11 @@ export default function DriverCard({
               Documents & Compliance
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {renderDocBadge("Driving License", driver.driving_license_url)}
-              {renderDocBadge("PHV License", driver.phv_license_url)}
-              {renderDocBadge("Log Book", driver.log_book_url)}
-              {renderDocBadge("Insurance", driver.insurance_url)}
-              {renderDocBadge("MOT", driver.mot_url)}
+              {renderDocBadge("Driving License", driver.driving_license_url, driver.driving_license_expiry)}
+              {renderDocBadge("PHV License", driver.phv_license_url, driver.phv_license_expiry)}
+              {renderDocBadge("Log Book", driver.log_book_url, driver.log_book_expiry)}
+              {renderDocBadge("Insurance", driver.insurance_url, driver.insurance_expiry)}
+              {renderDocBadge("MOT", driver.mot_url, driver.mot_expiry)}
             </div>
           </div>
 

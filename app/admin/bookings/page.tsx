@@ -74,31 +74,108 @@ export default function BookingsPage() {
 
     let filtered = [...pendingBookings]
 
-    // 1. Search Query (ID, customer name, email, phone, location, flight, supplier ref)
+    // 1. Comprehensive Search Query: matches against all data inside the job page
     if (filters.search.trim()) {
-      const query = filters.search.toLowerCase().trim()
-      filtered = filtered.filter((b) => {
-        const customerName = `${b.first_name || ""} ${b.last_name || ""}`.toLowerCase()
-        const bookingId = (b.id || "").toLowerCase()
-        const phone = (b.phone || "").toLowerCase()
-        const email = (b.email || "").toLowerCase()
-        const pickup = (b.pickup_location || "").toLowerCase()
-        const dropoff = (b.drop_off_location || "").toLowerCase()
-        const supplierRef = (b.supplier_reference || "").toLowerCase()
-        const flight = (b.flight_no || "").toLowerCase()
-        const driverName = (b.driver?.name || "").toLowerCase()
+      const rawQuery = filters.search.toLowerCase().trim()
+      const terms = rawQuery.split(/\s+/).filter(Boolean)
 
-        return (
-          customerName.includes(query) ||
-          bookingId.includes(query) ||
-          phone.includes(query) ||
-          email.includes(query) ||
-          pickup.includes(query) ||
-          dropoff.includes(query) ||
-          supplierRef.includes(query) ||
-          flight.includes(query) ||
-          driverName.includes(query)
-        )
+      filtered = filtered.filter((b) => {
+        // Stops (locations array or object)
+        let stopsText = ""
+        if (b.stops) {
+          if (Array.isArray(b.stops)) {
+            stopsText = b.stops.join(" ")
+          } else if (Array.isArray((b.stops as any).locations)) {
+            stopsText = (b.stops as any).locations.join(" ")
+          } else if (typeof b.stops === "object") {
+            stopsText = Object.values(b.stops)
+              .filter((v) => typeof v === "string")
+              .join(" ")
+          } else if (typeof b.stops === "string") {
+            stopsText = b.stops
+          }
+        }
+
+        // Add-ons
+        const addonsText = (b.addons || []).map((a) => a.name || "").join(" ")
+
+        // Amounts
+        const totalAmt = b.total_amount != null ? String(b.total_amount) : ""
+        const finalAmt = b.final_amount != null ? String(b.final_amount) : ""
+        const driverPrice = b.driver_price != null ? String(b.driver_price) : ""
+
+        // Formatted booking reference (e.g. 5-character ID)
+        const shortId = b.id ? b.id.slice(0, 5) : ""
+        const shortId4 = b.id ? b.id.substring(0, 4) : ""
+
+        const searchableFields = [
+          // System reference and IDs
+          b.id || "",
+          shortId ? `#${shortId}` : "",
+          shortId,
+          shortId4 ? `#${shortId4}` : "",
+          shortId4,
+
+          // Supplier reference & supplier details
+          b.supplier_reference || "",
+          b.supplier?.name || "",
+          b.supplier?.support_email || "",
+          b.supplier?.phone || "",
+          b.source || "",
+
+          // Customer details
+          b.first_name || "",
+          b.last_name || "",
+          `${b.first_name || ""} ${b.last_name || ""}`,
+          b.email || "",
+          b.phone || "",
+          b.no_passengers ? `${b.no_passengers} passengers` : "",
+          b.no_laguage ? `${b.no_laguage} luggage` : "",
+          b.no_hand_laguage ? `${b.no_hand_laguage} hand luggage` : "",
+
+          // Journey & Route
+          b.pickup_location || "",
+          b.drop_off_location || "",
+          stopsText,
+          b.date || "",
+          b.time || "",
+          b.return_date || "",
+          b.return_time || "",
+          b.with_return ? "return return trip" : "",
+          b.total_distance ? `${b.total_distance} miles` : "",
+
+          // Flight Details & Instructions
+          b.flight_no || "",
+          b.arriving_from || "",
+          b.intructions || "",
+          b.driver_instructions || "",
+
+          // Assigned Driver
+          b.driver?.name || "",
+          b.driver?.phone || "",
+          b.driver?.area_operates || "",
+          driverPrice ? `£${driverPrice} ${driverPrice}` : "",
+
+          // Vehicle Information
+          b.vehicle?.name || "",
+          b.vehicle?.type || "",
+          b.vehicle_id || "",
+
+          // Addons
+          addonsText,
+
+          // Status & Payment Status
+          b.status || "",
+          b.payment_status || "",
+          b.payment_status === "paid_to_driver" ? "paid to driver" : "",
+
+          // Pricing
+          totalAmt ? `£${totalAmt} ${totalAmt}` : "",
+          finalAmt ? `£${finalAmt} ${finalAmt}` : "",
+        ]
+
+        const searchableContent = searchableFields.join(" ").toLowerCase()
+        return terms.every((term) => searchableContent.includes(term))
       })
     }
 

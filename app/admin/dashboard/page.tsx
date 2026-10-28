@@ -1,9 +1,12 @@
 import { CircleAlert } from "lucide-react";
-import { getBookings,getVehicles } from "./action";
+import { getBookings, getDriverAlerts } from "./action";
 import DashboardPage from "./client";
 
 export default async function Page(){
-  const {data:bookings,error:bookingsError}=await getBookings();
+  const [{ data: bookings, error: bookingsError }, driverAlertsRes] = await Promise.all([
+    getBookings(),
+    getDriverAlerts(),
+  ]);
   
   if(bookingsError){
     return(
@@ -16,6 +19,9 @@ export default async function Page(){
     )
   }
   return(
-    <DashboardPage bookings={bookings || []}/>
+    <DashboardPage
+      bookings={bookings || []}
+      driverAlerts={driverAlertsRes?.alerts || []}
+    />
   )
 }
