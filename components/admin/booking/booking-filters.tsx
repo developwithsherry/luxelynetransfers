@@ -18,7 +18,7 @@ export type FilterState = {
   source: string
   fromDate: string
   toDate: string
-  sortOrder: "newest" | "oldest"
+  sortOrder: "dispatch" | "newest" | "oldest"
 }
 
 export const INITIAL_FILTERS: FilterState = {
@@ -30,7 +30,7 @@ export const INITIAL_FILTERS: FilterState = {
   source: "all",
   fromDate: "",
   toDate: "",
-  sortOrder: "newest",
+  sortOrder: "dispatch",
 }
 
 interface BookingsFiltersProps {
@@ -267,8 +267,9 @@ export default function BookingsFilters({
               }
               className="border border-slate-300 bg-white rounded-md px-2 py-1 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-lime-500"
             >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
+              <option value="dispatch">Nearest Upcoming First (Default)</option>
+              <option value="newest">Date: Furtest / Newest First</option>
+              <option value="oldest">Date: Oldest First</option>
             </select>
           </div>
         </div>

@@ -29,7 +29,7 @@ export interface ColumnConfig {
 export const ALL_COLUMNS: ColumnConfig[] = [
   { key: "id", label: "Booking ID" },
   { key: "source", label: "Source / Supplier" },
-  { key: "customer", label: "Customer Details" },
+  { key: "customer", label: "Passenger" },
   { key: "dateTime", label: "Date & Time" },
   { key: "journey", label: "Journey (Route)" },
   { key: "driver", label: "Assigned Driver" },

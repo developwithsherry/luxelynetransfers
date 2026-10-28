@@ -67,16 +67,11 @@ export default function BookingDetailsPage() {
   }
  
   return (
-    <div className="min-h-screen bg-background">
-      <main className="max-w-7xl mx-auto ">
+    <div className="min-h-screen bg-slate-50">
+      <main className="max-w-7xl mx-auto">
         <BookingDetailsTable booking={booking} onBookingStatusChange={onBookingStatusChange} />
-        {
-          booking.payments && booking.payments.length > 0 && (
-            <BookingPaymentTable payment={booking.payments[0]} />
-          )
-        }
-        {booking.vehicle && (
-          <BookingVehicleTable vehicle={booking.vehicle} />
+        {booking.payments && booking.payments.length > 0 && (
+          <BookingPaymentTable payment={booking.payments[0]} />
         )}
       </main>
     </div>

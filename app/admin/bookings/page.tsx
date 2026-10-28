@@ -14,13 +14,55 @@ import { Booking } from "@/types/booking"
 
 export const dynamic = "force-dynamic"
 
+function getBookingTimestamp(dateVal?: string | null, timeVal?: string | null): number {
+  if (!dateVal) return 0
+  const trimmed = dateVal.trim()
+  const ymd = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  let year = 1970
+  let month = 1
+  let day = 1
+  if (ymd) {
+    year = Number(ymd[1])
+    month = Number(ymd[2])
+    day = Number(ymd[3])
+  } else {
+    const parsed = new Date(trimmed)
+    if (!isNaN(parsed.getTime())) {
+      year = parsed.getFullYear()
+      month = parsed.getMonth() + 1
+      day = parsed.getDate()
+    }
+  }
+
+  let hours = 0
+  let minutes = 0
+  if (timeVal) {
+    const tMatch = timeVal.trim().match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?/i)
+    if (tMatch) {
+      hours = Number(tMatch[1])
+      minutes = Number(tMatch[2])
+      const meridiem = tMatch[3]?.toUpperCase()
+      if (meridiem === "PM" && hours < 12) hours += 12
+      if (meridiem === "AM" && hours === 12) hours = 0
+    }
+  }
+
+  return new Date(year, month - 1, day, hours, minutes, 0, 0).getTime()
+}
+
 export default function BookingsPage() {
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS)
   const { visibleColumns, toggleColumn, resetColumns } = useVisibleColumns()
 
   const { pendingBookings, isLoading, isError, mutate } = usePendingBookings()
 
-  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], [])
+  const todayStr = useMemo(() => {
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = String(now.getMonth() + 1).padStart(2, "0")
+    const d = String(now.getDate()).padStart(2, "0")
+    return `${y}-${m}-${d}`
+  }, [])
 
   // Calculate Dispatch KPI Stats from all bookings
   const stats = useMemo(() => {
@@ -246,16 +288,46 @@ export default function BookingsPage() {
 
     // 9. Sort Order
     filtered.sort((a, b) => {
-      const dateStrA = `${a.date || "1970-01-01"} ${a.time || "00:00"}`
-      const dateStrB = `${b.date || "1970-01-01"} ${b.time || "00:00"}`
-      const dateA = new Date(dateStrA).getTime()
-      const dateB = new Date(dateStrB).getTime()
+      const timeA = getBookingTimestamp(a.date, a.time)
+      const timeB = getBookingTimestamp(b.date, b.time)
 
       if (filters.sortOrder === "newest") {
-        return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA)
-      } else {
-        return (isNaN(dateA) ? 0 : dateA) - (isNaN(dateB) ? 0 : dateB)
+        return timeB - timeA
       }
+      if (filters.sortOrder === "oldest") {
+        return timeA - timeB
+      }
+
+      // Default "dispatch" priority sorting:
+      // Tier 0: Active upcoming jobs to fulfill first (date >= today, not completed+paid_to_driver, not cancelled) -> Nearest upcoming first (ascending)
+      // Tier 1: Active past / unsettled jobs (not completed+paid_to_driver, not cancelled) -> Most recent first (descending)
+      // Tier 2: Completed jobs with Paid to Driver status -> Most recently completed first, then earlier completed next to it (descending)
+      // Tier 3: Cancelled jobs -> Most recent first (descending)
+      const getTier = (job: Booking) => {
+        const s = (job.status || "").toLowerCase()
+        const p = (job.payment_status || "").toLowerCase()
+        const dStr = (job.date || "").slice(0, 10)
+
+        if (s === "cancelled") return 3
+        if (s === "completed" && p === "paid_to_driver") return 2
+        if (dStr >= todayStr) return 0
+        return 1
+      }
+
+      const tierA = getTier(a)
+      const tierB = getTier(b)
+
+      if (tierA !== tierB) {
+        return tierA - tierB
+      }
+
+      // Within Tier 0 (upcoming active jobs), sort ascending so nearest job is at the top
+      if (tierA === 0) {
+        return timeA - timeB
+      }
+
+      // Within Tier 1, 2 (completed + paid_to_driver), and 3, sort descending (most recent completed first, then earlier completed below it)
+      return timeB - timeA
     })
 
     return filtered

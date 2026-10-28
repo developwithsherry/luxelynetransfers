@@ -139,7 +139,7 @@ export default function BookingsTable({
                   )}
                   {cols.customer && (
                     <th className="px-3 py-2.5 text-left text-[11px] font-bold text-white uppercase tracking-wider whitespace-nowrap">
-                      Customer
+                      Passenger
                     </th>
                   )}
                   {cols.dateTime && (
@@ -224,7 +224,10 @@ export default function BookingsTable({
                   />
                 </div>
                 <p className="text-sm">
-                  <strong>Customer:</strong> {customer}
+                  <strong>Passenger:</strong> {customer}
+                  {booking.phone && (
+                    <span className="block text-xs text-gray-500 mt-0.5">{booking.phone}</span>
+                  )}
                 </p>
                 <p className="text-sm">
                   <strong>Date & Time:</strong> {booking.date || ""} {booking.time || ""}

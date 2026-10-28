@@ -153,9 +153,9 @@ export default function BookingRow({
           </td>
         )}
 
-        {/* Customer */}
+        {/* Passenger */}
         {cols.customer && (
-          <td className="px-3 py-2.5 text-xs text-black">
+          <td className="px-3 py-2.5 text-xs text-black whitespace-nowrap">
             <div className="flex items-center gap-1.5">
               <span className="font-semibold">{customerName}</span>
               {booking.with_return && (
@@ -164,7 +164,16 @@ export default function BookingRow({
                 </span>
               )}
             </div>
-            {booking.email && <div className="text-[11px] text-gray-500 truncate max-w-[140px]">{booking.email}</div>}
+            {booking.phone && (
+              <div className="text-[11px] text-gray-500 font-normal mt-0.5">
+                {booking.phone}
+              </div>
+            )}
+            {booking.email && (
+              <div className="text-[10px] text-gray-400 truncate max-w-[140px]">
+                {booking.email}
+              </div>
+            )}
           </td>
         )}
 
