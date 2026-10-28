@@ -14,6 +14,7 @@ import {
   MessageCircle,
   Building2,
   UserCheck,
+  BarChart3,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react"
@@ -60,6 +61,12 @@ const navigationLinks = [
     label: "Drivers",
     icon: UserCheck,
     isActive: (pathname: string) => pathname.includes("/admin/drivers"),
+  },
+  {
+    path: "/admin/accounts",
+    label: "Accounts and Reports",
+    icon: BarChart3,
+    isActive: (pathname: string) => pathname.includes("/admin/accounts"),
   },
   {
     path: "/admin/messages",
