@@ -1,6 +1,8 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
+import Image from "next/image"
+import Link from "next/link"
+import { Card } from "@/components/ui/card"
 
 const blogPosts = [
   {
@@ -9,7 +11,7 @@ const blogPosts = [
     excerpt: "Compare London black cabs, Uber/Bolt rideshares, rail connections, and pre-booked private hire. Learn the best way to book your Heathrow airport taxi safely.",
     image: "/blog_heathrow_taxi_guide.png",
     category: "Travel Guide",
-    date: "July 16, 2026",
+    date: "February 18, 2026",
     readingTime: "5 min read",
   },
   {
@@ -18,7 +20,7 @@ const blogPosts = [
     excerpt: "Acknowledge the facts: Uber is handy, but airport runs have unique constraints. Compare pickup logistics, dynamic surge pricing, cancellations, and space guarantees.",
     image: "/blog_chauffeur_meet_greet.png",
     category: "Comparison",
-    date: "July 16, 2026",
+    date: "February 18, 2026",
     readingTime: "6 min read",
   },
   {
@@ -27,14 +29,13 @@ const blogPosts = [
     excerpt: "Reframe what affordable means. Discover how local fixed-fare private hire models protect you from dynamic pricing, traffic delay charges, and surprise forecourt fees.",
     image: "/blog_ilford_private_hire.png",
     category: "Local Services",
-    date: "July 16, 2026",
+    date: "February 18, 2026",
     readingTime: "4 min read",
   },
 ]
 
 export function HomeArticlesSection() {
-  // Replicate 3 articles 3 times to get 9 items, ensuring continuous loop width coverage
-  const repeatedArticles = [...blogPosts, ...blogPosts, ...blogPosts]
+  const repeatedArticles = [...blogPosts, ...blogPosts]
 
   return (
     <section className="py-20 md:py-28 bg-gradient-to-br from-background via-muted/5 to-background border-t border-border overflow-hidden">
@@ -54,43 +55,46 @@ export function HomeArticlesSection() {
               Stay updated with professional travel tips, airport transfer guides, and local transportation comparisons in London.
             </p>
             <div className="pt-2">
-              <a
+              <Link
                 href="/blog"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-accent hover:text-accent-foreground hover:scale-105 transition-all duration-300 shadow-md text-sm"
               >
                 <span>View All Articles</span>
                 <span>→</span>
-              </a>
+              </Link>
             </div>
           </div>
 
           {/* Right Column: Blending Auto-Scrolling Marquee */}
           <div className="lg:col-span-8 relative w-full overflow-hidden py-4 select-none">
-            {/* Blending Edge Gradients */}
             <div className="absolute left-0 top-0 bottom-0 w-12 md:w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-12 md:w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
             <div
               className="flex animate-marquee hover:[animation-play-state:paused]"
-              style={{ animationDuration: "50s" }} // Slow speed for comfortable reading
+              style={{ animationDuration: "50s" }}
             >
               {/* Track 1 */}
               <div className="flex gap-6 pr-6 shrink-0">
                 {repeatedArticles.map((post, idx) => (
-                  <div key={`art1-${idx}`} className="w-[300px] sm:w-[340px] md:w-[380px] shrink-0 my-2">
+                  <div
+                    key={`art1-${idx}`}
+                    aria-hidden={idx >= blogPosts.length ? "true" : undefined}
+                    className="w-[300px] sm:w-[340px] md:w-[380px] shrink-0 my-2"
+                  >
                     <Card className="h-full bg-card border-border hover:border-accent/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group">
-                      <a href={`/blog/${post.slug}`} className="flex flex-col h-full justify-between">
+                      <Link href={`/blog/${post.slug}`} className="flex flex-col h-full justify-between">
                         <div>
-                          {/* Image */}
                           <div className="relative w-full h-44 overflow-hidden bg-muted">
-                            <img
+                            <Image
                               src={post.image}
                               alt={post.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              fill
+                              sizes="(max-width: 768px) 300px, 380px"
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           </div>
 
-                          {/* Content */}
                           <div className="p-5 space-y-3 text-left">
                             <div className="flex items-center gap-3 text-xs font-semibold text-accent">
                               <span className="px-2 py-0.5 rounded border border-accent/25 bg-accent/5 uppercase tracking-wider text-[10px]">
@@ -107,34 +111,33 @@ export function HomeArticlesSection() {
                           </div>
                         </div>
 
-                        {/* Read Link */}
                         <div className="p-5 pt-0 flex items-center gap-1.5 text-accent font-bold hover:underline text-xs text-left">
                           <span>Read Full Article</span>
                           <span className="transition-transform group-hover:translate-x-1">→</span>
                         </div>
-                      </a>
+                      </Link>
                     </Card>
                   </div>
                 ))}
               </div>
 
-              {/* Track 2 */}
-              <div className="flex gap-6 pr-6 shrink-0">
+              {/* Track 2 (Visual duplicate hidden from crawlers/screen readers) */}
+              <div className="flex gap-6 pr-6 shrink-0" aria-hidden="true">
                 {repeatedArticles.map((post, idx) => (
                   <div key={`art2-${idx}`} className="w-[300px] sm:w-[340px] md:w-[380px] shrink-0 my-2">
                     <Card className="h-full bg-card border-border hover:border-accent/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group">
-                      <a href={`/blog/${post.slug}`} className="flex flex-col h-full justify-between">
+                      <Link href={`/blog/${post.slug}`} tabIndex={-1} className="flex flex-col h-full justify-between">
                         <div>
-                          {/* Image */}
                           <div className="relative w-full h-44 overflow-hidden bg-muted">
-                            <img
+                            <Image
                               src={post.image}
                               alt={post.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              fill
+                              sizes="(max-width: 768px) 300px, 380px"
+                              className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           </div>
 
-                          {/* Content */}
                           <div className="p-5 space-y-3 text-left">
                             <div className="flex items-center gap-3 text-xs font-semibold text-accent">
                               <span className="px-2 py-0.5 rounded border border-accent/25 bg-accent/5 uppercase tracking-wider text-[10px]">
@@ -142,21 +145,20 @@ export function HomeArticlesSection() {
                               </span>
                               <span className="text-muted-foreground">{post.date}</span>
                             </div>
-                            <h3 className="text-lg font-bold text-card-foreground group-hover:text-accent transition-colors duration-200 line-clamp-2 leading-snug">
+                            <p className="text-lg font-bold text-card-foreground group-hover:text-accent transition-colors duration-200 line-clamp-2 leading-snug">
                               {post.title}
-                            </h3>
+                            </p>
                             <p className="text-muted-foreground text-xs font-light line-clamp-3 leading-relaxed">
                               {post.excerpt}
                             </p>
                           </div>
                         </div>
 
-                        {/* Read Link */}
                         <div className="p-5 pt-0 flex items-center gap-1.5 text-accent font-bold hover:underline text-xs text-left">
                           <span>Read Full Article</span>
                           <span className="transition-transform group-hover:translate-x-1">→</span>
                         </div>
-                      </a>
+                      </Link>
                     </Card>
                   </div>
                 ))}

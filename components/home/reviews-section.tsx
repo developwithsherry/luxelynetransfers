@@ -39,7 +39,7 @@ const reviews = [
   {
     name: "Callum D.",
     initials: "CD",
-    trip: "Private Hire",
+    trip: "London Private Hire",
     rating: 5,
     comment:
       "Excellent service. Very clean saloon car, polite driver, and got us to our London hotel comfortably. Fair pricing for a premium experience.",
@@ -55,7 +55,7 @@ const reviews = [
 ]
 
 export function ReviewsSection() {
-  const repeatedReviews = [...reviews, ...reviews, ...reviews]
+  const repeatedReviews = [...reviews, ...reviews]
 
   return (
     <section className="py-20 md:py-28 bg-gradient-to-br from-background via-muted/5 to-background border-t border-border overflow-hidden">
@@ -63,7 +63,7 @@ export function ReviewsSection() {
         <div className="text-center animate-in fade-in duration-750">
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">What Our Clients Say</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Don't just take our word for it. Read honest feedback from our clients about their private hire and chauffeur experience in London.
+            Read verified feedback from passengers who booked our London airport transfers and private hire chauffeur service.
           </p>
         </div>
       </div>
@@ -76,16 +76,19 @@ export function ReviewsSection() {
 
         <div
           className="flex animate-marquee hover:[animation-play-state:paused]"
-          style={{ animationDuration: "90s" }} // Slower speed to allow reading text
+          style={{ animationDuration: "90s" }}
         >
-          {/* Track 1 */}
+          {/* Track 1 (Primary accessible track) */}
           <div className="flex gap-6 pr-6 shrink-0">
             {repeatedReviews.map((review, idx) => (
-              <div key={`rev1-${idx}`} className="w-[320px] sm:w-[380px] md:w-[420px] shrink-0 my-2">
+              <div
+                key={`rev1-${idx}`}
+                aria-hidden={idx >= reviews.length ? "true" : undefined}
+                className="w-[320px] sm:w-[380px] md:w-[420px] shrink-0 my-2"
+              >
                 <Card className="h-full bg-card border-border hover:border-accent/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                   <CardContent className="p-6 md:p-8 flex flex-col justify-between h-full space-y-6">
                     <div>
-                      {/* Rating Stars & Quote Icon */}
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex gap-0.5">
                           {[...Array(review.rating)].map((_, i) => (
@@ -95,13 +98,11 @@ export function ReviewsSection() {
                         <Quote className="w-6 h-6 text-muted-foreground/20" />
                       </div>
 
-                      {/* Review Text */}
                       <p className="text-muted-foreground text-sm md:text-base leading-relaxed italic">
-                        "{review.comment}"
+                        &ldquo;{review.comment}&rdquo;
                       </p>
                     </div>
 
-                    {/* Client Profile Info */}
                     <div className="flex items-center gap-3.5 pt-4 border-t border-border/60">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent/10 text-accent font-bold text-sm tracking-wide shrink-0 border border-accent/20">
                         {review.initials}
@@ -121,14 +122,13 @@ export function ReviewsSection() {
             ))}
           </div>
 
-          {/* Track 2 */}
-          <div className="flex gap-6 pr-6 shrink-0">
+          {/* Track 2 (Visual loop duplicate - hidden from assistive tech & crawlers) */}
+          <div className="flex gap-6 pr-6 shrink-0" aria-hidden="true">
             {repeatedReviews.map((review, idx) => (
               <div key={`rev2-${idx}`} className="w-[320px] sm:w-[380px] md:w-[420px] shrink-0 my-2">
                 <Card className="h-full bg-card border-border hover:border-accent/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
                   <CardContent className="p-6 md:p-8 flex flex-col justify-between h-full space-y-6">
                     <div>
-                      {/* Rating Stars & Quote Icon */}
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex gap-0.5">
                           {[...Array(review.rating)].map((_, i) => (
@@ -138,21 +138,19 @@ export function ReviewsSection() {
                         <Quote className="w-6 h-6 text-muted-foreground/20" />
                       </div>
 
-                      {/* Review Text */}
                       <p className="text-muted-foreground text-sm md:text-base leading-relaxed italic">
-                        "{review.comment}"
+                        &ldquo;{review.comment}&rdquo;
                       </p>
                     </div>
 
-                    {/* Client Profile Info */}
                     <div className="flex items-center gap-3.5 pt-4 border-t border-border/60">
                       <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent/10 text-accent font-bold text-sm tracking-wide shrink-0 border border-accent/20">
                         {review.initials}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-card-foreground text-sm md:text-base leading-none mb-1">
+                        <p className="font-semibold text-card-foreground text-sm md:text-base leading-none mb-1">
                           {review.name}
-                        </h4>
+                        </p>
                         <p className="text-muted-foreground text-xs font-medium">
                           {review.trip}
                         </p>

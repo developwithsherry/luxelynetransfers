@@ -13,11 +13,18 @@ import WhatsAppContactButton from "@/components/home/whatsapp-button-fixed"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Luxelyne Transfers | London Airport Transfers & Private Hire Taxi",
+  title: "Luxelyne Transfers | London Airport Transfers & 24/7 Private Hire Taxi",
   description:
-    "Book professional London airport transfers & private hire taxis. Reliable 24/7 taxi service to/from Heathrow, Gatwick, Stansted, Luton & London City airports.",
+    "Book fixed-fare London airport transfers & private hire taxis online. Reliable 24/7 chauffeur & minicab service for Heathrow, Gatwick, Stansted, Luton, London City & Southend airports.",
   alternates: {
     canonical: "https://luxelynetransfers.co.uk",
+  },
+  openGraph: {
+    title: "Luxelyne Transfers | London Airport Transfers & 24/7 Private Hire Taxi",
+    description:
+      "Book fixed-fare London airport transfers & private hire taxis online. Reliable 24/7 chauffeur & minicab service for Heathrow, Gatwick, Stansted, Luton, London City & Southend.",
+    url: "https://luxelynetransfers.co.uk",
+    images: ["/og-image.png"],
   },
 }
 
@@ -25,14 +32,16 @@ export default function Home() {
   return (
     <>
       <Header />
-      <SimpleBookingForm />
-      <div className="py-12"></div>
-      <FleetSection />
-      <ServicesSection />
-      <WhyChooseUs />
-      <ReviewsSection />
-      <HomeFAQSection />
-      <HomeArticlesSection />
+      <main>
+        <SimpleBookingForm />
+        <div className="py-12"></div>
+        <FleetSection />
+        <ServicesSection />
+        <WhyChooseUs />
+        <ReviewsSection />
+        <HomeFAQSection />
+        <HomeArticlesSection />
+      </main>
       <WhatsAppContactButton />
       <Footer />
     </>

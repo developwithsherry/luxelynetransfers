@@ -30,7 +30,6 @@ export function FleetSection() {
   // Duplicate track elements to ensure a continuous, seamless loop
   const getRepeatedItems = (items: any[]) => {
     if (!items || items.length === 0) return []
-    // Target around 12 items to cover full wide screens seamlessly
     const multiplier = Math.max(2, Math.ceil(12 / items.length))
     return Array.from({ length: multiplier }).flatMap(() => items)
   }
@@ -42,17 +41,15 @@ export function FleetSection() {
     <section className="lg:py-24 py-12 bg-gradient-to-br from-background via-muted/10 to-background overflow-hidden">
       <div className="container mx-auto px-4 mb-12">
         <div className="text-center animate-in fade-in duration-700">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-accent">Our Premium Fleet</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-accent">Our Premium Private Hire Fleet</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Choose from our collection of luxury vehicles, each maintained to the highest standards and equipped with
-            premium amenities.
+            Choose from our collection of modern saloons, executive business cars, and 8-seater MPVs—each maintained to the highest UK safety standards for London airport transfers.
           </p>
         </div>
       </div>
 
       {/* Marquee Wrapper */}
       <div className="relative w-full overflow-hidden py-4 select-none">
-        {/* Soft edge gradients for premium layout */}
         <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
@@ -63,7 +60,7 @@ export function FleetSection() {
                 <SkeletonCard key={`sk1-${idx}`} />
               ))}
             </div>
-            <div className="flex gap-6 pr-6 shrink-0">
+            <div className="flex gap-6 pr-6 shrink-0" aria-hidden="true">
               {repeatedSkeletons.map((_, idx) => (
                 <SkeletonCard key={`sk2-${idx}`} />
               ))}
@@ -74,14 +71,18 @@ export function FleetSection() {
             {/* Track 1 */}
             <div className="flex gap-6 pr-6 shrink-0">
               {repeatedVehicles.map((vehicle, idx) => (
-                <div key={`copy1-${vehicle.id}-${idx}`} className="w-[300px] sm:w-[350px] md:w-[380px] shrink-0 my-2">
+                <div
+                  key={`copy1-${vehicle.id}-${idx}`}
+                  aria-hidden={idx >= vehicles.length ? "true" : undefined}
+                  className="w-[300px] sm:w-[350px] md:w-[380px] shrink-0 my-2"
+                >
                   <Card className="h-full bg-card border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-accent/40">
                     <CardContent className="p-0 flex flex-col justify-between h-full">
                       <div>
                         <div className="relative group p-4 flex items-center justify-center">
                           <img
                             src={vehicle.imageUrl || "/placeholder.svg"}
-                            alt={vehicle.name}
+                            alt={`${vehicle.name} - London Airport Transfer Vehicle`}
                             className="w-full h-48 object-contain transition-transform duration-500 group-hover:scale-105"
                           />
                         </div>
@@ -107,8 +108,8 @@ export function FleetSection() {
               ))}
             </div>
 
-            {/* Track 2 - Identical duplicate */}
-            <div className="flex gap-6 pr-6 shrink-0">
+            {/* Track 2 - Identical duplicate hidden from crawlers/assistive tech */}
+            <div className="flex gap-6 pr-6 shrink-0" aria-hidden="true">
               {repeatedVehicles.map((vehicle, idx) => (
                 <div key={`copy2-${vehicle.id}-${idx}`} className="w-[300px] sm:w-[350px] md:w-[380px] shrink-0 my-2">
                   <Card className="h-full bg-card border-border hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-accent/40">
@@ -122,7 +123,7 @@ export function FleetSection() {
                           />
                         </div>
                         <div className="p-5">
-                          <h3 className="text-xl font-bold mb-1 text-card-foreground group-hover:text-accent transition-colors duration-200">{vehicle.name}</h3>
+                          <p className="text-xl font-bold mb-1 text-card-foreground group-hover:text-accent transition-colors duration-200">{vehicle.name}</p>
                           <p className="text-muted-foreground text-sm font-medium mb-3">{vehicle.type}</p>
 
                           <div className="flex gap-4 text-sm mt-3 pt-3 border-t border-border">

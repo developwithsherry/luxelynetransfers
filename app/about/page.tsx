@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Header from "@/components/header"
 import { Footer } from "@/components/home/footer"
+import { BreadcrumbSchema } from "@/components/seo/schema-markup"
 import ImageSection from "@/components/carousal"
 import AboutSection from "@/components/about/about-section"
 import OurMission from "@/components/about/our-mission"
@@ -10,34 +11,46 @@ import AboutFAQSection from "@/components/about/about-faq"
 import { ShieldCheck, Award, Clock, Star } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "About Us",
+  title: "About Us | UK Registered Airport Transfer & Private Hire Company",
   description:
-    "Learn about Luxelyne Transfers, a UK-licensed taxi & airport transfers company. Experience premium passenger comfort, real-time flight tracking, and vetted drivers.",
+    "Learn about Luxelyne Transfers LTD (UK Company No. 16665396), a trusted London airport transfer & private hire taxi company serving Heathrow, Gatwick, Stansted, Luton, London City & Southend 24/7.",
   alternates: {
     canonical: "https://luxelynetransfers.co.uk/about",
+  },
+  openGraph: {
+    title: "About Luxelyne Transfers LTD | London Airport Transfers & Private Hire",
+    description:
+      "UK-registered private hire & airport transfer provider (Company No. 16665396) delivering fixed-fare comfort, real-time flight tracking, and DBS-vetted chauffeurs.",
+    url: "https://luxelynetransfers.co.uk/about",
+    images: ["/og-image.png"],
   },
 }
 
 export default function Page() {
   return (
     <>
+      <BreadcrumbSchema
+        items={[
+          { name: "Home", url: "https://luxelynetransfers.co.uk" },
+          { name: "About Us", url: "https://luxelynetransfers.co.uk/about" },
+        ]}
+      />
       <Header />
-      
+
       <main className="w-full bg-white text-neutral-900 selection:bg-lime-400 selection:text-black">
         {/* Premium Light-Themed Hero Section */}
         <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden bg-gradient-to-b from-neutral-50 via-white to-white border-b border-neutral-100">
           <div className="container mx-auto px-4 max-w-7xl text-center space-y-12">
-            
             {/* Heading */}
             <div className="space-y-6 max-w-4xl mx-auto">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-500/30 bg-lime-50 text-lime-700 text-xs font-semibold uppercase tracking-wider">
-                Who We Are
+                Who We Are • UK Company No. 16665396
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-neutral-900 leading-tight">
                 Redefining London Airport Transfers & Private Hire
               </h1>
               <p className="text-lg md:text-xl text-neutral-600 font-light max-w-2xl mx-auto leading-relaxed">
-                UK-licensed taxi provider delivering premium comfort, safety, and absolute reliability for all major London airports.
+                UK-registered private hire & chauffeur provider delivering fixed-fare comfort, safety, and 24/7 reliability for all major London and UK airports.
               </p>
             </div>
 
@@ -59,7 +72,7 @@ export default function Page() {
                 Our Core Safety & Quality Standards
               </h2>
               <p className="text-neutral-500 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
-                We maintain strict compliance and passenger comfort parameters to deliver a world-class ground travel experience.
+                We maintain strict UK compliance and passenger comfort standards to deliver a dependable, world-class ground travel experience.
               </p>
             </div>
 
@@ -69,9 +82,9 @@ export default function Page() {
                 <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-xl bg-lime-50 text-lime-700">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-neutral-900 text-lg">Fully TfL Licensed</h3>
+                <h3 className="font-bold text-neutral-900 text-lg">UK Registered Company</h3>
                 <p className="text-sm text-neutral-500 font-light leading-relaxed">
-                  Fully compliant taxi provider adhering strictly to Transport for London and DVLA safety guidelines.
+                  Registered in England & Wales (Company No. 16665396), operating strictly in accordance with UK council and DVLA safety regulations.
                 </p>
               </div>
 
@@ -81,7 +94,7 @@ export default function Page() {
                 </div>
                 <h3 className="font-bold text-neutral-900 text-lg">Vetted & DBS Checked</h3>
                 <p className="text-sm text-neutral-500 font-light leading-relaxed">
-                  Every driver undergoes background checks and passenger-care training to ensure safety and courtesy.
+                  Every driver undergoes enhanced background checks and passenger-care vetting to ensure safety and courtesy.
                 </p>
               </div>
 
@@ -89,9 +102,9 @@ export default function Page() {
                 <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-xl bg-lime-50 text-lime-700">
                   <Clock className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-neutral-900 text-lg">Flight Monitoring</h3>
+                <h3 className="font-bold text-neutral-900 text-lg">Live Flight Monitoring</h3>
                 <p className="text-sm text-neutral-500 font-light leading-relaxed">
-                  Real-time flight path tracking automatically adjusts pickups for early landings or delay arrivals.
+                  Real-time flight tracking automatically adjusts pickups for early landings or delayed arrivals with 45 mins free waiting time.
                 </p>
               </div>
 
@@ -101,7 +114,7 @@ export default function Page() {
                 </div>
                 <h3 className="font-bold text-neutral-900 text-lg">Premium Fleets Only</h3>
                 <p className="text-sm text-neutral-500 font-light leading-relaxed">
-                  Our fleets comprise late-model luxury saloons, business executive cars, and spacious group MPVs.
+                  Our fleets comprise late-model executive saloons, luxury business cars, and spacious 8-seater group MPVs.
                 </p>
               </div>
             </div>

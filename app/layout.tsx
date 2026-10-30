@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import Script from "next/script"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
-import Header from "@/components/header"
 import { BookingProvider } from "@/context/booking-context"
 import { VehicleProvider } from "@/context/vehicle-context"
 import { AddonProvider } from "@/context/addon-context"
@@ -12,11 +11,11 @@ import { OrganizationSchema, TaxiServiceSchema } from "@/components/seo/schema-m
 export const metadata: Metadata = {
   metadataBase: new URL("https://luxelynetransfers.co.uk"),
   title: {
-    default: "Luxelyne Transfers | London Airport Transfers & Private Hire Taxi",
+    default: "Luxelyne Transfers | London Airport Transfers & 24/7 Private Hire Taxi",
     template: "%s | Luxelyne Transfers",
   },
   description:
-    "Luxelyne Transfers is a premier UK private hire & airport transfers supplier. Reliable taxi service serving Heathrow, Gatwick, Stansted, Luton, and London City airports.",
+    "Luxelyne Transfers LTD (Company No. 16665396) is a premier UK private hire & airport transfers provider. Fixed-fare 24/7 taxi service for Heathrow, Gatwick, Stansted, Luton, London City, Southend & Greater London.",
   keywords: [
     "Airport Transfers London",
     "Private Hire Taxi London",
@@ -25,12 +24,16 @@ export const metadata: Metadata = {
     "Stansted Airport Taxi",
     "Luton Airport Transfers",
     "London City Airport Taxi",
+    "Southend Airport Transfers",
+    "Ilford Private Hire Taxi",
+    "East London Airport Taxi",
+    "London Chauffeur Service",
     "UK Taxi Company",
     "Luxelyne Transfers",
   ],
-  authors: [{ name: "Luxelyne Transfers" }],
-  creator: "Luxelyne Transfers",
-  publisher: "Luxelyne Transfers",
+  authors: [{ name: "Luxelyne Transfers LTD" }],
+  creator: "Luxelyne Transfers LTD",
+  publisher: "Luxelyne Transfers LTD",
   formatDetection: {
     email: false,
     address: false,
@@ -40,24 +43,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_GB",
     url: "https://luxelynetransfers.co.uk",
-    title: "Luxelyne Transfers | London Airport Transfers & Private Hire Taxi",
+    title: "Luxelyne Transfers | London Airport Transfers & 24/7 Private Hire Taxi",
     description:
-      "Luxelyne Transfers is a premier UK private hire & airport transfers supplier. Reliable taxi service serving Heathrow, Gatwick, Stansted, Luton, and London City airports.",
+      "Book reliable fixed-fare London airport transfers & private hire taxis. Serving Heathrow, Gatwick, Stansted, Luton, London City, Southend, and all London boroughs 24/7.",
     siteName: "Luxelyne Transfers",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Luxelyne Transfers LTD - UK Private Hire & Airport Transfers",
+        alt: "Luxelyne Transfers LTD - UK Private Hire & London Airport Transfers",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Luxelyne Transfers | London Airport Transfers & Private Hire Taxi",
+    title: "Luxelyne Transfers | London Airport Transfers & 24/7 Private Hire Taxi",
     description:
-      "Luxelyne Transfers is a premier UK private hire & airport transfers supplier. Reliable taxi service serving Heathrow, Gatwick, Stansted, Luton, and London City airports.",
+      "Book reliable fixed-fare London airport transfers & private hire taxis. Serving Heathrow, Gatwick, Stansted, Luton, London City, Southend, and Greater London 24/7.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -79,7 +82,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en-GB">
       <head>
         {/* ✅ Google Tag Manager Script */}
         <Script
@@ -115,8 +118,7 @@ export default function RootLayout({
         <AddonProvider>
           <BookingProvider>
             <VehicleProvider>
-              <Header />
-              <main>{children}</main>
+              {children}
               <Toaster />
             </VehicleProvider>
           </BookingProvider>

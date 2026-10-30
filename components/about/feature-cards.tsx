@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 
 export default function FeatureCards() {
   const features = [
-    "Fully TfL Licensed Provider",
+    "UK Registered (Co. No. 16665396)",
     "DBS-Checked Professional Drivers",
     "Real-Time Flight Tracking",
     "Fixed-Price Guarantee (No Surges)",

@@ -2,93 +2,121 @@ import type { MetadataRoute } from "next"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://luxelynetransfers.co.uk"
-  
+  const lastUpdated = new Date("2026-03-01T12:00:00Z")
+
   return [
     {
       url: `${baseUrl}/`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
+      lastModified: lastUpdated,
+      changeFrequency: "weekly",
       priority: 1.0,
+    },
+    // Airport Landing Pages (High Commercial Intent)
+    {
+      url: `${baseUrl}/heathrow-airport-transfers`,
+      lastModified: lastUpdated,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/gatwick-airport-transfers`,
+      lastModified: lastUpdated,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/stansted-airport-transfers`,
+      lastModified: lastUpdated,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/luton-airport-transfers`,
+      lastModified: lastUpdated,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/london-city-airport-transfers`,
+      lastModified: lastUpdated,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/southend-airport-transfers`,
+      lastModified: lastUpdated,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    // Inside London Private Hire Hub
+    {
+      url: `${baseUrl}/london-private-hire`,
+      lastModified: lastUpdated,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    // Core Pages
+    {
+      url: `${baseUrl}/services`,
+      lastModified: lastUpdated,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/fleets`,
+      lastModified: lastUpdated,
+      changeFrequency: "monthly",
+      priority: 0.85,
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: new Date(),
+      lastModified: lastUpdated,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: new Date(),
+      lastModified: lastUpdated,
       changeFrequency: "monthly",
       priority: 0.8,
     },
-    {
-      url: `${baseUrl}/fleets`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/services`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    // Airport Landing Pages
-    {
-      url: `${baseUrl}/heathrow-airport-transfers`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/gatwick-airport-transfers`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/stansted-airport-transfers`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/luton-airport-transfers`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/london-city-airport-transfers`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    // Blog routes
+    // Blog & Guides
     {
       url: `${baseUrl}/blog`,
-      lastModified: new Date(),
+      lastModified: lastUpdated,
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/blog/best-way-to-book-heathrow-airport-taxi`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
+      lastModified: lastUpdated,
+      changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/blog/pre-booked-private-hire-vs-uber-heathrow`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
+      lastModified: lastUpdated,
+      changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/blog/affordable-private-hire-ilford-east-london`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
+      lastModified: lastUpdated,
+      changeFrequency: "monthly",
       priority: 0.8,
+    },
+    // Legal Pages
+    {
+      url: `${baseUrl}/policy`,
+      lastModified: lastUpdated,
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: lastUpdated,
+      changeFrequency: "yearly",
+      priority: 0.4,
     },
   ]
 }

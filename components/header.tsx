@@ -1,8 +1,19 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, X, ChevronDown } from "lucide-react"
+
+const airportLinks = [
+  { name: "Heathrow Airport (LHR)", href: "/heathrow-airport-transfers" },
+  { name: "Gatwick Airport (LGW)", href: "/gatwick-airport-transfers" },
+  { name: "Stansted Airport (STN)", href: "/stansted-airport-transfers" },
+  { name: "Luton Airport (LTN)", href: "/luton-airport-transfers" },
+  { name: "London City Airport (LCY)", href: "/london-city-airport-transfers" },
+  { name: "Southend Airport (SEN)", href: "/southend-airport-transfers" },
+  { name: "London Private Hire & Stations", href: "/london-private-hire" },
+]
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -57,52 +68,46 @@ const Header = () => {
         <div className="w-full bg-accent rounded-full py-2 px-4 md:px-6 flex items-center justify-between text-black shadow-2xl border border-accent/20">
           
           {/* Left / Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="/" className={getScrolledLinkClasses("/")}>
+          <nav className="hidden md:flex items-center space-x-6" aria-label="Main Navigation">
+            <Link href="/" className={getScrolledLinkClasses("/")}>
               Home
-            </a>
-            <a href="/about" className={getScrolledLinkClasses("/about")}>
+            </Link>
+            <Link href="/about" className={getScrolledLinkClasses("/about")}>
               About
-            </a>
-            <a href="/services" className={getScrolledLinkClasses("/services")}>
+            </Link>
+            <Link href="/services" className={getScrolledLinkClasses("/services")}>
               Services
-            </a>
-            <a href="/fleets" className={getScrolledLinkClasses("/fleets")}>
+            </Link>
+            <Link href="/fleets" className={getScrolledLinkClasses("/fleets")}>
               Fleets
-            </a>
+            </Link>
 
             {/* Airports We Cover Dropdown */}
             <div className="relative group">
               <button className="text-black hover:text-black/70 font-semibold transition-colors flex items-center gap-1 py-1 text-sm focus:outline-none">
-                Airports We Cover
+                Airports & Areas
                 <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
               </button>
               <div className="absolute left-0 mt-2 w-64 rounded-xl bg-black border border-neutral-800 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-2 space-y-1 text-neutral-300">
-                <a href="/heathrow-airport-transfers" className="block px-4 py-2 text-sm hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  Heathrow Airport (LHR)
-                </a>
-                <a href="/gatwick-airport-transfers" className="block px-4 py-2 text-sm hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  Gatwick Airport (LGW)
-                </a>
-                <a href="/stansted-airport-transfers" className="block px-4 py-2 text-sm hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  Stansted Airport (STN)
-                </a>
-                <a href="/luton-airport-transfers" className="block px-4 py-2 text-sm hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  Luton Airport (LTN)
-                </a>
-                <a href="/london-city-airport-transfers" className="block px-4 py-2 text-sm hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  London City Airport (LCY)
-                </a>
+                {airportLinks.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block px-4 py-2 text-sm hover:text-white hover:bg-neutral-900 rounded-lg transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
               </div>
             </div>
 
-            <a href="/blog" className={getScrolledLinkClasses("/blog")}>
+            <Link href="/blog" className={getScrolledLinkClasses("/blog")}>
               Blog
-            </a>
+            </Link>
 
-            <a href="/contact" className={getScrolledLinkClasses("/contact")}>
+            <Link href="/contact" className={getScrolledLinkClasses("/contact")}>
               Contact
-            </a>
+            </Link>
           </nav>
 
           {/* Mobile Menu Button - Scrolled state */}
@@ -136,19 +141,19 @@ const Header = () => {
         {/* Mobile Menu Drawer - Scrolled state */}
         {isMenuOpen && (
           <div className="md:hidden bg-neutral-950/95 backdrop-blur-md my-2 rounded-2xl p-4 border border-neutral-800 shadow-2xl">
-            <nav className="flex flex-col space-y-3">
-              <a href="/" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
+            <nav className="flex flex-col space-y-3" aria-label="Mobile Navigation">
+              <Link href="/" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
                 Home
-              </a>
-              <a href="/about" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
+              </Link>
+              <Link href="/about" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
                 About
-              </a>
-              <a href="/services" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
+              </Link>
+              <Link href="/services" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
                 Services
-              </a>
-              <a href="/fleets" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
+              </Link>
+              <Link href="/fleets" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
                 Fleets
-              </a>
+              </Link>
 
               {/* Mobile Airports Dropdown */}
               <div className="space-y-1">
@@ -157,27 +162,31 @@ const Header = () => {
                   onClick={() => setIsMobileAirportsOpen(!isMobileAirportsOpen)}
                   className="flex items-center justify-between w-full text-white hover:text-accent font-semibold transition-colors py-1 text-sm text-left border-b border-neutral-900"
                 >
-                  <span>Airports We Cover</span>
+                  <span>Airports & Areas</span>
                   <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${isMobileAirportsOpen ? "rotate-180 text-lime-400" : ""}`} />
                 </button>
                 {isMobileAirportsOpen && (
                   <div className="pl-4 flex flex-col space-y-2 border-l border-neutral-800 mt-2 pb-2">
-                    <a href="/heathrow-airport-transfers" className="text-xs text-neutral-400 hover:text-white py-1">Heathrow Airport (LHR)</a>
-                    <a href="/gatwick-airport-transfers" className="text-xs text-neutral-400 hover:text-white py-1">Gatwick Airport (LGW)</a>
-                    <a href="/stansted-airport-transfers" className="text-xs text-neutral-400 hover:text-white py-1">Stansted Airport (STN)</a>
-                    <a href="/luton-airport-transfers" className="text-xs text-neutral-400 hover:text-white py-1">Luton Airport (LTN)</a>
-                    <a href="/london-city-airport-transfers" className="text-xs text-neutral-400 hover:text-white py-1">London City Airport (LCY)</a>
+                    {airportLinks.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="text-xs text-neutral-400 hover:text-white py-1"
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
                   </div>
                 )}
               </div>
 
-              <a href="/blog" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
+              <Link href="/blog" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm border-b border-neutral-900">
                 Blog
-              </a>
+              </Link>
 
-              <a href="/contact" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm">
+              <Link href="/contact" className="text-white hover:text-accent font-semibold transition-colors py-1 text-sm">
                 Contact
-              </a>
+              </Link>
             </nav>
           </div>
         )}
@@ -191,60 +200,54 @@ const Header = () => {
       <div className="container mx-auto px-2 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="/">
+          <Link href="/">
             <img
               className="lg:w-72 w-56 h-auto"
               src="/logo-main.png"
-              alt="LuxeLyne Transfers"
+              alt="Luxelyne Transfers - London Airport Transfers & Private Hire"
               width={288}
               height={64}
             />
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="/about" className={getLinkClasses("/about")}>
+          <nav className="hidden md:flex items-center space-x-8" aria-label="Main Navigation">
+            <Link href="/about" className={getLinkClasses("/about")}>
               About
-            </a>
-            <a href="/services" className={getLinkClasses("/services")}>
+            </Link>
+            <Link href="/services" className={getLinkClasses("/services")}>
               Services
-            </a>
-            <a href="/fleets" className={getLinkClasses("/fleets")}>
+            </Link>
+            <Link href="/fleets" className={getLinkClasses("/fleets")}>
               Fleets
-            </a>
+            </Link>
 
             {/* Airports We Cover Dropdown */}
             <div className="relative group">
               <button className={`${textColor} ${hoverColor} transition-colors font-medium flex items-center gap-1 py-2 focus:outline-none`}>
-                Airports We Cover
+                Airports & Areas
                 <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
               </button>
               <div className="absolute left-0 mt-0 w-64 rounded-xl bg-black border border-neutral-800 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 p-2 space-y-1">
-                <a href="/heathrow-airport-transfers" className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  Heathrow Airport (LHR)
-                </a>
-                <a href="/gatwick-airport-transfers" className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  Gatwick Airport (LGW)
-                </a>
-                <a href="/stansted-airport-transfers" className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  Stansted Airport (STN)
-                </a>
-                <a href="/luton-airport-transfers" className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  Luton Airport (LTN)
-                </a>
-                <a href="/london-city-airport-transfers" className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-lg transition-colors">
-                  London City Airport (LCY)
-                </a>
+                {airportLinks.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-lg transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
               </div>
             </div>
 
-            <a href="/blog" className={getLinkClasses("/blog")}>
+            <Link href="/blog" className={getLinkClasses("/blog")}>
               Blog
-            </a>
+            </Link>
 
-            <a href="/contact" className={getLinkClasses("/contact")}>
+            <Link href="/contact" className={getLinkClasses("/contact")}>
               Contact
-            </a>
+            </Link>
           </nav>
           
           {/* Mobile Menu Button */}
@@ -265,16 +268,16 @@ const Header = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden bg-black/55 backdrop-blur-sm my-5 rounded-lg mt-2 p-4 border border-gray-950 shadow-lg">
-            <nav className="flex flex-col space-y-4 text-black">
-              <a href="/about" className={getLinkClasses("/about")}>
+            <nav className="flex flex-col space-y-4 text-black" aria-label="Mobile Navigation">
+              <Link href="/about" className={getLinkClasses("/about")}>
                 About
-              </a>
-              <a href="/services" className={getLinkClasses("/services")}>
+              </Link>
+              <Link href="/services" className={getLinkClasses("/services")}>
                 Services
-              </a>
-              <a href="/fleets" className={getLinkClasses("/fleets")}>
+              </Link>
+              <Link href="/fleets" className={getLinkClasses("/fleets")}>
                 Fleets
-              </a>
+              </Link>
 
               {/* Mobile Airports Dropdown */}
               <div className="space-y-2">
@@ -283,27 +286,31 @@ const Header = () => {
                   onClick={() => setIsMobileAirportsOpen(!isMobileAirportsOpen)}
                   className="flex items-center justify-between w-full text-white transition-colors font-medium text-left focus:outline-none"
                 >
-                  <span>Airports We Cover</span>
+                  <span>Airports & Areas</span>
                   <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${isMobileAirportsOpen ? "rotate-180 text-lime-400" : ""}`} />
                 </button>
                 {isMobileAirportsOpen && (
                   <div className="pl-4 flex flex-col space-y-2 border-l border-neutral-800 mt-1">
-                    <a href="/heathrow-airport-transfers" className="text-sm text-neutral-400 hover:text-white py-1">Heathrow Airport (LHR)</a>
-                    <a href="/gatwick-airport-transfers" className="text-sm text-neutral-400 hover:text-white py-1">Gatwick Airport (LGW)</a>
-                    <a href="/stansted-airport-transfers" className="text-sm text-neutral-400 hover:text-white py-1">Stansted Airport (STN)</a>
-                    <a href="/luton-airport-transfers" className="text-sm text-neutral-400 hover:text-white py-1">Luton Airport (LTN)</a>
-                    <a href="/london-city-airport-transfers" className="text-sm text-neutral-400 hover:text-white py-1">London City Airport (LCY)</a>
+                    {airportLinks.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="text-sm text-neutral-400 hover:text-white py-1"
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
                   </div>
                 )}
               </div>
 
-              <a href="/blog" className={getLinkClasses("/blog")}>
+              <Link href="/blog" className={getLinkClasses("/blog")}>
                 Blog
-              </a>
+              </Link>
 
-              <a href="/contact" className={getLinkClasses("/contact")}>
+              <Link href="/contact" className={getLinkClasses("/contact")}>
                 Contact
-              </a>
+              </Link>
             </nav>
           </div>
         )}

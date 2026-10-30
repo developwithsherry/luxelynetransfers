@@ -2,11 +2,18 @@ import type { Metadata } from "next"
 import AirportPageLayout from "@/components/seo/airport-page-layout"
 
 export const metadata: Metadata = {
-  title: "London City Airport Transfers | Reliable Taxi & Private Hire",
+  title: "London City Airport Transfers (LCY) | Executive Taxi & Private Hire",
   description:
-    "Book premium London City airport transfers. Private taxi hire serving LCY. Real-time flight tracking, flat rates & meet and greet services.",
+    "Book fixed-price London City Airport transfers (LCY) to Canary Wharf, City of London, Ilford & Central London. Fast executive chauffeur & private hire with Meet & Greet.",
   alternates: {
     canonical: "https://luxelynetransfers.co.uk/london-city-airport-transfers",
+  },
+  openGraph: {
+    title: "London City Airport Transfers (LCY) | Executive Chauffeur & Private Hire",
+    description:
+      "Fast, fixed-fare London City Airport (LCY) taxi and executive chauffeur service to Canary Wharf, the City, Ilford & West End.",
+    url: "https://luxelynetransfers.co.uk/london-city-airport-transfers",
+    images: ["/og-image.png"],
   },
 }
 
@@ -17,33 +24,66 @@ export default function LondonCityTransfersPage() {
     {
       terminal: "Main Terminal",
       meetingPoint:
-        "Our driver will meet you inside the Arrivals Hall, directly opposite the main arrivals exit near the Airport Information Desk. The driver will hold a name board.",
+        "Our driver will meet you inside the London City Airport Main Terminal Arrivals Hall, directly opposite the main arrivals exit near the Airport Information Desk and WHSmith, holding a personalized name board.",
+    },
+  ]
+
+  const popularRoutes = [
+    {
+      destination: "Canary Wharf & ExCeL London (Docklands E14 / E16)",
+      distance: "2 – 4 miles",
+      estimatedTime: "8 - 15 mins",
+      bestFor: "Executive Financial & Exhibition Transfers",
+    },
+    {
+      destination: "City of London (Bank, Liverpool Street & Bishopsgate)",
+      distance: "6 – 7 miles",
+      estimatedTime: "20 - 28 mins",
+      bestFor: "Corporate Roadshows & Banking District",
+    },
+    {
+      destination: "Ilford, Redbridge, Stratford & East London (IG1–IG6)",
+      distance: "7 – 9 miles",
+      estimatedTime: "18 - 25 mins",
+      bestFor: "Rapid Local Door-to-Door Pickups",
+    },
+    {
+      destination: "Westminster, Mayfair & West End Hotels",
+      distance: "9 – 11 miles",
+      estimatedTime: "30 - 40 mins",
+      bestFor: "Luxury Hotel & Diplomatic Transfers",
+    },
+    {
+      destination: "Heathrow Airport (LHR) / Gatwick Airport (LGW)",
+      distance: "24 – 36 miles",
+      estimatedTime: "50 - 70 mins",
+      bestFor: "Executive Inter-Airport Connections",
     },
   ]
 
   const generalTips = [
-    "London City is a smaller airport with fast arrivals; we suggest scheduling your meeting time 20 to 30 minutes after landing.",
-    "Your transfer booking includes 45 minutes of free waiting time from the landing time of your flight.",
-    "We track your flight dynamically to coordinate driver arrivals, making sure there are no delay charges for delayed flights.",
-    "Be sure to provide your flight number during booking to ensure accurate tracking.",
+    "London City Airport offers rapid arrivals; most passengers clear baggage reclaim within 15 to 25 minutes of landing.",
+    "Your transfer booking still includes a full 45 minutes of complimentary waiting time from the landing time of your flight.",
+    "We track your flight dynamically to coordinate driver dispatch, ensuring zero delay charges if your flight is held up.",
+    "Provide your flight number during booking so we can monitor your arrival gate in real time.",
   ]
 
   const faqs = [
     {
-      q: "Where is the meeting point at London City Airport?",
-      a: "Our driver will wait inside the arrivals hall of the Main Terminal, directly opposite the arrivals exit near the Airport Information Desk, holding a sign displaying the passenger's name.",
+      q: "Where is the meeting point at London City Airport (LCY)?",
+      a: "Our driver waits inside the Main Terminal Arrivals Hall, directly opposite the passenger exit near the Airport Information Desk, holding a sign displaying your name.",
     },
     {
-      q: "What happens if my flight is delayed?",
-      a: "We track all flights landing at London City Airport. In case of delay, the driver's pickup time is shifted automatically at no extra cost.",
+      q: "How close is London City Airport to Canary Wharf and Ilford?",
+      a: "London City Airport is just 3 miles (10–15 minutes) from Canary Wharf, 2 miles from ExCeL London, and 8 miles (20 minutes) from Ilford and Redbridge.",
     },
     {
-      q: "How long is the transfer time from London City Airport to Central London?",
-      a: "London City Airport is situated just 6 miles east of the City of London. Travel time is typically between 20 and 30 minutes depending on road conditions.",
+      q: "What happens if my flight into London City Airport is delayed?",
+      a: "We track all incoming flights to LCY in real time. In case of delay, your chauffeur's pickup time is shifted automatically at no extra cost.",
     },
     {
-      q: "Can I book child safety seats for a City Airport transfer?",
-      a: "Yes. You can select child seats, infant seats, or booster seats as options on our booking form calculator.",
+      q: "Can I book child safety seats for a London City Airport transfer?",
+      a: "Yes. You can select infant, toddler, or booster seats as options on our online booking calculator.",
     },
   ]
 
@@ -51,12 +91,14 @@ export default function LondonCityTransfersPage() {
     <AirportPageLayout
       airportName="London City"
       airportCode="LCY"
-      tagline="Premium private hire taxi and airport transfers from London City Airport (LCY) to central London and beyond. 24/7 reliability."
-      description="Luxelyne Transfers LTD provides professional private hire transfers to and from London City Airport (LCY). Positioned closest to London's financial district, City Airport is a favorite for corporate travelers. Our services are tailored to provide fast, reliable, and comfortable transfers directly to your hotel or office."
+      slug="london-city-airport-transfers"
+      tagline="Executive private hire taxi and chauffeur transfers from London City Airport (LCY) to Canary Wharf, the City, Ilford and Central London. 24/7 reliability."
+      description="Luxelyne Transfers LTD (Company No. 16665396) provides fast, executive private hire transfers to and from London City Airport (LCY). Positioned in the Royal Docks right next to Canary Wharf, ExCeL London, and Ilford, LCY is London's premier business gateway. Enjoy fixed fares, live flight tracking, and terminal Meet & Greet."
       distanceToLondon="6 miles"
       avgTime="20 - 30 mins"
       terminals={terminals}
       terminalGuide={terminalGuide}
+      popularRoutes={popularRoutes}
       generalTips={generalTips}
       faqs={faqs}
     />
