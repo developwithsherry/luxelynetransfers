@@ -12,6 +12,7 @@ import { Badge } from "./ui/badge"
 import { useAddons } from "@/context/addon-context"
 import { formatDateUK } from "@/lib/format-util"
 import { googleLoader } from "@/lib/google.loader"
+import { TimePickerInput } from "@/components/admin/booking/time-picker-input"
 
 interface BookingHeaderProps {
     className?: string
@@ -310,12 +311,12 @@ export function BookingHeader({ className, isBookingPage }: BookingHeaderProps) 
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Pickup Time</label>
-                            <input
-                                type="time"
-                                className="w-full p-2 text-sm bg-neutral-50 dark:bg-neutral-900 border border-border rounded-lg text-foreground focus:ring-1 focus:ring-lime-500 focus:outline-none"
+                            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Pickup Time (24h)</label>
+                            <TimePickerInput
                                 value={editTime}
-                                onChange={(e) => setEditTime(e.target.value)}
+                                onChange={(time) => setEditTime(time)}
+                                hideHelperText
+                                inputClassName="h-[38px] text-sm bg-neutral-50 dark:bg-neutral-900 border-border rounded-lg"
                             />
                         </div>
                     </div>
@@ -332,12 +333,12 @@ export function BookingHeader({ className, isBookingPage }: BookingHeaderProps) 
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Return Time</label>
-                                <input
-                                    type="time"
-                                    className="w-full p-2 text-sm bg-neutral-50 dark:bg-neutral-900 border border-border rounded-lg text-foreground focus:ring-1 focus:ring-lime-500 focus:outline-none"
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Return Time (24h)</label>
+                                <TimePickerInput
                                     value={editReturnTime}
-                                    onChange={(e) => setEditReturnTime(e.target.value)}
+                                    onChange={(time) => setEditReturnTime(time)}
+                                    hideHelperText
+                                    inputClassName="h-[38px] text-sm bg-neutral-50 dark:bg-neutral-900 border-border rounded-lg"
                                 />
                             </div>
                         </div>

@@ -134,10 +134,13 @@ export async function updateBooking(
 
         // Remove virtual joined fields before database update
         delete payload.addons;
+        delete payload.add_on;
         delete payload.final_amount;
         delete payload.supplier;
         delete payload.driver;
+        delete payload.vehicle;
         delete payload.booking_addons;
+        delete payload.payments;
 
         const { data, error } = await supabase
             .from("booking")
@@ -156,6 +159,7 @@ export async function updateBooking(
         revalidatePath("/admin/drivers");
         revalidatePath("/admin/suppliers");
         revalidatePath("/admin/dashboard");
+        revalidatePath("/admin/accounts");
 
         return { success: true, data: data as Booking };
     } catch (error: any) {

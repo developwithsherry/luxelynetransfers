@@ -67,12 +67,12 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
     pickupLocation: "",
     dropOffLocation: "",
     date: new Date(),
-    time: "09:00 AM",
+    time: "09:00",
 
     // Return trip
     withReturn: false,
     returnDate: new Date(),
-    returnTime: "05:00 PM",
+    returnTime: "17:00",
 
     // Vehicle and pricing (Hardcoded offline categories: Saloon, Estate, MPV, Minibus, Executive Saloon, Executive Minibus)
     vehicleCategory: "Saloon",
@@ -142,10 +142,10 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
       pickupLocation: "",
       dropOffLocation: "",
       date: new Date(),
-      time: "09:00 AM",
+      time: "09:00",
       withReturn: false,
       returnDate: new Date(),
-      returnTime: "05:00 PM",
+      returnTime: "17:00",
       vehicleCategory: "Saloon",
       totalDistance: "",
       totalAmount: "",
@@ -520,7 +520,7 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="pickupTime">Time (AM/PM) *</Label>
+                <Label htmlFor="pickupTime">Time (24h) *</Label>
                 <TimePickerInput
                   id="pickupTime"
                   value={formData.time}
@@ -548,7 +548,7 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
                 </div>
 
                 <div className="space-y-1">
-                  <Label htmlFor="returnTime">Return Time (AM/PM) *</Label>
+                  <Label htmlFor="returnTime">Return Time (24h) *</Label>
                   <TimePickerInput
                     id="returnTime"
                     value={formData.returnTime}

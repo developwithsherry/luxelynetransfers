@@ -1,4 +1,6 @@
 "use client"
+
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -8,7 +10,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
 import {
   Select,
   SelectContent,
@@ -20,16 +21,17 @@ import { toast } from "sonner"
 import { Label } from "@/components/ui/label"
 import { changeBookingStatus } from "@/lib/admin/change-booking-status"
 import { Booking } from "@/types/booking"
-import { Input } from "@/components/ui/input"
-import { format, isValid } from "date-fns"
-import { DatePickerInput } from "./date-picker-input"
-import { TimePickerInput } from "./time-picker-input"
 
 interface ChangeBookingStatusDialogProps {
-  booking: Booking;
-  status?: string | null;
-  bookingId?: string;
-  onStatusChange?: (data: { status: Booking["status"], date: string, time: string, payment_status?: string }) => void;
+  booking: Booking
+  status?: string | null
+  bookingId?: string
+  onStatusChange?: (data: {
+    status: Booking["status"]
+    date: string
+    time: string
+    payment_status?: string
+  }) => void
 }
 
 const JOB_STATUSES = [
@@ -40,13 +42,13 @@ const JOB_STATUSES = [
   { value: "complaint", label: "Complaint" },
   { value: "pending", label: "Pending" },
   { value: "cancelled", label: "Cancelled" },
-];
+]
 
 const PAYMENT_STATUSES = [
   { value: "pending", label: "Pending" },
   { value: "paid", label: "Paid" },
   { value: "paid_to_driver", label: "Paid to Driver" },
-];
+]
 
 export function ChangeBookingStatusDialog({
   booking,
@@ -55,65 +57,68 @@ export function ChangeBookingStatusDialog({
   onStatusChange,
 }: ChangeBookingStatusDialogProps) {
   const [bookingStatus, setBookingStatus] = useState<string>(
-    String(status || booking.status || "pending")
-  );
+    String(status || booking.status || "pending").toLowerCase()
+  )
   const [paymentStatus, setPaymentStatus] = useState<string>(
-    booking.payment_status || "pending"
-  );
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
+    String(booking.payment_status || "pending").toLowerCase()
+  )
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
 
-  const [date, setDate] = useState<Date | null>(() => {
-    if (!booking.date) return null
-    const d = new Date(booking.date)
-    return isValid(d) ? d : null
-  });
-  const [time, setTime] = useState(booking.time || "09:00 AM");
+  useEffect(() => {
+    if (open) {
+      setBookingStatus(String(status || booking.status || "pending").toLowerCase())
+      setPaymentStatus(String(booking.payment_status || "pending").toLowerCase())
+    }
+  }, [open, status, booking.status, booking.payment_status])
 
   const onChangeStatusConfirm = async () => {
     try {
-      setLoading(true);
-      const targetId = booking.id || bookingId;
-      if (!targetId) throw new Error("No booking ID found");
-
-      const dateStr = date && isValid(date) ? format(date, "yyyy-MM-dd") : (booking.date || "");
+      setLoading(true)
+      const targetId = booking.id || bookingId
+      if (!targetId) throw new Error("No booking ID found")
 
       const response = await changeBookingStatus(
         targetId,
         bookingStatus || "pending",
-        dateStr,
-        time,
+        undefined,
+        undefined,
         paymentStatus
-      );
-      if (response.error) throw response.error;
+      )
+      if (!response.success || response.error) {
+        throw new Error(response.error || "Failed to update status")
+      }
 
-      toast.success("Booking updated successfully");
+      toast.success("Booking & payment status updated")
       if (onStatusChange) {
         onStatusChange({
           status: (bookingStatus || "pending") as Booking["status"],
-          date: dateStr,
-          time,
+          date: booking.date || "",
+          time: booking.time || "",
           payment_status: paymentStatus,
-        });
+        })
       }
-      setOpen(false);
+      setOpen(false)
     } catch (error) {
-      toast.error("Error updating booking: " + (error as Error).message);
+      toast.error("Error updating status: " + (error as Error).message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-9">Update Status</Button>
+        <Button variant="outline" className="h-9 text-xs font-semibold">
+          Update Status
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Update Booking Status</DialogTitle>
+          <DialogTitle>Update Booking & Payment Status</DialogTitle>
           <DialogDescription>
-            Change job status, payment status, date, and time for #{booking.id?.slice(0, 8)}
+            Change job status and payment settlement state for #
+            {booking.id?.slice(0, 5).toUpperCase()}
           </DialogDescription>
         </DialogHeader>
 
@@ -140,7 +145,7 @@ export function ChangeBookingStatusDialog({
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-slate-700">Payment Status</Label>
             <Select
-              value={paymentStatus}
+              value={paymentStatus || "pending"}
               onValueChange={(value) => setPaymentStatus(value)}
             >
               <SelectTrigger className="w-full">
@@ -156,30 +161,12 @@ export function ChangeBookingStatusDialog({
             </Select>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold text-slate-700">Date</Label>
-              <DatePickerInput
-                value={date}
-                onChange={setDate}
-              />
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs font-semibold text-slate-700">Time (AM/PM)</Label>
-              <TimePickerInput
-                value={time}
-                onChange={setTime}
-              />
-            </div>
-          </div>
-
-          <Button 
-            className="w-full bg-lime-400 text-slate-950 hover:bg-lime-500 font-semibold mt-2" 
-            onClick={onChangeStatusConfirm} 
+          <Button
+            className="w-full bg-lime-400 text-slate-950 hover:bg-lime-500 font-bold mt-2"
+            onClick={onChangeStatusConfirm}
             disabled={loading}
           >
-            {loading ? "Updating..." : "Save Changes"}
+            {loading ? "Updating..." : "Save Status"}
           </Button>
         </div>
       </DialogContent>

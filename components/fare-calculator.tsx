@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { googleLoader } from "@/lib/google.loader"
-import { CalendarIcon, Clock, MapPin, Plus, X } from "lucide-react"
+import { CalendarIcon, MapPin, Plus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -12,14 +12,14 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { TimePickerInput } from "@/components/admin/booking/time-picker-input"
 import { useRouter } from "next/navigation"
 import { formatDateUK } from "@/lib/format-util"
-import { extractPostalCodeFromPlace, extractPostalCode } from "@/lib/manage-hotspot-route"
+import { extractPostalCodeFromPlace, extractPostalCode, getPostcodeFromGeocodeAPI } from "@/lib/manage-hotspot-route"
 import { checkHotspotRoute } from "@/lib/hotspot-routes"
 import { toast } from "sonner"
-import { getPostcodeFromGeocodeAPI } from "@/lib/manage-hotspot-route"
 import { getPostcodeExtras } from "@/lib/postcode-extras"
+
 type Location = {
   id: string
   address: string
@@ -27,26 +27,18 @@ type Location = {
   postalCode?: string
 }
 
-type TimeOption = {
-  value: string
-  label: string
-  disabled: boolean
-}
-
-const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!
-
 const FareCalculator = () => {
   const router = useRouter()
   const [pickup, setPickup] = useState<Location>({ id: "pickup", address: "" })
   const [dropoff, setDropoff] = useState<Location>({ id: "dropoff", address: "" })
   const [stops, setStops] = useState<Location[]>([])
   const [date, setDate] = useState<Date>(new Date())
-  const [time, setTime] = useState<string>("")
+  const [time, setTime] = useState<string>("09:00")
 
   // Return trip states
   const [withReturn, setWithReturn] = useState<boolean>(false)
   const [returnDate, setReturnDate] = useState<Date>(new Date())
-  const [returnTime, setReturnTime] = useState<string>("")
+  const [returnTime, setReturnTime] = useState<string>("17:00")
 
   const [isCalculating, setIsCalculating] = useState(false)
   const [pickupError, setPickupError] = useState<string>("")
@@ -63,97 +55,6 @@ const FareCalculator = () => {
   const pickupAutocompleteRef = useRef<any | null>(null)
   const dropoffAutocompleteRef = useRef<any | null>(null)
   const stopAutocompleteRefs = useRef<Map<string, any>>(new Map())
-
-  useEffect(() => {
-    const now = new Date()
-    now.setHours(now.getHours() + 6)
-
-    // Round up to next full hour
-    if (now.getMinutes() > 0 || now.getSeconds() > 0) {
-      now.setHours(now.getHours() + 1)
-      now.setMinutes(0)
-      now.setSeconds(0)
-    }
-
-    const formatted = now.toTimeString().slice(0, 5)
-    setTime(formatted)
-  }, [])
-
-  const generateTimeOptions = (selectedDate: Date): TimeOption[] => {
-    const timeOptions: TimeOption[] = []
-    const now = new Date()
-    const isToday = selectedDate.toDateString() === now.toDateString()
-
-    // Calculate minimum time (6 hours from now, rounded up to next hour)
-    const minTime = new Date()
-    minTime.setHours(minTime.getHours() + 6)
-    if (minTime.getMinutes() > 0 || minTime.getSeconds() > 0) {
-      minTime.setHours(minTime.getHours() + 1)
-      minTime.setMinutes(0)
-      minTime.setSeconds(0)
-    }
-    const minTimeString = minTime.toTimeString().slice(0, 5)
-
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const hourStr = hour.toString().padStart(2, "0")
-        const minuteStr = minute.toString().padStart(2, "0")
-        const value = `${hourStr}:${minuteStr}`
-
-        // For current day: disable if time is before 6 hours from now
-        // For future days: allow any time that's 6 hours ahead (no restriction)
-        const disabled = isToday ? value < minTimeString : false
-
-        timeOptions.push({ value, label: value, disabled: disabled })
-      }
-    }
-
-    return timeOptions
-  }
-
-  const timeOptions = generateTimeOptions(date)
-
-  const generateReturnTimeOptions = (selectedReturnDate: Date, outboundTime: string): TimeOption[] => {
-    const timeOptions: TimeOption[] = []
-    const now = new Date()
-    const isToday = selectedReturnDate.toDateString() === now.toDateString()
-    const isSameDay = selectedReturnDate.toDateString() === date.toDateString()
-
-    // Calculate minimum time (6 hours from now, rounded up to next hour)
-    const minTime = new Date()
-    minTime.setHours(minTime.getHours() + 6)
-    if (minTime.getMinutes() > 0 || minTime.getSeconds() > 0) {
-      minTime.setHours(minTime.getHours() + 1)
-      minTime.setMinutes(0)
-      minTime.setSeconds(0)
-    }
-    const minTimeString = minTime.toTimeString().slice(0, 5)
-
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const hourStr = hour.toString().padStart(2, "0")
-        const minuteStr = minute.toString().padStart(2, "0")
-        const value = `${hourStr}:${minuteStr}`
-
-        let disabled = false
-
-        if (isToday) {
-          // For current day: must be at least 6 hours from now
-          disabled = value < minTimeString
-        } else if (isSameDay) {
-          // Same day as outbound: must be after outbound time
-          disabled = value <= outboundTime
-        }
-        // For future days: no restrictions (any time allowed)
-
-        timeOptions.push({ value, label: value, disabled: disabled })
-      }
-    }
-
-    return timeOptions
-  }
-
-  const returnTimeOptions = generateReturnTimeOptions(returnDate, time)
 
   const initializeGoogleMaps = async () => {
     try {
@@ -332,31 +233,22 @@ const FareCalculator = () => {
     }
     setIsCalculating(true)
     try {
-      console.log("Pick up", pickup)
-      console.log("Drop off", dropoff)
-      // ✅ 1. Fill missing postcodes from placeId
       let pickupPostcode = pickup.postalCode
       let dropoffPostcode = dropoff.postalCode
 
       if (!pickupPostcode && pickup.placeId) {
         pickupPostcode = (await getPostcodeFromPlaceId(pickup.placeId)) || undefined
-        console.log("pickupPostcode", pickupPostcode)
       }
       if (!dropoffPostcode && dropoff.placeId) {
         dropoffPostcode = (await getPostcodeFromPlaceId(dropoff.placeId)) || undefined
-        console.log("pickupPostcode", dropoffPostcode)
       }
 
       let pickUpextraAmount = 0
       if (pickupPostcode) {
-        console.log("checking extras")
         setCheckingExtras(true)
         try {
           const data = await getPostcodeExtras(pickupPostcode)
-          console.log("data", data)
-          // Ensure we get a valid number, default to 0 if undefined/null
           pickUpextraAmount = Number(data?.data?.extras) || 0
-
           setPostcodeExtras(pickUpextraAmount)
         } catch (error) {
           console.error("Error fetching postcode extras:", error)
@@ -368,14 +260,10 @@ const FareCalculator = () => {
 
       let extraAmount = 0
       if (dropoffPostcode) {
-        console.log("checking extras")
         setCheckingExtras(true)
         try {
           const data = await getPostcodeExtras(dropoffPostcode)
-          console.log("data", data)
-          // Ensure we get a valid number, default to 0 if undefined/null
           extraAmount = Number(data?.data?.extras) || 0
-
           setPostcodeExtras(extraAmount)
         } catch (error) {
           console.error("Error fetching postcode extras:", error)
@@ -385,13 +273,9 @@ const FareCalculator = () => {
         setCheckingExtras(false)
       }
 
-      // ✅ 2. Check for hotspot route
       if (stops.length === 0 && pickupPostcode && dropoffPostcode) {
-        console.log(`Checking hotspot route: ${pickupPostcode} -> ${dropoffPostcode}`)
-
         const hotspotResult = await checkHotspotRoute(pickupPostcode, dropoffPostcode)
         if (hotspotResult.success && hotspotResult.data) {
-          console.log("Hotspot route found:", hotspotResult.data)
           toast.success("Using express route pricing!")
 
           const params = new URLSearchParams()
@@ -428,29 +312,23 @@ const FareCalculator = () => {
       const waypoints = stops.filter((stop) => stop.address).map((stop) => ({ location: stop.address, stopover: true }))
 
       if (validStops.length > 0) {
-        console.log("checking stops extras")
         setCheckingExtras(true)
 
         for (const stop of validStops) {
           try {
             let stopPostcode = stop.postalCode
 
-            // Get postcode from placeId if not available
             if (!stopPostcode && stop.placeId) {
               stopPostcode = (await getPostcodeFromPlaceId(stop.placeId)) || undefined
-              console.log(`Stop postcode for ${stop.address}:`, stopPostcode)
             }
 
-            // Get extras for this stop's postcode
             if (stopPostcode) {
               const data = await getPostcodeExtras(stopPostcode)
-              console.log(`Stop extras data for ${stopPostcode}:`, data)
               const stopExtra = Number(data?.data?.extras) || 0
               stopsExtraAmount += stopExtra
             }
           } catch (error) {
             console.error(`Error fetching extras for stop ${stop.address}:`, error)
-            // Continue with other stops even if one fails
           }
         }
         setCheckingExtras(false)
@@ -576,7 +454,6 @@ const FareCalculator = () => {
                 )}
               />
             </Switch>
-            {/* Optional: pulsing animation effect */}
             {withReturn && (
               <div className="absolute top-1 left-1 h-6 w-6 animate-ping rounded-full bg-yellow-300 opacity-75 z-[-1]" />
             )}
@@ -719,26 +596,16 @@ const FareCalculator = () => {
             </Popover>
           </div>
 
-          {/* Time */}
+          {/* Time (24-Hour Format - Any Minute) */}
           <div className="space-y-2 md:col-span-1">
-            <label className="block text-sm font-medium font-poppins">TIME</label>
-            <Select value={time} onValueChange={setTime}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select time">
-                  <div className="flex items-center">
-                    <Clock className="mr-2 h-4 w-4" />
-                    {time}
-                  </div>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px]">
-                {timeOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <label className="block text-sm font-medium font-poppins">TIME (24H)</label>
+            <TimePickerInput
+              value={time}
+              onChange={setTime}
+              placeholder="Select time (HH:MM)"
+              hideHelperText
+              inputClassName="h-10"
+            />
           </div>
         </div>
 
@@ -773,24 +640,14 @@ const FareCalculator = () => {
                 </Popover>
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-medium font-poppins">RETURN TIME</label>
-                <Select value={returnTime} onValueChange={setReturnTime}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select return time">
-                      <div className="flex items-center">
-                        <Clock className="mr-2 h-4 w-4" />
-                        {returnTime}
-                      </div>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
-                    {returnTimeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <label className="block text-sm font-medium font-poppins">RETURN TIME (24H)</label>
+                <TimePickerInput
+                  value={returnTime}
+                  onChange={setReturnTime}
+                  placeholder="Select return time (HH:MM)"
+                  hideHelperText
+                  inputClassName="h-10"
+                />
               </div>
             </div>
           </div>
