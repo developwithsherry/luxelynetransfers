@@ -6,6 +6,7 @@ import { ServicesSection } from "@/components/home/services"
 import { Footer } from "@/components/home/footer"
 import { ReviewsSection } from "@/components/home/reviews-section"
 import { HomeFAQSection } from "@/components/home/faq-section"
+import { DriverCTASection } from "@/components/home/driver-cta-section"
 import { HomeArticlesSection } from "@/components/home/articles-section"
 import SimpleBookingForm from "@/components/booking-form"
 import WhatsAppContactButton from "@/components/home/whatsapp-button-fixed"
@@ -40,6 +41,7 @@ export default function Home() {
         <WhyChooseUs />
         <ReviewsSection />
         <HomeFAQSection />
+        <DriverCTASection />
         <HomeArticlesSection />
       </main>
       <WhatsAppContactButton />

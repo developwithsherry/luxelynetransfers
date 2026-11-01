@@ -120,6 +120,7 @@ export function Footer() {
                 { name: "Chauffeur & Taxi Services", href: "/services" },
                 { name: "About Luxelyne", href: "/about" },
                 { name: "Travel Guides & Blog", href: "/blog" },
+                { name: "Apply as Driver", href: "/apply-as-driver" },
                 { name: "Contact Us", href: "/contact" },
                 { name: "Instant Fare Quote", href: "/#book-now" },
               ].map((item) => (

@@ -14,6 +14,21 @@ import { Booking } from "@/types/booking"
 
 export const dynamic = "force-dynamic"
 
+function normalizeBookingYMD(dateVal?: string | null): string {
+  if (!dateVal) return ""
+  const trimmed = dateVal.trim()
+  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (match) {
+    return `${match[1]}-${match[2]}-${match[3]}`
+  }
+  const d = new Date(trimmed)
+  if (isNaN(d.getTime())) return ""
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
+
 function getBookingTimestamp(dateVal?: string | null, timeVal?: string | null): number {
   if (!dateVal) return 0
   const trimmed = dateVal.trim()
@@ -63,52 +78,6 @@ export default function BookingsPage() {
     const d = String(now.getDate()).padStart(2, "0")
     return `${y}-${m}-${d}`
   }, [])
-
-  // Calculate Dispatch KPI Stats from all bookings
-  const stats = useMemo(() => {
-    const list = pendingBookings || []
-    const totalBookings = list.length
-
-    let upcomingCount = 0
-    let pastCount = 0
-    let notAssignedCount = 0
-    let totalRevenue = 0
-
-    list.forEach((b) => {
-      const isCancelled = (b.status || "").toLowerCase() === "cancelled"
-      const dateStr = b.date || ""
-
-      if (!isCancelled) {
-        // Revenue (customer price + addons or total_amount)
-        const amt = Number(b.final_amount ?? b.total_amount ?? 0)
-        totalRevenue += isNaN(amt) ? 0 : amt
-
-        // Driver allocation
-        if (!b.driver_id) {
-          notAssignedCount++
-        }
-
-        // Timeframe
-        if (dateStr >= todayStr) {
-          upcomingCount++
-        } else {
-          pastCount++
-        }
-      } else {
-        if (dateStr < todayStr) {
-          pastCount++
-        }
-      }
-    })
-
-    return {
-      totalBookings,
-      upcomingCount,
-      pastCount,
-      notAssignedCount,
-      totalRevenue,
-    }
-  }, [pendingBookings, todayStr])
 
   // Filter and sort bookings based on current dispatch filters
   const filteredBookings = useMemo(() => {
@@ -230,9 +199,12 @@ export default function BookingsPage() {
 
     // 3. Timeframe Filter (Upcoming / Past)
     if (filters.timeframe === "upcoming") {
-      filtered = filtered.filter((b) => (b.date || "") >= todayStr)
+      filtered = filtered.filter((b) => normalizeBookingYMD(b.date) >= todayStr)
     } else if (filters.timeframe === "past") {
-      filtered = filtered.filter((b) => (b.date || "") < todayStr)
+      filtered = filtered.filter((b) => {
+        const dStr = normalizeBookingYMD(b.date)
+        return Boolean(dStr && dStr < todayStr)
+      })
     }
 
     // 4. Driver Assignment Filter
@@ -278,12 +250,18 @@ export default function BookingsPage() {
 
     // 7. Date Range: From Date
     if (filters.fromDate) {
-      filtered = filtered.filter((b) => (b.date || "") >= filters.fromDate)
+      filtered = filtered.filter((b) => {
+        const dStr = normalizeBookingYMD(b.date)
+        return Boolean(dStr && dStr >= filters.fromDate)
+      })
     }
 
     // 8. Date Range: To Date
     if (filters.toDate) {
-      filtered = filtered.filter((b) => (b.date || "") <= filters.toDate)
+      filtered = filtered.filter((b) => {
+        const dStr = normalizeBookingYMD(b.date)
+        return Boolean(dStr && dStr <= filters.toDate)
+      })
     }
 
     // 9. Sort Order
@@ -306,7 +284,7 @@ export default function BookingsPage() {
       const getTier = (job: Booking) => {
         const s = (job.status || "").toLowerCase()
         const p = (job.payment_status || "").toLowerCase()
-        const dStr = (job.date || "").slice(0, 10)
+        const dStr = normalizeBookingYMD(job.date)
 
         if (s === "cancelled") return 3
         if (s === "completed" && p === "paid_to_driver") return 2
@@ -332,6 +310,70 @@ export default function BookingsPage() {
 
     return filtered
   }, [pendingBookings, filters, todayStr])
+
+  // Calculate Dispatch KPI Stats dynamically from the currently filtered bookings
+  const stats = useMemo(() => {
+    const list = filteredBookings
+    const totalBookings = list.length
+
+    let upcomingCount = 0
+    let pastCount = 0
+    let notAssignedCount = 0
+    let totalRevenue = 0
+    let completedRevenue = 0
+    let completedDriverAmount = 0
+
+    list.forEach((b) => {
+      const statusLower = (b.status || "").toLowerCase()
+      const isCancelled = statusLower === "cancelled"
+      const isCompleted = statusLower === "completed"
+      const dateStr = normalizeBookingYMD(b.date)
+
+      if (!isCancelled) {
+        // Revenue (customer price + addons or total_amount), including future jobs
+        const amt = Number(b.final_amount ?? b.total_amount ?? 0)
+        const dCost = Number(b.driver_price || 0)
+        const validAmt = isNaN(amt) ? 0 : amt
+        const validDriverCost = isNaN(dCost) ? 0 : dCost
+
+        totalRevenue += validAmt
+
+        // Profit and Driver Amount calculated strictly from completed jobs only
+        if (isCompleted) {
+          completedRevenue += validAmt
+          completedDriverAmount += validDriverCost
+        }
+
+        // Driver allocation
+        if (!b.driver_id) {
+          notAssignedCount++
+        }
+
+        // Timeframe
+        if (dateStr >= todayStr) {
+          upcomingCount++
+        } else {
+          pastCount++
+        }
+      } else {
+        if (dateStr < todayStr) {
+          pastCount++
+        }
+      }
+    })
+
+    const completedProfit = completedRevenue - completedDriverAmount
+
+    return {
+      totalBookings,
+      upcomingCount,
+      pastCount,
+      notAssignedCount,
+      totalRevenue,
+      completedProfit,
+      completedDriverAmount,
+    }
+  }, [filteredBookings, todayStr])
 
   // Has any active filter that alters the dataset from default
   const hasActiveFilters = Boolean(
@@ -406,6 +448,8 @@ export default function BookingsPage() {
         pastCount={stats.pastCount}
         notAssignedCount={stats.notAssignedCount}
         totalRevenue={stats.totalRevenue}
+        completedProfit={stats.completedProfit}
+        completedDriverAmount={stats.completedDriverAmount}
         activeCard={activeStatCard}
         onCardClick={handleStatCardClick}
       />

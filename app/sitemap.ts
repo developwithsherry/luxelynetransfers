@@ -69,6 +69,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.85,
     },
     {
+      url: `${baseUrl}/apply-as-driver`,
+      lastModified: lastUpdated,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: lastUpdated,
       changeFrequency: "monthly",

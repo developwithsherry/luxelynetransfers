@@ -15,6 +15,8 @@ export interface DispatchStatsProps {
   pastCount: number
   notAssignedCount: number
   totalRevenue: number
+  completedProfit: number
+  completedDriverAmount: number
   activeCard?: string | null
   onCardClick?: (cardKey: string) => void
 }
@@ -25,6 +27,8 @@ export function DispatchStats({
   pastCount,
   notAssignedCount,
   totalRevenue,
+  completedProfit,
+  completedDriverAmount,
   activeCard,
   onCardClick,
 }: DispatchStatsProps) {
@@ -100,6 +104,7 @@ export function DispatchStats({
         const Icon = card.icon
         const isActive = activeCard === card.key
         const isClickable = Boolean(onCardClick && !card.nonClickable)
+        const isRevenueCard = card.key === "revenue"
 
         return (
           <div
@@ -109,7 +114,7 @@ export function DispatchStats({
                 onCardClick(card.key)
               }
             }}
-            className={`relative rounded-xl p-3 sm:p-3.5 border transition-all duration-150 select-none shadow-xs min-w-0 ${
+            className={`relative rounded-xl p-3 sm:p-3.5 border transition-all duration-150 select-none shadow-xs min-w-0 flex flex-col justify-between ${
               card.accentBg
             } ${
               isActive
@@ -117,33 +122,64 @@ export function DispatchStats({
                 : "border-slate-200 hover:border-slate-300 hover:shadow-sm"
             } ${isClickable ? "cursor-pointer group" : ""}`}
           >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider truncate group-hover:text-slate-900 transition-colors">
-                {card.label}
-              </span>
-              <div
-                className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${card.badgeColor}`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider truncate group-hover:text-slate-900 transition-colors">
+                  {card.label}
+                </span>
+                <div
+                  className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${card.badgeColor}`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
+                </div>
+              </div>
+
+              <div className="flex items-baseline justify-between gap-1">
+                <div
+                  className={`text-lg sm:text-xl font-extrabold tracking-tight truncate ${
+                    card.isAlert ? "text-rose-600" : "text-slate-950"
+                  }`}
+                >
+                  {card.value}
+                </div>
+                {isClickable && (
+                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-800 transition-all shrink-0" />
+                )}
               </div>
             </div>
 
-            <div className="flex items-baseline justify-between gap-1">
-              <div
-                className={`text-lg sm:text-xl font-extrabold tracking-tight truncate ${
-                  card.isAlert ? "text-rose-600" : "text-slate-950"
-                }`}
-              >
-                {card.value}
+            {isRevenueCard ? (
+              <div className="mt-2 pt-1.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[10px]">
+                <span className="text-slate-600 font-medium">
+                  Profit:{" "}
+                  <strong
+                    className={`font-bold font-mono ${
+                      completedProfit >= 0 ? "text-emerald-700" : "text-rose-600"
+                    }`}
+                  >
+                    {completedProfit < 0 ? "-" : ""}£
+                    {Math.abs(completedProfit).toLocaleString("en-GB", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </strong>
+                </span>
+                <span className="text-slate-600 font-medium">
+                  Driver:{" "}
+                  <strong className="text-slate-900 font-bold font-mono">
+                    £
+                    {completedDriverAmount.toLocaleString("en-GB", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </strong>
+                </span>
               </div>
-              {isClickable && (
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-800 transition-all shrink-0" />
-              )}
-            </div>
-
-            <p className="text-[10px] text-slate-500 mt-0.5 truncate">
-              {card.subtext}
-            </p>
+            ) : (
+              <p className="text-[10px] text-slate-500 mt-1 truncate">
+                {card.subtext}
+              </p>
+            )}
           </div>
         )
       })}

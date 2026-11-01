@@ -14,6 +14,7 @@ import {
   MessageCircle,
   Building2,
   UserCheck,
+  UserPlus,
   BarChart3,
   PanelLeftClose,
   PanelLeftOpen,
@@ -60,7 +61,14 @@ const navigationLinks = [
     path: "/admin/drivers",
     label: "Drivers",
     icon: UserCheck,
-    isActive: (pathname: string) => pathname.includes("/admin/drivers"),
+    isActive: (pathname: string) =>
+      pathname.includes("/admin/drivers") && !pathname.includes("/admin/driver-hiring"),
+  },
+  {
+    path: "/admin/driver-hiring",
+    label: "Driver Hiring",
+    icon: UserPlus,
+    isActive: (pathname: string) => pathname.includes("/admin/driver-hiring"),
   },
   {
     path: "/admin/accounts",

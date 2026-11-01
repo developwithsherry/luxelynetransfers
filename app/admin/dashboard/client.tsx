@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import {
   Calendar,
   Clock,
@@ -50,6 +50,12 @@ function normalizeBookingYMD(dateVal?: string | null): string {
 }
 
 export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
+  const [liveBookings, setLiveBookings] = useState<Booking[]>(bookings)
+
+  useEffect(() => {
+    setLiveBookings(bookings)
+  }, [bookings])
+
   const todayStr = useMemo(() => {
     const now = new Date()
     const y = now.getFullYear()
@@ -90,7 +96,7 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
 
   // Top KPI Stats (filtered ONLY by statsFromDate / statsToDate)
   const metrics = useMemo(() => {
-    const statsBookings = bookings.filter((b) => {
+    const statsBookings = liveBookings.filter((b) => {
       if (!statsFromDate && !statsToDate) return true
       const bYMD = normalizeBookingYMD(b.date)
       if (!bYMD) return false
@@ -104,19 +110,31 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
     let notAssigned = 0
     let assigned = 0
     let totalRevenue = 0
-    let totalDriverCost = 0
+    let completedRevenue = 0
+    let completedDriverCost = 0
     let websiteBookings = 0
     let supplierBookings = 0
 
     statsBookings.forEach((b) => {
-      const isCancelled = (b.status || "").toLowerCase() === "cancelled"
+      const statusLower = (b.status || "").toLowerCase()
+      const isCancelled = statusLower === "cancelled"
+      const isCompleted = statusLower === "completed"
       const dateStr = normalizeBookingYMD(b.date)
 
       if (!isCancelled) {
         const amt = Number(b.final_amount ?? b.total_amount ?? 0)
         const dCost = Number(b.driver_price || 0)
-        totalRevenue += isNaN(amt) ? 0 : amt
-        totalDriverCost += isNaN(dCost) ? 0 : dCost
+        const validAmt = isNaN(amt) ? 0 : amt
+        const validDriverCost = isNaN(dCost) ? 0 : dCost
+
+        // Total revenue includes all non-cancelled jobs (including future jobs)
+        totalRevenue += validAmt
+
+        // Profit & Driver cost calculated strictly from completed jobs only
+        if (isCompleted) {
+          completedRevenue += validAmt
+          completedDriverCost += validDriverCost
+        }
 
         if (b.driver_id) {
           assigned++
@@ -144,9 +162,9 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
 
     const activeCount = assigned + notAssigned
     const avgFare = activeCount > 0 ? totalRevenue / activeCount : 0
-    const totalProfit = totalRevenue - totalDriverCost
+    const totalProfit = completedRevenue - completedDriverCost
     const profitMargin =
-      totalRevenue > 0 ? Math.round((totalProfit / totalRevenue) * 100) : 0
+      completedRevenue > 0 ? Math.round((totalProfit / completedRevenue) * 100) : 0
 
     return {
       totalBookings: statsBookings.length,
@@ -155,14 +173,14 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
       notAssignedCount: notAssigned,
       assignedCount: assigned,
       totalRevenue,
-      totalDriverCost,
+      totalDriverCost: completedDriverCost,
       totalProfit,
       profitMargin,
       avgFare,
       websiteBookings,
       supplierBookings,
     }
-  }, [bookings, todayStr, statsFromDate, statsToDate])
+  }, [liveBookings, todayStr, statsFromDate, statsToDate])
 
   // Today and Tomorrow date objects and labels
   const { todayFormatted, tomorrowFormatted, fullTodayHeading, todayDate, tomorrowDate } =
@@ -225,7 +243,7 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
     const todayList: Booking[] = []
     const tomorrowList: Booking[] = []
 
-    bookings.forEach((b) => {
+    liveBookings.forEach((b) => {
       if (isBookingOnDay(b.date, todayDate)) {
         todayList.push(b)
       } else if (isBookingOnDay(b.date, tomorrowDate)) {
@@ -246,7 +264,7 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
       todayJobs: todayList,
       tomorrowJobs: tomorrowList,
     }
-  }, [bookings, todayDate, tomorrowDate])
+  }, [liveBookings, todayDate, tomorrowDate])
 
   const todayUnassignedCount = useMemo(
     () =>
@@ -339,7 +357,7 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
 
           <Link href="/admin/bookings">
             <Button className="h-9 px-4 text-xs font-semibold bg-slate-950 hover:bg-slate-800 text-white rounded-xl shadow-2xs">
-              All Bookings ({bookings.length})
+              All Bookings ({liveBookings.length})
               <ArrowUpRight className="w-3.5 h-3.5 ml-1 text-lime-400" />
             </Button>
           </Link>
@@ -598,7 +616,7 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
             </div>
           </div>
 
-          {/* Card 5: Total Profit (Emerald & Lime Wealth Theme) */}
+          {/* Card 5: Total Profit (Completed Jobs Only - Emerald & Lime Wealth Theme) */}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50/80 via-lime-50/30 to-white border border-emerald-300/90 p-5 shadow-2xs hover:shadow-md hover:border-emerald-500 transition-all group flex flex-col justify-between">
             <div className="absolute inset-x-0 top-0 h-1 bg-emerald-600" />
             <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-emerald-500/15 blur-xl pointer-events-none" />
@@ -626,9 +644,15 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
             </div>
 
             <div className="mt-4 pt-3 border-t border-emerald-200/70 flex items-center justify-between text-[11px] text-emerald-900/80">
-              <span>Margin: <strong>{metrics.profitMargin}%</strong></span>
+              <span>
+                Margin: <strong>{metrics.profitMargin}%</strong>
+              </span>
               <span className="font-mono text-slate-600">
-                Cost: £{metrics.totalDriverCost.toFixed(0)}
+                Driver: £
+                {metrics.totalDriverCost.toLocaleString("en-GB", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </span>
             </div>
           </div>
@@ -870,7 +894,24 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
 
                       {/* Interactive Status Popover */}
                       <td className="py-4 px-3 text-center whitespace-nowrap">
-                        <QuickStatusPopover booking={b} showPaymentBadge={true} />
+                        <QuickStatusPopover
+                          booking={b}
+                          showPaymentBadge={true}
+                          onSuccess={(updated) => {
+                            setLiveBookings((prev) =>
+                              prev.map((item) =>
+                                item.id === b.id
+                                  ? {
+                                      ...item,
+                                      status: updated.status as Booking["status"],
+                                      payment_status:
+                                        updated.payment_status as Booking["payment_status"],
+                                    }
+                                  : item
+                              )
+                            )
+                          }}
+                        />
                       </td>
 
                       {/* Total Fare */}
