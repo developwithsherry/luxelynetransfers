@@ -76,13 +76,13 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/llt-management-icon.png", sizes: "any" },
-      { url: "/llt-management-icon.png", sizes: "32x32", type: "image/png" },
-      { url: "/llt-management-icon.png", sizes: "16x16", type: "image/png" },
+      { url: "/Luxelyne-Transfers-Icon.png", sizes: "any" },
+      { url: "/Luxelyne-Transfers-Icon.png", sizes: "32x32", type: "image/png" },
+      { url: "/Luxelyne-Transfers-Icon.png", sizes: "16x16", type: "image/png" },
     ],
-    shortcut: "/llt-management-icon.png",
+    shortcut: "/Luxelyne-Transfers-Icon.png",
     apple: [
-      { url: "/llt-management-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/Luxelyne-Transfers-Icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
 }
@@ -96,11 +96,11 @@ export default function RootLayout({
     <html lang="en-GB">
       <head>
         {/* ✅ Favicon & Apple Touch Icon */}
-        <link rel="icon" href="/llt-management-icon.png" sizes="any" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/llt-management-icon.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/llt-management-icon.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/llt-management-icon.png" />
-        <link rel="shortcut icon" href="/llt-management-icon.png" />
+        <link rel="icon" href="/Luxelyne-Transfers-Icon.png" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/Luxelyne-Transfers-Icon.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/Luxelyne-Transfers-Icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/Luxelyne-Transfers-Icon.png" />
+        <link rel="shortcut icon" href="/Luxelyne-Transfers-Icon.png" />
 
         {/* ✅ Google Tag Manager Script */}
         <Script

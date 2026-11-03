@@ -101,14 +101,14 @@ export function AdminPwaNotificationManager() {
       meta.content = content
     })
 
-    // Ensure Favicon & Apple Touch Icon point to /llt-management-icon.png
+    // Ensure Favicon & Apple Touch Icon point to /Luxelyne-Transfers-Icon.png
     let faviconLink = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null
     if (!faviconLink) {
       faviconLink = document.createElement("link")
       faviconLink.rel = "icon"
       document.head.appendChild(faviconLink)
     }
-    faviconLink.href = "/llt-management-icon.png"
+    faviconLink.href = "/Luxelyne-Transfers-Icon.png"
 
     let appleIcon = document.querySelector(
       'link[rel="apple-touch-icon"]'
@@ -118,7 +118,7 @@ export function AdminPwaNotificationManager() {
       appleIcon.rel = "apple-touch-icon"
       document.head.appendChild(appleIcon)
     }
-    appleIcon.href = "/llt-management-icon.png"
+    appleIcon.href = "/Luxelyne-Transfers-Icon.png"
 
     // Detect standalone & iOS
     const standalone =

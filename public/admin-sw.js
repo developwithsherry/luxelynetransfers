@@ -51,8 +51,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: payload.body,
-    icon: "/llt-management-icon.png",
-    badge: "/llt-management-icon.png",
+    icon: "/Luxelyne-Transfers-Icon.png",
+    badge: "/Luxelyne-Transfers-Icon.png",
     tag: payload.tag || payload.notification_key || `llt-${Date.now()}`,
     renotify: true,
     requireInteraction: payload.requireInteraction !== false,
@@ -119,8 +119,8 @@ self.addEventListener("message", (event) => {
     const p = event.data.payload;
     self.registration.showNotification(p.title || "LLT-Management", {
       body: p.body || "",
-      icon: "/llt-management-icon.png",
-      badge: "/llt-management-icon.png",
+      icon: "/Luxelyne-Transfers-Icon.png",
+      badge: "/Luxelyne-Transfers-Icon.png",
       tag: p.tag || `llt-local-${Date.now()}`,
       renotify: true,
       requireInteraction: true,
