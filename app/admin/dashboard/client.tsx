@@ -796,164 +796,334 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
           </Link>
         </div>
 
-        {/* Journeys Table */}
+        {/* Journeys Table (Desktop: Table / Mobile: Dispatch Cards) */}
         {displayedJobs.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/40 text-slate-400 text-[10px] uppercase tracking-wider font-semibold text-left">
-                  <th className="py-3 pl-6 pr-3">Date & Time</th>
-                  <th className="py-3 px-3">Passenger</th>
-                  <th className="py-3 px-3">Journey Route</th>
-                  <th className="py-3 px-3">Driver Allocation</th>
-                  <th className="py-3 px-3 text-center">Status</th>
-                  <th className="py-3 px-3 text-right">Total Fare</th>
-                  <th className="py-3 px-3 text-right">Driver Amount</th>
-                  <th className="py-3 pl-3 pr-6 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {displayedJobs.map((b) => {
-                  const customerName =
-                    `${b.first_name || ""} ${b.last_name || ""}`.trim() || "Guest Passenger"
-                  const isCancelled = (b.status || "").toLowerCase() === "cancelled"
-                  const isUnassigned = !b.driver_id && !b.driver && !isCancelled
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/40 text-slate-400 text-[10px] uppercase tracking-wider font-semibold text-left">
+                    <th className="py-3 pl-6 pr-3">Date & Time</th>
+                    <th className="py-3 px-3">Passenger</th>
+                    <th className="py-3 px-3">Journey Route</th>
+                    <th className="py-3 px-3">Driver Allocation</th>
+                    <th className="py-3 px-3 text-center">Status</th>
+                    <th className="py-3 px-3 text-right">Total Fare</th>
+                    <th className="py-3 px-3 text-right">Driver Amount</th>
+                    <th className="py-3 pl-3 pr-6 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {displayedJobs.map((b) => {
+                    const customerName =
+                      `${b.first_name || ""} ${b.last_name || ""}`.trim() || "Guest Passenger"
+                    const isCancelled = (b.status || "").toLowerCase() === "cancelled"
+                    const isUnassigned = !b.driver_id && !b.driver && !isCancelled
 
-                  return (
-                    <tr
-                      key={b.id}
-                      className={`group transition-colors ${
-                        isUnassigned
-                          ? "bg-amber-50/40 hover:bg-amber-50/80"
-                          : "hover:bg-slate-50/70"
-                      }`}
-                    >
-                      {/* Date & Time (No Reference No shown here) */}
-                      <td className="py-4 pl-6 pr-3 whitespace-nowrap">
-                        <div className="font-semibold text-slate-900">
-                          {b.date ? formatDateUK(b.date) : "N/A"}
-                        </div>
-                        <div className="flex items-center gap-1.5 text-slate-500 font-medium mt-0.5">
-                          <Clock className="w-3 h-3 text-slate-400" />
-                          <span>{b.time || "N/A"}</span>
-                          {b.flight_no && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.2 rounded bg-sky-50 text-sky-800 border border-sky-200/80 ml-1">
-                              <Plane className="w-2.5 h-2.5" />
-                              {b.flight_no}
+                    return (
+                      <tr
+                        key={b.id}
+                        className={`group transition-colors ${
+                          isUnassigned
+                            ? "bg-amber-50/40 hover:bg-amber-50/80"
+                            : "hover:bg-slate-50/70"
+                        }`}
+                      >
+                        {/* Date & Time (No Reference No shown here) */}
+                        <td className="py-4 pl-6 pr-3 whitespace-nowrap">
+                          <div className="font-semibold text-slate-900">
+                            {b.date ? formatDateUK(b.date) : "N/A"}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-slate-500 font-medium mt-0.5">
+                            <Clock className="w-3 h-3 text-slate-400" />
+                            <span>{b.time || "N/A"}</span>
+                            {b.flight_no && (
+                              <span className="inline-flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.2 rounded bg-sky-50 text-sky-800 border border-sky-200/80 ml-1">
+                                <Plane className="w-2.5 h-2.5" />
+                                {b.flight_no}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Passenger */}
+                        <td className="py-4 px-3 whitespace-nowrap">
+                          <div className="font-semibold text-slate-900">{customerName}</div>
+                          {b.phone ? (
+                            <div className="text-[11px] text-slate-400 font-normal mt-0.5">
+                              {b.phone}
+                            </div>
+                          ) : (
+                            <div className="text-[11px] text-slate-300 italic mt-0.5">
+                              No phone listed
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Route */}
+                        <td
+                          className="py-4 px-3 max-w-[260px]"
+                          title={`${b.pickup_location || ""} → ${b.drop_off_location || ""}`}
+                        >
+                          <div className="font-medium text-slate-900 truncate">
+                            {formatLocation(b.pickup_location)}
+                          </div>
+                          {b.drop_off_location && (
+                            <div className="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1">
+                              <span className="text-lime-600 font-bold">→</span>
+                              <span className="truncate">
+                                {formatLocation(b.drop_off_location)}
+                              </span>
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Driver Allocation */}
+                        <td className="py-4 px-3 whitespace-nowrap">
+                          {b.driver ? (
+                            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-50/90 text-emerald-900 border border-emerald-200 font-semibold text-xs">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              <span>{b.driver.name}</span>
+                            </div>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100/90 text-amber-950 border border-amber-300 font-semibold text-[11px]">
+                              <AlertTriangle className="w-3 h-3 text-amber-600 shrink-0" />
+                              Unassigned
                             </span>
                           )}
+                        </td>
+
+                        {/* Interactive Status Popover */}
+                        <td className="py-4 px-3 text-center whitespace-nowrap">
+                          <QuickStatusPopover
+                            booking={b}
+                            showPaymentBadge={true}
+                            onSuccess={(updated) => {
+                              setLiveBookings((prev) =>
+                                prev.map((item) =>
+                                  item.id === b.id
+                                    ? {
+                                        ...item,
+                                        status: updated.status as Booking["status"],
+                                        payment_status:
+                                          updated.payment_status as Booking["payment_status"],
+                                      }
+                                    : item
+                                )
+                              )
+                            }}
+                          />
+                        </td>
+
+                        {/* Total Fare */}
+                        <td className="py-4 px-3 text-right font-mono font-bold text-slate-950 text-sm whitespace-nowrap tabular-nums">
+                          £{Number(b.final_amount ?? b.total_amount ?? 0).toFixed(2)}
+                        </td>
+
+                        {/* Driver Amount (Next to Total Fare) */}
+                        <td className="py-4 px-3 text-right font-mono font-semibold text-emerald-700 text-sm whitespace-nowrap tabular-nums">
+                          £{Number(b.driver_price ?? 0).toFixed(2)}
+                        </td>
+
+                        {/* Action */}
+                        <td className="py-4 pl-3 pr-6 text-right whitespace-nowrap">
+                          {isUnassigned ? (
+                            <Link href={`/admin/bookings/${b.id}`}>
+                              <Button
+                                size="sm"
+                                className="bg-slate-950 hover:bg-slate-800 text-white font-semibold text-[11px] h-8 px-3 rounded-lg"
+                              >
+                                <UserPlus className="w-3 h-3 mr-1.5 text-lime-400" />
+                                Assign Driver
+                              </Button>
+                            </Link>
+                          ) : (
+                            <Link href={`/admin/bookings/${b.id}`}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 text-[11px] font-semibold text-slate-700 border-slate-200 hover:bg-slate-100 px-3 rounded-lg"
+                              >
+                                Details →
+                              </Button>
+                            </Link>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Native App Dispatch Cards */}
+            <div className="block md:hidden p-3 space-y-3 bg-slate-50/70">
+              {displayedJobs.map((b) => {
+                const customerName =
+                  `${b.first_name || ""} ${b.last_name || ""}`.trim() || "Guest Passenger"
+                const isCancelled = (b.status || "").toLowerCase() === "cancelled"
+                const isUnassigned = !b.driver_id && !b.driver && !isCancelled
+                const shortId = (b.id || "").slice(0, 5).toUpperCase()
+                const fare = Number(b.final_amount ?? b.total_amount ?? 0)
+                const driverCost = Number(b.driver_price ?? 0)
+
+                const cleanPhone = b.phone ? b.phone.replace(/[^0-9]/g, "") : ""
+                const formattedPhone = cleanPhone.startsWith("0") ? `44${cleanPhone.slice(1)}` : cleanPhone
+                const whatsappUrl = formattedPhone ? `https://wa.me/${formattedPhone}` : null
+
+                return (
+                  <div
+                    key={b.id}
+                    className={`rounded-2xl p-4 bg-white border transition-all shadow-xs space-y-3 ${
+                      isUnassigned
+                        ? "border-amber-300 ring-1 ring-amber-300/40"
+                        : "border-slate-200/90"
+                    }`}
+                  >
+                    {/* Top Row: Time, Ref, Price */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="px-2.5 py-1 rounded-xl bg-slate-950 text-white flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-lime-400" />
+                          <span className="text-sm font-black tracking-tight">
+                            {b.time || "TBA"}
+                          </span>
                         </div>
-                      </td>
-
-                      {/* Passenger */}
-                      <td className="py-4 px-3 whitespace-nowrap">
-                        <div className="font-semibold text-slate-900">{customerName}</div>
-                        {b.phone ? (
-                          <div className="text-[11px] text-slate-400 font-normal mt-0.5">
-                            {b.phone}
-                          </div>
-                        ) : (
-                          <div className="text-[11px] text-slate-300 italic mt-0.5">
-                            No phone listed
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Route */}
-                      <td
-                        className="py-4 px-3 max-w-[260px]"
-                        title={`${b.pickup_location || ""} → ${b.drop_off_location || ""}`}
-                      >
-                        <div className="font-medium text-slate-900 truncate">
-                          {formatLocation(b.pickup_location)}
-                        </div>
-                        {b.drop_off_location && (
-                          <div className="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1">
-                            <span className="text-lime-600 font-bold">→</span>
-                            <span className="truncate">
-                              {formatLocation(b.drop_off_location)}
-                            </span>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* Driver Allocation */}
-                      <td className="py-4 px-3 whitespace-nowrap">
-                        {b.driver ? (
-                          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-50/90 text-emerald-900 border border-emerald-200 font-semibold text-xs">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            <span>{b.driver.name}</span>
-                          </div>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100/90 text-amber-950 border border-amber-300 font-semibold text-[11px]">
-                            <AlertTriangle className="w-3 h-3 text-amber-600 shrink-0" />
-                            Unassigned
+                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                          #{shortId}
+                        </span>
+                        {b.flight_no && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200">
+                            <Plane className="w-2.5 h-2.5" />
+                            {b.flight_no}
                           </span>
                         )}
-                      </td>
+                      </div>
 
-                      {/* Interactive Status Popover */}
-                      <td className="py-4 px-3 text-center whitespace-nowrap">
-                        <QuickStatusPopover
-                          booking={b}
-                          showPaymentBadge={true}
-                          onSuccess={(updated) => {
-                            setLiveBookings((prev) =>
-                              prev.map((item) =>
-                                item.id === b.id
-                                  ? {
-                                      ...item,
-                                      status: updated.status as Booking["status"],
-                                      payment_status:
-                                        updated.payment_status as Booking["payment_status"],
-                                    }
-                                  : item
-                              )
-                            )
-                          }}
-                        />
-                      </td>
+                      <div className="text-right">
+                        <span className="text-base font-black text-slate-950 block leading-tight">
+                          £{fare.toFixed(2)}
+                        </span>
+                        {driverCost > 0 && (
+                          <span className="text-[10px] font-semibold text-emerald-700 block">
+                            Driver: £{driverCost.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-                      {/* Total Fare */}
-                      <td className="py-4 px-3 text-right font-mono font-bold text-slate-950 text-sm whitespace-nowrap tabular-nums">
-                        £{Number(b.final_amount ?? b.total_amount ?? 0).toFixed(2)}
-                      </td>
+                    {/* Route Flow (Visual from -> to) */}
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 rounded-full bg-lime-500 mt-1 shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                            Pickup
+                          </span>
+                          <p className="text-xs font-bold text-slate-900 leading-snug">
+                            {formatLocation(b.pickup_location)}
+                          </p>
+                        </div>
+                      </div>
 
-                      {/* Driver Amount (Next to Total Fare) */}
-                      <td className="py-4 px-3 text-right font-mono font-semibold text-emerald-700 text-sm whitespace-nowrap tabular-nums">
-                        £{Number(b.driver_price ?? 0).toFixed(2)}
-                      </td>
+                      <div className="flex items-start gap-2">
+                        <span className="w-2 h-2 rounded-full bg-slate-950 mt-1 shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                            Destination
+                          </span>
+                          <p className="text-xs font-bold text-slate-900 leading-snug">
+                            {formatLocation(b.drop_off_location)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-                      {/* Action */}
-                      <td className="py-4 pl-3 pr-6 text-right whitespace-nowrap">
-                        {isUnassigned ? (
-                          <Link href={`/admin/bookings/${b.id}`}>
-                            <Button
-                              size="sm"
-                              className="bg-slate-950 hover:bg-slate-800 text-white font-semibold text-[11px] h-8 px-3 rounded-lg"
+                    {/* Passenger & Driver Strip */}
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">
+                          {customerName}
+                        </p>
+                        {b.phone && (
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <a
+                              href={`tel:${b.phone}`}
+                              className="text-[11px] font-medium text-slate-600 hover:text-slate-950 underline"
                             >
-                              <UserPlus className="w-3 h-3 mr-1.5 text-lime-400" />
-                              Assign Driver
-                            </Button>
-                          </Link>
+                              {b.phone}
+                            </a>
+                            {whatsappUrl && (
+                              <a
+                                href={whatsappUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200"
+                              >
+                                WhatsApp
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        {b.driver ? (
+                          <div className="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-right">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 block">
+                              Driver
+                            </span>
+                            <span className="text-xs font-bold truncate max-w-[120px] block">
+                              {b.driver.name}
+                            </span>
+                          </div>
                         ) : (
                           <Link href={`/admin/bookings/${b.id}`}>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-[11px] font-semibold text-slate-700 border-slate-200 hover:bg-slate-100 px-3 rounded-lg"
-                            >
-                              Details →
-                            </Button>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-100 text-amber-950 border border-amber-300 font-extrabold text-[11px] active:scale-95 transition">
+                              <AlertTriangle className="w-3 h-3 text-amber-600" />
+                              Assign Driver
+                            </span>
                           </Link>
                         )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </div>
+
+                    {/* Card Actions: Status Popover & View Details */}
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                      <QuickStatusPopover
+                        booking={b}
+                        showPaymentBadge={true}
+                        onSuccess={(updated) => {
+                          setLiveBookings((prev) =>
+                            prev.map((item) =>
+                              item.id === b.id
+                                ? {
+                                    ...item,
+                                    status: updated.status as Booking["status"],
+                                    payment_status:
+                                      updated.payment_status as Booking["payment_status"],
+                                  }
+                                : item
+                            )
+                          )
+                        }}
+                      />
+
+                      <Link href={`/admin/bookings/${b.id}`} className="flex-1 max-w-[130px]">
+                        <Button
+                          size="sm"
+                          className="w-full h-8 text-xs font-bold bg-slate-950 hover:bg-slate-800 text-white rounded-xl active:scale-95 transition"
+                        >
+                          Details →
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </>
         ) : (
           <div className="py-16 px-6 text-center bg-white">
             <div className="w-11 h-11 mx-auto rounded-2xl bg-lime-100/80 flex items-center justify-center text-lime-700 mb-3">

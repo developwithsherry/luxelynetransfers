@@ -223,42 +223,6 @@ export default function Sidebar() {
           </Button>
         </div>
       </aside>
-
-      {/* Mobile Sidebar Sheet */}
-      <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
-        <SheetContent side="left" className="w-72 p-0 bg-white">
-          <div className="flex flex-col h-full">
-            {/* Mobile Header with dark background */}
-            <div className="flex items-center justify-between h-16 px-4 bg-slate-950 border-b border-slate-800">
-              <Image
-                src="/logo-main.png"
-                alt="Luxelyne Transfers"
-                width={130}
-                height={38}
-                className="h-9 w-auto object-contain brightness-105"
-              />
-              <button
-                onClick={() => setIsMobileOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            {renderNavItems(false, () => setIsMobileOpen(false))}
-            <div className="p-4 border-t border-slate-100">
-              <Button
-                disabled={loading}
-                variant="ghost"
-                className="w-full justify-start text-red-600 hover:bg-red-50 text-xs font-semibold"
-                onClick={logOutUser}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </Button>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
     </>
   )
 }

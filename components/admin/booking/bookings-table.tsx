@@ -188,31 +188,139 @@ export default function BookingsTable({
           </div>
         </div>
 
-        {/* ✅ Mobile Cards */}
-        <div className="block md:hidden p-4 space-y-4">
+        {/* ✅ Mobile Native Dispatch Cards */}
+        <div className="block md:hidden p-3 space-y-3 bg-slate-50/70">
           {paginatedBookings.map((booking) => {
-            const customer = `${booking.first_name || ""} ${booking.last_name || ""}`.trim() || booking.customer_name || "N/A"
+            const customer =
+              `${booking.first_name || ""} ${booking.last_name || ""}`.trim() ||
+              booking.customer_name ||
+              "Guest Passenger"
             const bookingCode = booking.id ? booking.id.slice(0, 5).toUpperCase() : "N/A"
-            const isWebsite = booking.source === "website" || (!booking.supplier_id && booking.type !== "offline")
+            const isWebsite =
+              booking.source === "website" || (!booking.supplier_id && booking.type !== "offline")
+            const fare = Number(booking.final_amount ?? booking.total_amount ?? booking.price ?? 0)
+            const driverCost = Number(booking.driver_price || 0)
+
+            const cleanPhone = booking.phone ? booking.phone.replace(/[^0-9]/g, "") : ""
+            const formattedPhone = cleanPhone.startsWith("0") ? `44${cleanPhone.slice(1)}` : cleanPhone
+            const whatsappUrl = formattedPhone ? `https://wa.me/${formattedPhone}` : null
+
             return (
-              <div key={booking.id} className="border border-black/10 rounded-lg p-4 shadow-sm bg-white space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-lime-700">#{bookingCode}</span>
+              <div
+                key={booking.id}
+                className="border border-slate-200/90 rounded-2xl p-4 shadow-xs bg-white space-y-3"
+              >
+                {/* Top Row: Time, Ref, Source, Status & Fare */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-mono text-xs font-black text-slate-950 px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200">
+                      #{bookingCode}
+                    </span>
+                    {booking.time && (
+                      <span className="text-xs font-extrabold text-white px-2 py-0.5 rounded-lg bg-slate-950">
+                        {booking.time}
+                      </span>
+                    )}
                     {isWebsite ? (
-                      <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-medium border border-blue-200">
+                      <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md font-bold border border-blue-200">
                         Website
                       </span>
                     ) : booking.supplier?.name ? (
-                      <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full font-medium border border-purple-200">
+                      <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md font-bold border border-purple-200 truncate max-w-[100px]">
                         {booking.supplier.name}
                       </span>
                     ) : (
-                      <span className="text-[10px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full font-medium">
+                      <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-bold">
                         Offline
                       </span>
                     )}
                   </div>
+
+                  <div className="text-right">
+                    <span className="text-base font-black text-slate-950 block leading-tight">
+                      £{fare.toFixed(2)}
+                    </span>
+                    {driverCost > 0 && (
+                      <span className="text-[10px] font-semibold text-emerald-700 block">
+                        Driver: £{driverCost.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Route Flow (Visual from -> to) */}
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 rounded-full bg-lime-500 mt-1 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                        Pickup {booking.date ? `• ${booking.date}` : ""}
+                      </span>
+                      <p className="text-xs font-bold text-slate-900 leading-snug">
+                        {booking.pickup_location || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2">
+                    <span className="w-2 h-2 rounded-full bg-slate-950 mt-1 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                        Destination
+                      </span>
+                      <p className="text-xs font-bold text-slate-900 leading-snug">
+                        {booking.drop_off_location || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Passenger & Driver Strip */}
+                <div className="flex items-center justify-between gap-2 pt-0.5">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-900 truncate">{customer}</p>
+                    {booking.phone && (
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <a
+                          href={`tel:${booking.phone}`}
+                          className="text-[11px] font-medium text-slate-600 hover:text-slate-950 underline"
+                        >
+                          {booking.phone}
+                        </a>
+                        {whatsappUrl && (
+                          <a
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200"
+                          >
+                            WhatsApp
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    {booking.driver ? (
+                      <div className="px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-right">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 block">
+                          Driver
+                        </span>
+                        <span className="text-xs font-bold truncate max-w-[120px] block">
+                          {booking.driver.name}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-100 text-amber-950 border border-amber-300 font-extrabold text-[11px]">
+                        Unassigned
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card Actions: Status Popover, Details & Delete */}
+                <div className="pt-2 flex items-center justify-between gap-2 border-t border-slate-100">
                   <QuickStatusPopover
                     booking={booking}
                     showPaymentBadge={true}
@@ -222,49 +330,26 @@ export default function BookingsTable({
                       }
                     }}
                   />
-                </div>
-                <p className="text-sm">
-                  <strong>Passenger:</strong> {customer}
-                  {booking.phone && (
-                    <span className="block text-xs text-gray-500 mt-0.5">{booking.phone}</span>
-                  )}
-                </p>
-                <p className="text-sm">
-                  <strong>Date & Time:</strong> {booking.date || ""} {booking.time || ""}
-                </p>
-                <p className="text-sm break-words whitespace-normal">
-                  <strong>From:</strong> {booking.pickup_location || "N/A"}
-                </p>
-                <p className="text-sm break-words whitespace-normal">
-                  <strong>To:</strong> {booking.drop_off_location || "N/A"}
-                </p>
-                <p className="text-sm">
-                  <strong>Driver:</strong>{" "}
-                  {booking.driver ? (
-                    <span className="text-emerald-700 font-medium">
-                      {booking.driver.name} (£{Number(booking.driver_price || 0).toFixed(2)})
-                    </span>
-                  ) : (
-                    <span className="text-gray-400">Unassigned</span>
-                  )}
-                </p>
-                <p className="text-sm">
-                  <strong>Price:</strong> £{booking.final_amount?.toFixed(2) || booking.price || "0.00"}
-                </p>
-                <div className="pt-2 flex justify-end gap-2 border-t">
-                  <Link href={`/admin/bookings/${booking.id}`}>
-                    <Button size="sm" variant="outline" className="border-lime-600 text-lime-700">
-                      View Details
+
+                  <div className="flex items-center gap-1.5">
+                    <Link href={`/admin/bookings/${booking.id}`}>
+                      <Button
+                        size="sm"
+                        className="h-8 px-3 text-xs font-bold bg-slate-950 hover:bg-slate-800 text-white rounded-xl active:scale-95 transition"
+                      >
+                        Details →
+                      </Button>
+                    </Link>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setMobileDeleteTarget(booking)}
+                      className="h-8 w-8 p-0 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl"
+                      title="Delete booking"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
                     </Button>
-                  </Link>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => setMobileDeleteTarget(booking)}
-                  >
-                    <Trash2 className="w-3.5 h-3.5 mr-1" />
-                    Delete
-                  </Button>
+                  </div>
                 </div>
               </div>
             )

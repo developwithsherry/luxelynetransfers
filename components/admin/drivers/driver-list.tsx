@@ -200,7 +200,8 @@ export function DriverList({
   return (
     <>
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-xs text-left">
             <thead className="bg-gray-50/80 border-b border-gray-200 text-gray-500 uppercase font-bold text-[10px] tracking-wider">
               <tr>
@@ -451,6 +452,153 @@ export function DriverList({
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Native Driver Cards View */}
+        <div className="block md:hidden p-3 space-y-3 bg-slate-50/70">
+          {drivers.map((driver) => {
+            const isActive = driver.is_active ?? true
+            const initials = driver.name
+              ? driver.name
+                  .split(" ")
+                  .slice(0, 2)
+                  .map((w) => w[0])
+                  .join("")
+                  .toUpperCase()
+              : "DR"
+
+            const cleanPhone = driver.phone ? driver.phone.replace(/[^0-9]/g, "") : ""
+            const formattedPhone = cleanPhone.startsWith("0") ? `44${cleanPhone.slice(1)}` : cleanPhone
+            const whatsappUrl = formattedPhone ? `https://wa.me/${formattedPhone}` : null
+
+            return (
+              <div
+                key={driver.id}
+                onClick={() => setSelectedDriverForJobs(driver)}
+                className="rounded-2xl p-4 bg-white border border-slate-200/90 shadow-xs space-y-3 cursor-pointer active:scale-[0.99] transition"
+              >
+                {/* Header: Driver Avatar, Name, Edit / Delete */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {driver.photo_url ? (
+                      <img
+                        src={driver.photo_url}
+                        alt={driver.name}
+                        className="w-11 h-11 rounded-2xl object-cover border border-slate-200 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-11 h-11 rounded-2xl bg-lime-100 text-lime-900 font-black text-sm flex items-center justify-center shrink-0 border border-lime-300">
+                        {initials}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="font-extrabold text-slate-900 text-sm truncate">
+                        {driver.name}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-500">
+                        {driver.vehicle_model && (
+                          <span className="font-semibold text-slate-700">
+                            {driver.vehicle_model}
+                          </span>
+                        )}
+                        {driver.vehicle_reg && (
+                          <span className="px-1.5 py-0.2 rounded bg-black text-white font-mono text-[9px] uppercase font-bold tracking-wider">
+                            {driver.vehicle_reg}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={() => onEdit(driver)}
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDriverToDelete(driver)}
+                      className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Contact Strip */}
+                {driver.phone && (
+                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                    <span className="font-mono font-bold text-slate-800">{driver.phone}</span>
+                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <a
+                        href={`tel:${driver.phone}`}
+                        className="px-2 py-1 rounded-lg bg-white border border-slate-200 font-bold text-[11px] text-slate-700"
+                      >
+                        Call
+                      </a>
+                      {whatsappUrl && (
+                        <a
+                          href={whatsappUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200 font-bold text-[11px] text-emerald-700"
+                        >
+                          WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Compliance Badges */}
+                <div className="flex flex-wrap gap-1.5">
+                  {renderDocIndicator("License", "Driving License", driver.driving_license_url, driver.driving_license_expiry)}
+                  {renderDocIndicator("PHV", "PHV License", driver.phv_license_url, driver.phv_license_expiry)}
+                  {renderDocIndicator("V5C", "Log Book", driver.log_book_url, driver.log_book_expiry)}
+                  {renderDocIndicator("Ins", "Insurance", driver.insurance_url, driver.insurance_expiry)}
+                  {renderDocIndicator("MOT", "MOT Certificate", driver.mot_url, driver.mot_expiry)}
+                </div>
+
+                {/* Status + Jobs & Payouts Action */}
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                  <div onClick={(e) => e.stopPropagation()}>
+                    {isActive && (driver.unpaid_completed_jobs_count || 0) > 0 ? (
+                      <span className="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-black bg-rose-50 text-rose-600 border border-rose-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse mr-1" />
+                        Jobs: {driver.unpaid_completed_jobs_count} | £
+                        {Number(driver.unpaid_completed_amount || 0).toFixed(0)}
+                      </span>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          isActive
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-slate-100 text-slate-500"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full mr-1 ${
+                            isActive ? "bg-emerald-500" : "bg-slate-400"
+                          }`}
+                        />
+                        {isActive ? "Active" : "Inactive"}
+                      </span>
+                    )}
+                  </div>
+
+                  <Button
+                    size="sm"
+                    className="h-8 px-3 text-xs font-bold bg-lime-400 hover:bg-lime-500 text-slate-950 rounded-xl"
+                  >
+                    Jobs & Payouts →
+                  </Button>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 

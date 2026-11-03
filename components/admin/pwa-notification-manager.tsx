@@ -415,10 +415,10 @@ export function AdminPwaNotificationManager() {
             variant="outline"
             size="sm"
             onClick={handleInstallAppClick}
-            className="h-8 px-2.5 text-[11px] font-bold border-slate-200 bg-slate-50 hover:bg-lime-50 text-slate-800 hover:text-lime-900 hover:border-lime-300 rounded-xl cursor-pointer"
+            className="h-9 md:h-8 px-2.5 text-[11px] font-bold border-slate-800 bg-slate-900 text-white hover:bg-slate-800 md:border-slate-200 md:bg-slate-50 md:hover:bg-lime-50 md:text-slate-800 md:hover:text-lime-900 md:hover:border-lime-300 rounded-xl cursor-pointer active:scale-95 transition"
             title="Install LLT-Management App"
           >
-            <Smartphone className="w-3.5 h-3.5 sm:mr-1 text-lime-600" />
+            <Smartphone className="w-4 h-4 md:w-3.5 md:h-3.5 sm:mr-1 text-lime-400 md:text-lime-600" />
             <span className="hidden sm:inline">Install App</span>
           </Button>
         )}
@@ -427,20 +427,20 @@ export function AdminPwaNotificationManager() {
         <button
           type="button"
           onClick={() => setPanelOpen(true)}
-          className={`relative h-8 px-2.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition cursor-pointer ${
+          className={`relative h-9 md:h-8 px-3 md:px-2.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition cursor-pointer active:scale-95 ${
             isSubscribed
-              ? "bg-slate-950 text-white border-slate-800 hover:bg-slate-900"
-              : "bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100"
+              ? "bg-slate-900 md:bg-slate-950 text-white border-slate-800 hover:bg-slate-800"
+              : "bg-lime-400 text-slate-950 border-lime-400 md:bg-amber-50 md:text-amber-900 md:border-amber-300 hover:opacity-95"
           }`}
           title="Dispatch Notifications & Push Settings"
         >
           {isSubscribed ? (
-            <BellRing className="w-3.5 h-3.5 text-lime-400" />
+            <BellRing className="w-4 h-4 md:w-3.5 md:h-3.5 text-lime-400" />
           ) : (
-            <Bell className="w-3.5 h-3.5 text-amber-600 animate-bounce" />
+            <Bell className="w-4 h-4 md:w-3.5 md:h-3.5 text-slate-950 md:text-amber-600 animate-bounce" />
           )}
-          <span className="hidden md:inline">
-            {isSubscribed ? "Alerts On" : "Enable Alerts"}
+          <span className="text-[11px] md:text-xs font-extrabold">
+            {isSubscribed ? "Alerts" : "Alerts"}
           </span>
           {unreadCount > 0 && (
             <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black">
