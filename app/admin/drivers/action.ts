@@ -7,10 +7,16 @@ import { revalidatePath } from "next/cache"
 export async function getDrivers(): Promise<{ data?: Driver[]; error?: string }> {
   try {
     const supabase = await createClient()
-    const { data, error } = await supabase
-      .from("drivers")
-      .select("*")
-      .order("created_at", { ascending: false })
+    const [{ data, error }, { data: bookingsData }] = await Promise.all([
+      supabase
+        .from("drivers")
+        .select("*")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("booking")
+        .select("driver_id, status, payment_status, driver_price")
+        .not("driver_id", "is", null),
+    ])
 
     if (error) {
       console.error("Error fetching drivers:", error)
@@ -22,7 +28,35 @@ export async function getDrivers(): Promise<{ data?: Driver[]; error?: string }>
       return { error: error.message }
     }
 
-    return { data: (data as Driver[]) || [] }
+    const unpaidStatsByDriver = new Map<string, { count: number; amount: number }>()
+    if (Array.isArray(bookingsData)) {
+      bookingsData.forEach((b: any) => {
+        const driverId = b.driver_id
+        if (!driverId) return
+        const isCompleted = (b.status || "").toLowerCase() === "completed"
+        const isPaidToDriver = (b.payment_status || "").toLowerCase() === "paid_to_driver"
+
+        if (isCompleted && !isPaidToDriver) {
+          const prev = unpaidStatsByDriver.get(driverId) || { count: 0, amount: 0 }
+          const price = Number(b.driver_price || 0)
+          unpaidStatsByDriver.set(driverId, {
+            count: prev.count + 1,
+            amount: prev.amount + (isNaN(price) ? 0 : price),
+          })
+        }
+      })
+    }
+
+    const enrichedDrivers = ((data as Driver[]) || []).map((driver) => {
+      const unpaid = driver.id ? unpaidStatsByDriver.get(driver.id) : undefined
+      return {
+        ...driver,
+        unpaid_completed_jobs_count: unpaid?.count || 0,
+        unpaid_completed_amount: unpaid?.amount || 0,
+      }
+    })
+
+    return { data: enrichedDrivers }
   } catch (error: any) {
     console.error("Failed to fetch drivers:", error)
     return { error: error?.message || "Failed to fetch drivers" }

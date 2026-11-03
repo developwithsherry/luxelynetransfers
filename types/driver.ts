@@ -19,6 +19,8 @@ export interface Driver {
   insurance_expiry?: string | null;
   mot_expiry?: string | null;
   is_active?: boolean;
+  unpaid_completed_jobs_count?: number;
+  unpaid_completed_amount?: number;
   created_at?: string;
   updated_at?: string;
 }

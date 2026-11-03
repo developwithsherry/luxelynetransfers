@@ -75,13 +75,45 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
     setBooking(initialBooking)
   }, [initialBooking])
 
+  // Parse stops if they exist (filtering out empty entries)
+  let stops: string[] = []
+  if (booking.stops) {
+    const rawStops = Array.isArray(booking.stops)
+      ? booking.stops
+      : typeof booking.stops === "object" && Array.isArray(booking.stops.locations)
+      ? booking.stops.locations
+      : []
+
+    stops = rawStops
+      .map((item: any) =>
+        typeof item === "string"
+          ? item.trim()
+          : item && typeof item.address === "string"
+          ? item.address.trim()
+          : ""
+      )
+      .filter(Boolean)
+  }
+
   const buildDriverWhatsAppMessage = () => {
-    const blocks: string[] = ["*Journey Details*"]
+    const headerLines: string[] = ["*Journey Details*"]
 
     const refNo = booking.id ? `#${booking.id.slice(0, 5).toUpperCase()}` : ""
     if (refNo) {
-      blocks.push(`Reference No: ${refNo}`)
+      headerLines.push(`Reference No: ${refNo}`)
     }
+
+    const assignedVehicleClass = (
+      booking.vehicle?.name ||
+      booking.vehicle_type ||
+      booking.vehicle?.type ||
+      ""
+    ).trim()
+    if (assignedVehicleClass) {
+      headerLines.push(`Vehicle: ${assignedVehicleClass}`)
+    }
+
+    const blocks: string[] = [headerLines.join("\n")]
 
     const formattedDate = booking.date ? formatDateUK(booking.date) : ""
     const formattedTime = booking.time ? booking.time.trim() : ""
@@ -92,6 +124,14 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
 
     if (booking.pickup_location?.trim()) {
       blocks.push(`Pickup: ${booking.pickup_location.trim()}`)
+    }
+
+    if (stops.length === 1) {
+      blocks.push(`Via: ${stops[0]}`)
+    } else if (stops.length > 1) {
+      stops.forEach((stop, index) => {
+        blocks.push(`Via ${index + 1}: ${stop}`)
+      })
     }
 
     if (booking.drop_off_location?.trim()) {
@@ -139,10 +179,6 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
       blocks.push(`Fare:\n£${Number(booking.driver_price).toFixed(2)} Net`)
     }
 
-    if (blocks.length > 1 && blocks[1].startsWith("Reference No:")) {
-      const header = `${blocks[0]}\n${blocks[1]}`
-      return [header, ...blocks.slice(2)].join("\n\n")
-    }
     return blocks.join("\n\n")
   }
 
@@ -179,16 +215,6 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
     toast.success(`Message copied & opening WhatsApp for ${booking.driver?.name || "Driver"}`)
     const waUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`
     window.open(waUrl, "_blank", "noopener,noreferrer")
-  }
-
-  // Parse stops if they exist
-  let stops: string[] = []
-  if (booking.stops) {
-    if (Array.isArray(booking.stops)) {
-      stops = booking.stops
-    } else if (typeof booking.stops === "object" && Array.isArray(booking.stops.locations)) {
-      stops = booking.stops.locations
-    }
   }
 
   const handleDelete = async () => {

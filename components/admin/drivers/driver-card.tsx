@@ -240,20 +240,28 @@ export default function DriverCard({
                   {driver.name}
                 </h3>
                 <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      isActive
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : "bg-gray-100 text-gray-600 border border-gray-200"
-                    }`}
-                  >
+                  {isActive && (driver.unpaid_completed_jobs_count || 0) > 0 ? (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-300">
+                      <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse mr-1.5 shrink-0" />
+                      Jobs: {driver.unpaid_completed_jobs_count} | Amount: £
+                      {Number(driver.unpaid_completed_amount || 0).toFixed(2)}
+                    </span>
+                  ) : (
                     <span
-                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                        isActive ? "bg-emerald-500" : "bg-gray-400"
+                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        isActive
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-gray-100 text-gray-600 border border-gray-200"
                       }`}
-                    />
-                    {isActive ? "Active Driver" : "Inactive"}
-                  </span>
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                          isActive ? "bg-emerald-500" : "bg-gray-400"
+                        }`}
+                      />
+                      {isActive ? "Active Driver" : "Inactive"}
+                    </span>
+                  )}
                   {hasExpiredDoc && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300">
                       <AlertTriangle className="w-2.5 h-2.5 text-rose-600" />

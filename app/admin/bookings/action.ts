@@ -108,6 +108,7 @@ export async function assignDriverToBooking(
 
         revalidatePath("/admin/bookings");
         revalidatePath(`/admin/bookings/${bookingId}`);
+        revalidatePath("/admin/calendar");
         revalidatePath("/admin/drivers");
         revalidatePath("/admin/dashboard");
 
@@ -156,6 +157,7 @@ export async function updateBooking(
 
         revalidatePath("/admin/bookings");
         revalidatePath(`/admin/bookings/${bookingId}`);
+        revalidatePath("/admin/calendar");
         revalidatePath("/admin/drivers");
         revalidatePath("/admin/suppliers");
         revalidatePath("/admin/dashboard");

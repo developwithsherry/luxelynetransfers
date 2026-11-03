@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Truck,
   Calendar,
+  CalendarDays,
   Loader2,
   LogOut,
   PlusCircleIcon,
@@ -44,6 +45,12 @@ const navigationLinks = [
     icon: Calendar,
     isActive: (pathname: string) =>
       pathname.includes("/admin/bookings") && !pathname.includes("/admin/previous-bookings"),
+  },
+  {
+    path: "/admin/calendar",
+    label: "Calendar",
+    icon: CalendarDays,
+    isActive: (pathname: string) => pathname.includes("/admin/calendar"),
   },
   {
     path: "/admin/addons",
