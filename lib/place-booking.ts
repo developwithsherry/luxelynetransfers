@@ -2,6 +2,7 @@
 
 import { Booking } from "@/types/booking";
 import { createClient } from "@/util/supabase/server";
+import { dispatchAdminNotification } from "@/lib/admin-push";
 
 export async function createBooking(booking: Booking) {
     try {
@@ -29,6 +30,27 @@ export async function createBooking(booking: Booking) {
         if(bookingAddError){
             throw bookingAddError.message
         }
+
+        // Send instant background push notification to all LLT-Management admin devices
+        try {
+            const shortId = String(newBooking.id || "").slice(0, 6).toUpperCase();
+            const passenger = [newBooking.first_name, newBooking.last_name].filter(Boolean).join(" ").trim() || "Customer";
+            const pickup = String(newBooking.pickup_location || "Pickup").split(",")[0];
+            const dropoff = String(newBooking.drop_off_location || "Drop-off").split(",")[0];
+            const fare = Number(newBooking.total_amount || 0).toFixed(2);
+
+            await dispatchAdminNotification({
+                notificationKey: `new_booking_${newBooking.id}`,
+                category: "new_booking",
+                title: `🚘 New Website Booking #${shortId} (£${fare})`,
+                body: `${passenger} • ${newBooking.date || ""} at ${String(newBooking.time || "").slice(0, 5)} • ${pickup} → ${dropoff}`,
+                url: `/admin/bookings/${newBooking.id}`,
+                bookingId: newBooking.id,
+            });
+        } catch (pushErr) {
+            console.error("Non-blocking push error on new booking:", pushErr);
+        }
+
         return { success: true,booking:newBooking}
     } catch (error) {
         return { error }

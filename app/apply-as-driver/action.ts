@@ -2,6 +2,7 @@
 
 import { createClient } from "@/util/supabase/server"
 import { revalidatePath } from "next/cache"
+import { dispatchAdminNotification } from "@/lib/admin-push"
 import {
   DRIVER_VEHICLE_CATEGORIES,
   type DriverVehicleCategory,
@@ -67,6 +68,20 @@ export async function submitDriverApplication(
     }
 
     revalidatePath("/admin/driver-hiring")
+
+    // Send instant background push notification to all LLT-Management admin devices
+    try {
+      await dispatchAdminNotification({
+        notificationKey: `driver_app_${Date.now()}_${phone}`,
+        category: "driver_application",
+        title: `🧑‍✈️ New Driver Application: ${fullName}`,
+        body: `${vehicleCategory} • ${cityArea} • ${phone}`,
+        url: "/admin/driver-hiring",
+        skipDedupe: true,
+      })
+    } catch (pushErr) {
+      console.error("Non-blocking push error on driver application:", pushErr)
+    }
 
     return {
       success: true,
