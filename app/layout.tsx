@@ -74,6 +74,17 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  icons: {
+    icon: [
+      { url: "/llt-management-icon.png", sizes: "any" },
+      { url: "/llt-management-icon.png", sizes: "32x32", type: "image/png" },
+      { url: "/llt-management-icon.png", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: "/llt-management-icon.png",
+    apple: [
+      { url: "/llt-management-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 }
 
 export default function RootLayout({
@@ -84,6 +95,13 @@ export default function RootLayout({
   return (
     <html lang="en-GB">
       <head>
+        {/* ✅ Favicon & Apple Touch Icon */}
+        <link rel="icon" href="/llt-management-icon.png" sizes="any" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/llt-management-icon.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/llt-management-icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/llt-management-icon.png" />
+        <link rel="shortcut icon" href="/llt-management-icon.png" />
+
         {/* ✅ Google Tag Manager Script */}
         <Script
           id="google-tag-manager"

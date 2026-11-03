@@ -101,7 +101,15 @@ export function AdminPwaNotificationManager() {
       meta.content = content
     })
 
-    // Ensure Apple Touch Icon points to /llt-management-icon.png
+    // Ensure Favicon & Apple Touch Icon point to /llt-management-icon.png
+    let faviconLink = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null
+    if (!faviconLink) {
+      faviconLink = document.createElement("link")
+      faviconLink.rel = "icon"
+      document.head.appendChild(faviconLink)
+    }
+    faviconLink.href = "/llt-management-icon.png"
+
     let appleIcon = document.querySelector(
       'link[rel="apple-touch-icon"]'
     ) as HTMLLinkElement | null
