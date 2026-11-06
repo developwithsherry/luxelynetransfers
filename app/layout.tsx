@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { Figtree, Syne } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
@@ -7,6 +8,20 @@ import { BookingProvider } from "@/context/booking-context"
 import { VehicleProvider } from "@/context/vehicle-context"
 import { AddonProvider } from "@/context/addon-context"
 import { OrganizationSchema, TaxiServiceSchema } from "@/components/seo/schema-markup"
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-figtree",
+  weight: ["300", "400", "500", "600", "700", "800"],
+})
+
+const syne = Syne({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-syne",
+  weight: ["400", "500", "600", "700", "800"],
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://luxelynetransfers.co.uk"),
@@ -93,7 +108,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en-GB">
+    <html lang="en-GB" className={`${figtree.variable} ${syne.variable}`}>
       <head>
         {/* ✅ Favicon & Apple Touch Icon */}
         <link rel="icon" href="/Luxelyne-Transfers-Icon.png" sizes="any" />
@@ -102,10 +117,10 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/Luxelyne-Transfers-Icon.png" />
         <link rel="shortcut icon" href="/Luxelyne-Transfers-Icon.png" />
 
-        {/* ✅ Google Tag Manager Script */}
+        {/* ✅ Google Tag Manager Script (deferred to idle after LCP) */}
         <Script
           id="google-tag-manager"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -117,10 +132,10 @@ export default function RootLayout({
           }}
         />
 
-        {/* ✅ Microsoft Clarity Tracking Script */}
+        {/* ✅ Microsoft Clarity Tracking Script (deferred to idle after LCP) */}
         <Script
           id="microsoft-clarity"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function(c,l,a,r,i,t,y){

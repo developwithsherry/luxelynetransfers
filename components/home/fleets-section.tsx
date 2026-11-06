@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Users, Luggage } from "lucide-react"
 import { useVehicles } from "@/context/vehicle-context"
@@ -30,18 +31,18 @@ export function FleetSection() {
   // Duplicate track elements to ensure a continuous, seamless loop
   const getRepeatedItems = (items: any[]) => {
     if (!items || items.length === 0) return []
-    const multiplier = Math.max(2, Math.ceil(12 / items.length))
+    const multiplier = Math.max(1, Math.ceil(6 / items.length))
     return Array.from({ length: multiplier }).flatMap(() => items)
   }
 
   const repeatedVehicles = getRepeatedItems(vehicles)
-  const repeatedSkeletons = Array.from({ length: 8 })
+  const repeatedSkeletons = Array.from({ length: 4 })
 
   return (
     <section className="lg:py-24 py-12 bg-gradient-to-br from-background via-muted/10 to-background overflow-hidden">
       <div className="container mx-auto px-4 mb-12">
         <div className="text-center animate-in fade-in duration-700">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-accent">Our Premium Private Hire Fleet</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-lime-700">Our Premium Private Hire Fleet</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Choose from our collection of modern saloons, executive business cars, and 8-seater MPVs—each maintained to the highest UK safety standards for London airport transfers.
           </p>
@@ -80,14 +81,23 @@ export function FleetSection() {
                     <CardContent className="p-0 flex flex-col justify-between h-full">
                       <div>
                         <div className="relative group p-4 flex items-center justify-center">
-                          <img
+                          <Image
                             src={vehicle.imageUrl || "/placeholder.svg"}
                             alt={`${vehicle.name} - London Airport Transfer Vehicle`}
+                            width={360}
+                            height={192}
+                            sizes="(max-width: 640px) 280px, 360px"
+                            quality={75}
+                            loading="lazy"
                             className="w-full h-48 object-contain transition-transform duration-500 group-hover:scale-105"
                           />
                         </div>
                         <div className="p-5">
-                          <h3 className="text-xl font-bold mb-1 text-card-foreground group-hover:text-accent transition-colors duration-200">{vehicle.name}</h3>
+                          {idx >= vehicles.length ? (
+                            <p className="text-xl font-bold mb-1 text-card-foreground group-hover:text-accent transition-colors duration-200">{vehicle.name}</p>
+                          ) : (
+                            <h3 className="text-xl font-bold mb-1 text-card-foreground group-hover:text-accent transition-colors duration-200">{vehicle.name}</h3>
+                          )}
                           <p className="text-muted-foreground text-sm font-medium mb-3">{vehicle.type}</p>
 
                           <div className="flex gap-4 text-sm mt-3 pt-3 border-t border-border">
@@ -116,9 +126,14 @@ export function FleetSection() {
                     <CardContent className="p-0 flex flex-col justify-between h-full">
                       <div>
                         <div className="relative group p-4 flex items-center justify-center">
-                          <img
+                          <Image
                             src={vehicle.imageUrl || "/placeholder.svg"}
                             alt={vehicle.name}
+                            width={360}
+                            height={192}
+                            sizes="(max-width: 640px) 280px, 360px"
+                            quality={75}
+                            loading="lazy"
                             className="w-full h-48 object-contain transition-transform duration-500 group-hover:scale-105"
                           />
                         </div>

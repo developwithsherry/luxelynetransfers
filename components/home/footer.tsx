@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin, ShieldCheck } from "lucide-react"
 
 export function Footer() {
@@ -9,12 +10,13 @@ export function Footer() {
           {/* Column 1: Logo & Contact Info (4 cols) */}
           <div className="lg:col-span-4 space-y-6">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="/logo_lime.png"
                 alt="Luxelyne Transfers LTD Logo"
                 className="w-14 h-14 object-contain"
                 width={56}
                 height={56}
+                loading="lazy"
               />
               <div>
                 <h3 className="text-xl font-bold tracking-tight text-white leading-none mb-1">
@@ -202,7 +204,7 @@ export function Footer() {
         </div>
 
         {/* Bottom copyright line */}
-        <div className="border-t border-neutral-900 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-neutral-500 gap-2">
+        <div className="border-t border-neutral-900 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-neutral-400 gap-2">
           <p>
             © {new Date().getFullYear()} Luxelyne Transfers LTD (Company No. 16665396). Registered in England & Wales. All rights reserved.
           </p>

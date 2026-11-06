@@ -149,7 +149,9 @@ export function ServicesSection() {
                     src={services[0].image}
                     alt={`${services[0].title} - London Heathrow, Gatwick, Stansted & Luton Chauffeur`}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 58vw"
+                    sizes="(max-width: 768px) 92vw, (max-width: 1024px) 50vw, 55vw"
+                    quality={70}
+                    loading="lazy"
                     className="object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-neutral-950/20" />
@@ -195,7 +197,9 @@ export function ServicesSection() {
                     src={services[1].image}
                     alt={`${services[1].title} - Wedding & Corporate Chauffeur Service London`}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 42vw"
+                    sizes="(max-width: 768px) 92vw, (max-width: 1024px) 50vw, 40vw"
+                    quality={70}
+                    loading="lazy"
                     className="object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-neutral-950/20" />
@@ -241,7 +245,9 @@ export function ServicesSection() {
                     src={services[2].image}
                     alt={`${services[2].title} - Private London & UK Sightseeing Chauffeur`}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 92vw, (max-width: 1024px) 50vw, 45vw"
+                    quality={70}
+                    loading="lazy"
                     className="object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-neutral-950/20" />
@@ -287,7 +293,9 @@ export function ServicesSection() {
                     src={services[3].image}
                     alt={`${services[3].title} - DBS-Checked Safe School Taxi London`}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 92vw, (max-width: 1024px) 50vw, 45vw"
+                    quality={70}
+                    loading="lazy"
                     className="object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/60 to-neutral-950/20" />
@@ -340,6 +348,8 @@ export function ServicesSection() {
               className="relative w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl z-10 text-white max-h-[90vh] flex flex-col"
             >
               <button
+                type="button"
+                aria-label="Close service details"
                 onClick={() => setActiveService(null)}
                 className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/55 backdrop-blur-md flex items-center justify-center border border-neutral-850 hover:bg-accent hover:text-black transition-colors"
               >

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, X, ChevronDown } from "lucide-react"
 
@@ -27,7 +28,7 @@ const Header = () => {
       setIsScrolled(window.scrollY > 50)
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -84,7 +85,11 @@ const Header = () => {
 
             {/* Airports We Cover Dropdown */}
             <div className="relative group">
-              <button className="text-black hover:text-black/70 font-semibold transition-colors flex items-center gap-1 py-1 text-sm focus:outline-none">
+              <button
+                type="button"
+                aria-haspopup="true"
+                className="text-black hover:text-black/70 font-semibold transition-colors flex items-center gap-1 py-1 text-sm focus:outline-none"
+              >
                 Airports & Areas
                 <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
               </button>
@@ -201,12 +206,14 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/">
-            <img
+            <Image
               className="lg:w-72 w-56 h-auto"
               src="/logo-main.png"
               alt="Luxelyne Transfers - London Airport Transfers & Private Hire"
               width={288}
               height={64}
+              priority
+              sizes="(max-width: 1024px) 224px, 288px"
             />
           </Link>
 
@@ -224,7 +231,11 @@ const Header = () => {
 
             {/* Airports We Cover Dropdown */}
             <div className="relative group">
-              <button className={`${textColor} ${hoverColor} transition-colors font-medium flex items-center gap-1 py-2 focus:outline-none`}>
+              <button
+                type="button"
+                aria-haspopup="true"
+                className={`${textColor} ${hoverColor} transition-colors font-medium flex items-center gap-1 py-2 focus:outline-none`}
+              >
                 Airports & Areas
                 <ChevronDown className="h-4 w-4 transition-transform group-hover:rotate-180" />
               </button>

@@ -66,8 +66,10 @@ export function HomeFAQSection() {
         }`}
       >
         <button
+          type="button"
+          aria-expanded={isOpen}
           onClick={() => toggleFAQ(globalIdx)}
-          className="w-full flex items-center justify-between p-6 text-left font-bold text-card-foreground hover:text-accent transition-colors"
+          className="w-full flex items-center justify-between p-6 text-left font-bold text-card-foreground hover:text-lime-700 transition-colors"
         >
           <span className="text-base md:text-lg pr-4">{faq.q}</span>
           <ChevronDown
@@ -100,7 +102,7 @@ export function HomeFAQSection() {
 
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="text-center mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-accent/30 bg-accent/5 text-accent text-sm font-semibold tracking-wide uppercase">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-500/30 bg-lime-50 text-lime-700 text-sm font-semibold tracking-wide uppercase">
             <HelpCircle className="w-4 h-4" /> FAQ
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-foreground">

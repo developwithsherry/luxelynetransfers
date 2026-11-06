@@ -38,7 +38,7 @@ export default function WhyChooseUs() {
 
       {/* Header */}
       <div className="text-center mb-16 md:mb-20">
-        <h2 className="text-4xl md:text-5xl font-display font-bold text-accent mb-4 text-balance">
+        <h2 className="text-4xl md:text-5xl font-display font-bold text-lime-700 mb-4 text-balance">
           Why Choose LuxeLyne?
         </h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
@@ -93,7 +93,9 @@ export default function WhyChooseUs() {
                 src="/p1.png"
                 alt="Professional LuxeLyne Chauffeur Driver Welcoming Passenger"
                 fill
-                priority
+                sizes="(max-width: 768px) 280px, 300px"
+                quality={75}
+                loading="lazy"
                 className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
               />
             </div>

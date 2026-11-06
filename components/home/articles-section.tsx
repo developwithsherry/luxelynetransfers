@@ -43,12 +43,12 @@ export function HomeArticlesSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Heading */}
           <div className="lg:col-span-4 space-y-6 text-left animate-in fade-in duration-750">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-accent/30 bg-accent/5 text-accent text-sm font-semibold tracking-wide uppercase">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-500/30 bg-lime-50 text-lime-700 text-sm font-semibold tracking-wide uppercase">
               Read Articles
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
               Our Latest <br />
-              <span className="text-accent">Travel Guides</span> <br />
+              <span className="text-lime-700">Travel Guides</span> <br />
               & Insights
             </h2>
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed max-w-md">
@@ -76,49 +76,64 @@ export function HomeArticlesSection() {
             >
               {/* Track 1 */}
               <div className="flex gap-6 pr-6 shrink-0">
-                {repeatedArticles.map((post, idx) => (
-                  <div
-                    key={`art1-${idx}`}
-                    aria-hidden={idx >= blogPosts.length ? "true" : undefined}
-                    className="w-[300px] sm:w-[340px] md:w-[380px] shrink-0 my-2"
-                  >
-                    <Card className="h-full bg-card border-border hover:border-accent/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group">
-                      <Link href={`/blog/${post.slug}`} className="flex flex-col h-full justify-between">
-                        <div>
-                          <div className="relative w-full h-44 overflow-hidden bg-muted">
-                            <Image
-                              src={post.image}
-                              alt={post.title}
-                              fill
-                              sizes="(max-width: 768px) 300px, 380px"
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                          </div>
-
-                          <div className="p-5 space-y-3 text-left">
-                            <div className="flex items-center gap-3 text-xs font-semibold text-accent">
-                              <span className="px-2 py-0.5 rounded border border-accent/25 bg-accent/5 uppercase tracking-wider text-[10px]">
-                                {post.category}
-                              </span>
-                              <span className="text-muted-foreground">{post.date}</span>
+                {repeatedArticles.map((post, idx) => {
+                  const isDuplicate = idx >= blogPosts.length
+                  return (
+                    <div
+                      key={`art1-${idx}`}
+                      aria-hidden={isDuplicate ? "true" : undefined}
+                      className="w-[300px] sm:w-[340px] md:w-[380px] shrink-0 my-2"
+                    >
+                      <Card className="h-full bg-card border-border hover:border-accent/40 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden group">
+                        <Link
+                          href={`/blog/${post.slug}`}
+                          tabIndex={isDuplicate ? -1 : undefined}
+                          className="flex flex-col h-full justify-between"
+                        >
+                          <div>
+                            <div className="relative w-full h-44 overflow-hidden bg-muted">
+                              <Image
+                                src={post.image}
+                                alt={post.title}
+                                fill
+                                sizes="(max-width: 768px) 300px, 380px"
+                                quality={75}
+                                loading="lazy"
+                                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
                             </div>
-                            <h3 className="text-lg font-bold text-card-foreground group-hover:text-accent transition-colors duration-200 line-clamp-2 leading-snug">
-                              {post.title}
-                            </h3>
-                            <p className="text-muted-foreground text-xs font-light line-clamp-3 leading-relaxed">
-                              {post.excerpt}
-                            </p>
-                          </div>
-                        </div>
 
-                        <div className="p-5 pt-0 flex items-center gap-1.5 text-accent font-bold hover:underline text-xs text-left">
-                          <span>Read Full Article</span>
-                          <span className="transition-transform group-hover:translate-x-1">→</span>
-                        </div>
-                      </Link>
-                    </Card>
-                  </div>
-                ))}
+                            <div className="p-5 space-y-3 text-left">
+                              <div className="flex items-center gap-3 text-xs font-semibold text-lime-800">
+                                <span className="px-2 py-0.5 rounded border border-lime-600/30 bg-lime-50 text-lime-800 uppercase tracking-wider text-[10px]">
+                                  {post.category}
+                                </span>
+                                <span className="text-muted-foreground">{post.date}</span>
+                              </div>
+                              {isDuplicate ? (
+                                <p className="text-lg font-bold text-card-foreground group-hover:text-lime-700 transition-colors duration-200 line-clamp-2 leading-snug">
+                                  {post.title}
+                                </p>
+                              ) : (
+                                <h3 className="text-lg font-bold text-card-foreground group-hover:text-lime-700 transition-colors duration-200 line-clamp-2 leading-snug">
+                                  {post.title}
+                                </h3>
+                              )}
+                              <p className="text-muted-foreground text-xs font-light line-clamp-3 leading-relaxed">
+                                {post.excerpt}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="p-5 pt-0 flex items-center gap-1.5 text-lime-700 font-bold hover:underline text-xs text-left">
+                            <span>Read Full Article</span>
+                            <span className="transition-transform group-hover:translate-x-1">→</span>
+                          </div>
+                        </Link>
+                      </Card>
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Track 2 (Visual duplicate hidden from crawlers/screen readers) */}
@@ -134,18 +149,20 @@ export function HomeArticlesSection() {
                               alt={post.title}
                               fill
                               sizes="(max-width: 768px) 300px, 380px"
+                              quality={75}
+                              loading="lazy"
                               className="object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           </div>
 
                           <div className="p-5 space-y-3 text-left">
-                            <div className="flex items-center gap-3 text-xs font-semibold text-accent">
-                              <span className="px-2 py-0.5 rounded border border-accent/25 bg-accent/5 uppercase tracking-wider text-[10px]">
+                            <div className="flex items-center gap-3 text-xs font-semibold text-lime-800">
+                              <span className="px-2 py-0.5 rounded border border-lime-600/30 bg-lime-50 text-lime-800 uppercase tracking-wider text-[10px]">
                                 {post.category}
                               </span>
                               <span className="text-muted-foreground">{post.date}</span>
                             </div>
-                            <p className="text-lg font-bold text-card-foreground group-hover:text-accent transition-colors duration-200 line-clamp-2 leading-snug">
+                            <p className="text-lg font-bold text-card-foreground group-hover:text-lime-700 transition-colors duration-200 line-clamp-2 leading-snug">
                               {post.title}
                             </p>
                             <p className="text-muted-foreground text-xs font-light line-clamp-3 leading-relaxed">
@@ -154,7 +171,7 @@ export function HomeArticlesSection() {
                           </div>
                         </div>
 
-                        <div className="p-5 pt-0 flex items-center gap-1.5 text-accent font-bold hover:underline text-xs text-left">
+                        <div className="p-5 pt-0 flex items-center gap-1.5 text-lime-700 font-bold hover:underline text-xs text-left">
                           <span>Read Full Article</span>
                           <span className="transition-transform group-hover:translate-x-1">→</span>
                         </div>

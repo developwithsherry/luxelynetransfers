@@ -48,6 +48,8 @@ export function DriverCTASection() {
                   alt="Apply as a Driver with Luxelyne Transfers"
                   fill
                   sizes="400px"
+                  quality={75}
+                  loading="lazy"
                   className="object-cover"
                 />
               </div>

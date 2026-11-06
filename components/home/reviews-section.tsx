@@ -104,13 +104,19 @@ export function ReviewsSection() {
                     </div>
 
                     <div className="flex items-center gap-3.5 pt-4 border-t border-border/60">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent/10 text-accent font-bold text-sm tracking-wide shrink-0 border border-accent/20">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-lime-50 text-lime-800 font-bold text-sm tracking-wide shrink-0 border border-lime-500/30">
                         {review.initials}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-card-foreground text-sm md:text-base leading-none mb-1">
-                          {review.name}
-                        </h4>
+                        {idx >= reviews.length ? (
+                          <p className="font-semibold text-card-foreground text-sm md:text-base leading-none mb-1">
+                            {review.name}
+                          </p>
+                        ) : (
+                          <h3 className="font-semibold text-card-foreground text-sm md:text-base leading-none mb-1">
+                            {review.name}
+                          </h3>
+                        )}
                         <p className="text-muted-foreground text-xs font-medium">
                           {review.trip}
                         </p>
@@ -144,7 +150,7 @@ export function ReviewsSection() {
                     </div>
 
                     <div className="flex items-center gap-3.5 pt-4 border-t border-border/60">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent/10 text-accent font-bold text-sm tracking-wide shrink-0 border border-accent/20">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-lime-50 text-lime-800 font-bold text-sm tracking-wide shrink-0 border border-lime-500/30">
                         {review.initials}
                       </div>
                       <div>

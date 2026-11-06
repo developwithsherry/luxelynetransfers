@@ -231,6 +231,7 @@ export function TimePickerInput({
         <Input
           id={id}
           type="text"
+          aria-label={placeholder}
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleBlur}
@@ -253,6 +254,7 @@ export function TimePickerInput({
               disabled={disabled}
               className="absolute right-1 h-8 w-8 text-gray-500 hover:text-black hover:bg-gray-100 rounded-md"
               title="Open 24h time wheel"
+              aria-label="Open 24h time wheel"
             >
               <Clock className="h-4 w-4" />
             </Button>

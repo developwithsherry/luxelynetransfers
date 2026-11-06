@@ -11,8 +11,6 @@ import { HomeArticlesSection } from "@/components/home/articles-section"
 import SimpleBookingForm from "@/components/booking-form"
 import WhatsAppContactButton from "@/components/home/whatsapp-button-fixed"
 
-export const dynamic = "force-dynamic"
-
 export const metadata: Metadata = {
   title: "Luxelyne Transfers | London Airport Transfers & 24/7 Private Hire Taxi",
   description:

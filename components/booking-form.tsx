@@ -29,10 +29,13 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
 
   const pickupAutocompleteRef = useRef<any | null>(null)
   const dropoffAutocompleteRef = useRef<any | null>(null)
+  const mapsInitializedRef = useRef(false)
 
   const router = useRouter()
 
   const initializeGoogleMaps = async () => {
+    if (mapsInitializedRef.current) return
+    mapsInitializedRef.current = true
     try {
       const googleInstance = await googleLoader.load()
 
@@ -92,12 +95,25 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
         })
       }
     } catch (error) {
+      mapsInitializedRef.current = false
       console.error("Error loading Google Maps API:", error)
     }
   }
 
   useEffect(() => {
-    initializeGoogleMaps()
+    const events = ["focusin", "pointerdown", "touchstart", "keydown"]
+    const handleFirstInteraction = () => {
+      initializeGoogleMaps()
+      events.forEach((evt) => window.removeEventListener(evt, handleFirstInteraction))
+    }
+
+    events.forEach((evt) =>
+      window.addEventListener(evt, handleFirstInteraction, { once: true, passive: true }),
+    )
+
+    return () => {
+      events.forEach((evt) => window.removeEventListener(evt, handleFirstInteraction))
+    }
   }, [])
 
   const formatDateUK = (dateString: string) => {
@@ -219,7 +235,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Pickup Location */}
               <div className="space-y-2 text-left">
-                <Label className="flex items-center gap-2 text-sm font-medium text-neutral-700">
+                <Label htmlFor="pickup-input" className="flex items-center gap-2 text-sm font-medium text-neutral-700">
                   <MapPin className="w-4 h-4 text-lime-600" />
                   From
                 </Label>
@@ -228,6 +244,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                   type="text"
                   placeholder="Enter pickup location"
                   value={pickupInput}
+                  onFocus={initializeGoogleMaps}
                   onChange={(e) => {
                     setPickupInput(e.target.value)
                     updateBookingDetails({ pickup_location: e.target.value })
@@ -239,7 +256,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
 
               {/* Dropoff Location */}
               <div className="space-y-2 text-left">
-                <Label className="flex items-center gap-2 text-sm font-medium text-neutral-700">
+                <Label htmlFor="dropoff-input" className="flex items-center gap-2 text-sm font-medium text-neutral-700">
                   <MapPin className="w-4 h-4 text-lime-600" />
                   To
                 </Label>
@@ -248,6 +265,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                   type="text"
                   placeholder="Enter destination"
                   value={dropoffInput}
+                  onFocus={initializeGoogleMaps}
                   onChange={(e) => {
                     setDropoffInput(e.target.value)
                     updateBookingDetails({ drop_off_location: e.target.value })
@@ -260,7 +278,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
 
             {/* Stops Section */}
             <div className="space-y-4 text-left">
-              <Label className="flex items-center gap-2 text-sm font-medium text-neutral-750">
+              <Label htmlFor="stop-input" className="flex items-center gap-2 text-sm font-medium text-neutral-750">
                 <Plus className="w-4 h-4 text-lime-600" />
                 Add Stops (Optional)
               </Label>
@@ -278,6 +296,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                         type="button"
                         variant="ghost"
                         size="sm"
+                        aria-label="Remove stop"
                         onClick={() => removeStop(stop.id)}
                         className="h-6 w-6 p-0 hover:bg-neutral-100"
                       >
@@ -294,6 +313,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                   type="text"
                   placeholder="Add a stop (optional)"
                   value={stopInput}
+                  onFocus={initializeGoogleMaps}
                   onChange={(e) => {
                     setStopInput(e.target.value)
                   }}
@@ -302,6 +322,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                 <Button
                   type="button"
                   variant="outline"
+                  aria-label="Add stop"
                   onClick={addStop}
                   className="h-9 px-6 bg-transparent border-neutral-300 hover:bg-neutral-50 text-neutral-800"
                   disabled={!stopInput.trim()}
@@ -369,6 +390,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
             <div className="flex items-center justify-center space-x-4 py-2">
               <Switch
                 id="with-return"
+                aria-label="Toggle Round Trip"
                 checked={!!bookingDetails.with_return}
                 onCheckedChange={(checked) => {
                   updateBookingDetails({ with_return: checked })
@@ -488,7 +510,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Pickup Location */}
                     <div className="space-y-2">
-                      <Label className="flex items-center gap-2 text-sm font-medium">
+                      <Label htmlFor="pickup-input" className="flex items-center gap-2 text-sm font-medium">
                         <MapPin className="w-4 h-4" />
                         From
                       </Label>
@@ -497,6 +519,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                         type="text"
                         placeholder="Enter pickup location"
                         value={pickupInput}
+                        onFocus={initializeGoogleMaps}
                         onChange={(e) => {
                           setPickupInput(e.target.value)
                           updateBookingDetails({ pickup_location: e.target.value })
@@ -508,7 +531,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
 
                     {/* Dropoff Location */}
                     <div className="space-y-2">
-                      <Label className="flex items-center gap-2 text-sm font-medium">
+                      <Label htmlFor="dropoff-input" className="flex items-center gap-2 text-sm font-medium">
                         <MapPin className="w-4 h-4" />
                         To
                       </Label>
@@ -517,6 +540,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                         type="text"
                         placeholder="Enter destination"
                         value={dropoffInput}
+                        onFocus={initializeGoogleMaps}
                         onChange={(e) => {
                           setDropoffInput(e.target.value)
                           updateBookingDetails({ drop_off_location: e.target.value })
@@ -529,7 +553,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
 
                   {/* Stops Section */}
                   <div className="space-y-4">
-                    <Label className="flex items-center gap-2 text-sm font-medium">
+                    <Label htmlFor="stop-input" className="flex items-center gap-2 text-sm font-medium">
                       <Plus className="w-4 h-4" />
                       Add Stops (Optional)
                     </Label>
@@ -544,6 +568,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                               type="button"
                               variant="ghost"
                               size="sm"
+                              aria-label="Remove stop"
                               onClick={() => removeStop(stop.id)}
                               className="h-6 w-6 p-0"
                             >
@@ -560,6 +585,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                         type="text"
                         placeholder="Add a stop (optional)"
                         value={stopInput}
+                        onFocus={initializeGoogleMaps}
                         onChange={(e) => {
                           setStopInput(e.target.value)
                         }}
@@ -568,6 +594,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                       <Button
                         type="button"
                         variant="outline"
+                        aria-label="Add stop"
                         onClick={addStop}
                         className="h-9 px-6 bg-transparent"
                         disabled={!stopInput.trim()}
@@ -635,6 +662,7 @@ export default function BookingForm({ justForm = false }: { justForm?: boolean }
                   <div className="flex items-center justify-center space-x-4 py-4">
                     <Switch
                       id="with-return"
+                      aria-label="Toggle Round Trip"
                       checked={!!bookingDetails.with_return}
                       onCheckedChange={(checked) => {
                         updateBookingDetails({ with_return: checked })
