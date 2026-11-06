@@ -320,29 +320,49 @@ export function SupplierList({
                     </td>
 
                     {/* Status */}
-                    <td className="py-3 px-3 text-center">
-                      <button
-                        type="button"
-                        onClick={(e) => handleToggleStatus(e, supplier)}
-                        disabled={togglingId === supplier.id}
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold transition ${
-                          isActive
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
-                            : "bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200"
-                        }`}
-                        title="Click to toggle status"
-                      >
-                        {togglingId === supplier.id ? (
-                          <Loader2 className="w-2.5 h-2.5 animate-spin mr-1" />
-                        ) : (
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                              isActive ? "bg-emerald-500" : "bg-gray-400"
-                            }`}
-                          />
-                        )}
-                        {isActive ? "Active" : "Inactive"}
-                      </button>
+                    <td className="py-3 px-3 text-center whitespace-nowrap">
+                      {isActive && (supplier.unpaid_completed_jobs_count || 0) > 0 ? (
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleStatus(e, supplier)}
+                          disabled={togglingId === supplier.id}
+                          className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-red-50 text-red-600 border border-red-300 hover:bg-red-100 transition shadow-2xs"
+                          title="Completed jobs pending payment from supplier (Click to toggle active status)"
+                        >
+                          {togglingId === supplier.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin mr-1.5 text-red-600" />
+                          ) : (
+                            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse mr-1.5 shrink-0" />
+                          )}
+                          <span>
+                            Jobs: {supplier.unpaid_completed_jobs_count} | Total: £
+                            {Number(supplier.unpaid_completed_amount || 0).toFixed(2)}
+                          </span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleStatus(e, supplier)}
+                          disabled={togglingId === supplier.id}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold transition ${
+                            isActive
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                              : "bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200"
+                          }`}
+                          title="Click to toggle status"
+                        >
+                          {togglingId === supplier.id ? (
+                            <Loader2 className="w-2.5 h-2.5 animate-spin mr-1" />
+                          ) : (
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                                isActive ? "bg-emerald-500" : "bg-gray-400"
+                              }`}
+                            />
+                          )}
+                          {isActive ? "Active" : "Inactive"}
+                        </button>
+                      )}
                     </td>
 
                     {/* Jobs & Volume Button */}

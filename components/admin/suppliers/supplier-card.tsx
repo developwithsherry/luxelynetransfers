@@ -133,20 +133,28 @@ export default function SupplierCard({
                 <h3 className="font-bold text-gray-900 text-lg leading-tight truncate group-hover:text-purple-700 transition-colors">
                   {supplier.name}
                 </h3>
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
-                    isActive
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-gray-100 text-gray-600 border border-gray-200"
-                  }`}
-                >
+                {isActive && (supplier.unpaid_completed_jobs_count || 0) > 0 ? (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-300 mt-1">
+                    <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse mr-1.5 shrink-0" />
+                    Jobs: {supplier.unpaid_completed_jobs_count} | Total: £
+                    {Number(supplier.unpaid_completed_amount || 0).toFixed(2)}
+                  </span>
+                ) : (
                   <span
-                    className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                      isActive ? "bg-emerald-500" : "bg-gray-400"
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
+                      isActive
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : "bg-gray-100 text-gray-600 border border-gray-200"
                     }`}
-                  />
-                  {isActive ? "Active Supplier" : "Inactive"}
-                </span>
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                        isActive ? "bg-emerald-500" : "bg-gray-400"
+                      }`}
+                    />
+                    {isActive ? "Active Supplier" : "Inactive"}
+                  </span>
+                )}
               </div>
             </div>
 

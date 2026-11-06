@@ -7,10 +7,16 @@ import { revalidatePath } from "next/cache"
 export async function getSuppliers(): Promise<{ data?: Supplier[]; error?: string }> {
   try {
     const supabase = await createClient()
-    const { data, error } = await supabase
-      .from("suppliers")
-      .select("*")
-      .order("created_at", { ascending: false })
+    const [{ data, error }, { data: bookingsData }] = await Promise.all([
+      supabase
+        .from("suppliers")
+        .select("*")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("booking")
+        .select("supplier_id, status, payment_status, total_amount")
+        .not("supplier_id", "is", null),
+    ])
 
     if (error) {
       console.error("Error fetching suppliers:", error)
@@ -22,7 +28,36 @@ export async function getSuppliers(): Promise<{ data?: Supplier[]; error?: strin
       return { error: error.message }
     }
 
-    return { data: (data as Supplier[]) || [] }
+    const unpaidStatsBySupplier = new Map<string, { count: number; amount: number }>()
+    if (Array.isArray(bookingsData)) {
+      bookingsData.forEach((b: any) => {
+        const supplierId = b.supplier_id
+        if (!supplierId) return
+        const isCompleted = (b.status || "").toLowerCase().trim() === "completed"
+        const pStatus = (b.payment_status || "").toLowerCase().trim()
+        const isPaid = pStatus === "paid" || pStatus === "paid_to_driver"
+
+        if (isCompleted && !isPaid) {
+          const prev = unpaidStatsBySupplier.get(supplierId) || { count: 0, amount: 0 }
+          const amount = Number(b.total_amount || 0)
+          unpaidStatsBySupplier.set(supplierId, {
+            count: prev.count + 1,
+            amount: prev.amount + (isNaN(amount) ? 0 : amount),
+          })
+        }
+      })
+    }
+
+    const enrichedSuppliers = ((data as Supplier[]) || []).map((supplier) => {
+      const unpaid = supplier.id ? unpaidStatsBySupplier.get(supplier.id) : undefined
+      return {
+        ...supplier,
+        unpaid_completed_jobs_count: unpaid?.count || 0,
+        unpaid_completed_amount: unpaid?.amount || 0,
+      }
+    })
+
+    return { data: enrichedSuppliers }
   } catch (error: any) {
     console.error("Failed to fetch suppliers:", error)
     return { error: error?.message || "Failed to fetch suppliers" }

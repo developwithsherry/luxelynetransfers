@@ -9,4 +9,6 @@ export interface Supplier {
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
+  unpaid_completed_jobs_count?: number;
+  unpaid_completed_amount?: number;
 }

@@ -87,7 +87,7 @@ export function SuppliersClient() {
       const existingIndex = prev.findIndex((s) => s.id === saved.id)
       if (existingIndex >= 0) {
         const copy = [...prev]
-        copy[existingIndex] = saved
+        copy[existingIndex] = { ...copy[existingIndex], ...saved }
         return copy
       } else {
         return [saved, ...prev]
