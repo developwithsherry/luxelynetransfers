@@ -5,10 +5,10 @@ import { motion } from "framer-motion"
 
 export default function FeatureCards() {
   const features = [
-    "UK Registered (Co. No. 16665396)",
-    "DBS-Checked Professional Drivers",
-    "Real-Time Flight Tracking",
-    "Fixed-Price Guarantee (No Surges)",
+    "Licensed Private Hire Operator",
+    "Airport & Long-Run Specialists",
+    "DBS-Vetted & Badged PHV Drivers",
+    "Fixed Fares — No Surge Pricing",
   ]
 
   return (

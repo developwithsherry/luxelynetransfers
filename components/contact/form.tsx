@@ -81,10 +81,15 @@ export function ContactSection() {
               <span>info@luxelynetransfers.co.uk</span>
             </a>
 
-            <div className="flex items-center gap-3 text-gray-700">
+            <a
+              href="https://share.google/DjXBNRIxleBeGZXsX"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 text-gray-700 hover:text-lime-600 underline transition-colors"
+            >
               <MapPin className="w-5 h-5 text-primary shrink-0" />
               <span>58 Peregrine Rd, Ilford IG6 3SZ, United Kingdom</span>
-            </div>
+            </a>
 
             <div className="flex items-center gap-3 text-gray-700">
               <ShieldCheck className="w-5 h-5 text-primary shrink-0" />

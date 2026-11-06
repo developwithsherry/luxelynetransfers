@@ -16,7 +16,7 @@ export default function OurMission() {
             viewport={{ once: true, amount: 0.3 }}
             className="text-3xl lg:text-4xl font-extrabold text-neutral-900 border-l-4 border-lime-500 pl-4"
           >
-            Our Mission & Vision
+            Our Mission as a Private Hire Operator
           </motion.h2>
 
           <motion.p
@@ -26,7 +26,7 @@ export default function OurMission() {
             viewport={{ once: true, amount: 0.3 }}
             className="text-base lg:text-lg text-neutral-600 font-light leading-relaxed space-y-4"
           >
-            At Luxelyne Transfers LTD, our mission is to deliver safe, premium, and stress-free airport transfer and private hire solutions across London and the wider UK. We seek to eliminate the anxiety of airport travel through seamless online bookings, live flight delay monitoring, and punctual meet and greet services.
+            At Luxelyne Transfers LTD, our mission is to set the benchmark for licensed private hire operations in the UK—combining strict regulatory compliance with effortless comfort on every airport transfer and long-distance journey. Whether you are catching an early-morning flight from Heathrow or booking a direct long-run transfer from London to Birmingham, Manchester, Oxford, Cambridge, or Southampton Cruise Port, we make pre-booked travel dependable and stress-free.
           </motion.p>
 
           <motion.p
@@ -36,7 +36,7 @@ export default function OurMission() {
             viewport={{ once: true, amount: 0.3 }}
             className="text-base lg:text-lg text-neutral-600 font-light leading-relaxed"
           >
-            We are dedicated to upholding the highest standards of safety and operational excellence. By matching every passenger with fully vetted, DBS-checked professional drivers and modern, compliant executive vehicles, we provide peaceful, comfortable rides at transparent, fixed prices.
+            We believe long-distance and airport travel demands more than a standard taxi ride. Through proactive 24/7 dispatch management, real-time flight tracking, complimentary terminal meet-and-greet service, and late-model executive vehicles, we ensure every mile of your journey is smooth, punctual, and fixed in price from the moment you book.
           </motion.p>
         </div>
 

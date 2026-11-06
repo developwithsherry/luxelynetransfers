@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Phone, Mail, MapPin, Facebook, Instagram, ShieldCheck } from "lucide-react"
+import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin, ShieldCheck } from "lucide-react"
 
 export function Footer() {
   return (
@@ -65,12 +65,17 @@ export function Footer() {
                 <span>info@luxelynetransfers.co.uk</span>
               </a>
 
-              <div className="flex items-center gap-3 text-neutral-400 text-sm">
-                <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center shrink-0">
+              <a
+                href="https://share.google/DjXBNRIxleBeGZXsX"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-neutral-400 hover:text-accent transition-colors duration-200 group text-sm"
+              >
+                <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center group-hover:bg-accent/15 group-hover:text-accent transition-colors duration-200 shrink-0">
                   <MapPin className="w-4 h-4 text-accent" />
                 </div>
                 <span>58 Peregrine Rd, Ilford IG6 3SZ, UK</span>
-              </div>
+              </a>
 
               <div className="flex items-center gap-3 text-neutral-400 text-xs pt-1">
                 <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center shrink-0">
@@ -181,6 +186,15 @@ export function Footer() {
                   aria-label="Facebook"
                 >
                   <Facebook className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/luxelyne-transfers/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-neutral-900 hover:bg-accent hover:text-accent-foreground flex items-center justify-center transition-all duration-300 shadow-inner text-white hover:scale-105"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="w-5 h-5" />
                 </a>
               </div>
             </div>

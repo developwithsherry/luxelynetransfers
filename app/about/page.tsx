@@ -11,16 +11,16 @@ import AboutFAQSection from "@/components/about/about-faq"
 import { ShieldCheck, Award, Clock, Star } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "About Us | UK Registered Airport Transfer & Private Hire Company",
+  title: "About Us | Licensed UK Private Hire Operator for Airport Transfers & Long-Distance Travel",
   description:
-    "Learn about Luxelyne Transfers LTD (UK Company No. 16665396), a trusted London airport transfer & private hire taxi company serving Heathrow, Gatwick, Stansted, Luton, London City & Southend 24/7.",
+    "Luxelyne Transfers LTD (UK Company No. 16665396) is a fully licensed private hire operator specializing in 24/7 London airport transfers and long-distance intercity journeys across Heathrow, Gatwick, Stansted, Luton, London City & nationwide.",
   alternates: {
     canonical: "https://luxelynetransfers.co.uk/about",
   },
   openGraph: {
-    title: "About Luxelyne Transfers LTD | London Airport Transfers & Private Hire",
+    title: "About Luxelyne Transfers LTD | Licensed Private Hire Operator & Airport Specialists",
     description:
-      "UK-registered private hire & airport transfer provider (Company No. 16665396) delivering fixed-fare comfort, real-time flight tracking, and DBS-vetted chauffeurs.",
+      "Fully licensed UK private hire operator (Company No. 16665396) specializing in fixed-fare airport transfers, executive chauffeur travel, and long-distance nationwide runs.",
     url: "https://luxelynetransfers.co.uk/about",
     images: ["/og-image.png"],
   },
@@ -44,13 +44,13 @@ export default function Page() {
             {/* Heading */}
             <div className="space-y-6 max-w-4xl mx-auto">
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-lime-500/30 bg-lime-50 text-lime-700 text-xs font-semibold uppercase tracking-wider">
-                Who We Are • UK Company No. 16665396
+                Licensed Private Hire Operator • UK Company No. 16665396
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-neutral-900 leading-tight">
-                Redefining London Airport Transfers & Private Hire
+                Specialists in Airport Transfers & Long-Distance Private Hire
               </h1>
               <p className="text-lg md:text-xl text-neutral-600 font-light max-w-2xl mx-auto leading-relaxed">
-                UK-registered private hire & chauffeur provider delivering fixed-fare comfort, safety, and 24/7 reliability for all major London and UK airports.
+                As a fully licensed UK private hire operator, we deliver pre-booked, fixed-fare airport transfers and nationwide long-distance journeys with vetted PHV drivers 24/7.
               </p>
             </div>
 
@@ -69,10 +69,10 @@ export default function Page() {
           <div className="container mx-auto px-4 max-w-5xl space-y-12 text-center">
             <div className="space-y-3">
               <h2 className="text-3xl font-extrabold text-neutral-900">
-                Our Core Safety & Quality Standards
+                Licensed Private Hire Operator Standards & Compliance
               </h2>
               <p className="text-neutral-500 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
-                We maintain strict UK compliance and passenger comfort standards to deliver a dependable, world-class ground travel experience.
+                As an authorized private hire operator, every pre-booked journey is dispatched, tracked, and logged under strict UK private hire regulations to guarantee passenger safety and punctuality.
               </p>
             </div>
 
@@ -82,9 +82,9 @@ export default function Page() {
                 <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-xl bg-lime-50 text-lime-700">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-neutral-900 text-lg">UK Registered Company</h3>
+                <h3 className="font-bold text-neutral-900 text-lg">Licensed PHV Operator</h3>
                 <p className="text-sm text-neutral-500 font-light leading-relaxed">
-                  Registered in England & Wales (Company No. 16665396), operating strictly in accordance with UK council and DVLA safety regulations.
+                  Registered in England & Wales (Company No. 16665396), operating as a licensed private hire operator compliant with UK PHV dispatch and safety standards.
                 </p>
               </div>
 
@@ -92,9 +92,9 @@ export default function Page() {
                 <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-xl bg-lime-50 text-lime-700">
                   <Award className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-neutral-900 text-lg">Vetted & DBS Checked</h3>
+                <h3 className="font-bold text-neutral-900 text-lg">Badged & DBS-Vetted Drivers</h3>
                 <p className="text-sm text-neutral-500 font-light leading-relaxed">
-                  Every driver undergoes enhanced background checks and passenger-care vetting to ensure safety and courtesy.
+                  Every private hire driver holds a valid PHV licence, undergoes enhanced DBS background checks, medical screening, and route assessments.
                 </p>
               </div>
 
@@ -102,9 +102,9 @@ export default function Page() {
                 <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-xl bg-lime-50 text-lime-700">
                   <Clock className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-neutral-900 text-lg">Live Flight Monitoring</h3>
+                <h3 className="font-bold text-neutral-900 text-lg">24/7 Airport & Flight Dispatch</h3>
                 <p className="text-sm text-neutral-500 font-light leading-relaxed">
-                  Real-time flight tracking automatically adjusts pickups for early landings or delayed arrivals with 45 mins free waiting time.
+                  Our dispatch team monitors live flight arrivals in real time, automatically adjusting pickup times for early or delayed flights with 45 mins free waiting.
                 </p>
               </div>
 
@@ -112,9 +112,9 @@ export default function Page() {
                 <div className="mx-auto w-12 h-12 flex items-center justify-center rounded-xl bg-lime-50 text-lime-700">
                   <Star className="h-6 w-6" />
                 </div>
-                <h3 className="font-bold text-neutral-900 text-lg">Premium Fleets Only</h3>
+                <h3 className="font-bold text-neutral-900 text-lg">Long-Run & Airport Fleet</h3>
                 <p className="text-sm text-neutral-500 font-light leading-relaxed">
-                  Our fleets comprise late-model executive saloons, luxury business cars, and spacious 8-seater group MPVs.
+                  Our PHV-licensed vehicles—from executive saloons and estates to 8-seater MPVs—are maintained specifically for airport transfers and long-distance comfort.
                 </p>
               </div>
             </div>

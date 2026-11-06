@@ -5,8 +5,8 @@ export function OrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": "https://luxelynetransfers.co.uk/#organization",
-    "name": "Luxelyne Transfers",
-    "legalName": "Luxelyne Transfers LTD",
+    "name": "Luxelyne Transfers Ltd",
+    "legalName": "LUXELYNE TRANSFERS LTD",
     "url": "https://luxelynetransfers.co.uk",
     "logo": {
       "@type": "ImageObject",
@@ -14,7 +14,7 @@ export function OrganizationSchema() {
       "width": 288,
       "height": 64
     },
-    "description": "Luxelyne Transfers LTD (UK Company No. 16665396) is a 24/7 London airport transfer and private hire taxi provider serving Heathrow, Gatwick, Stansted, Luton, London City, Southend, and Greater London.",
+    "description": "Luxelyne Transfers Ltd (UK Company No. 16665396) is a 24/7 London airport transfer and private hire taxi provider serving Heathrow, Gatwick, Stansted, Luton, London City, Southend, and Greater London.",
     "identifier": {
       "@type": "PropertyValue",
       "propertyID": "UK Companies House Number",
@@ -55,6 +55,8 @@ export function OrganizationSchema() {
     "sameAs": [
       "https://www.facebook.com/luxelynetransfers",
       "https://www.instagram.com/luxelynetransfers/",
+      "https://www.linkedin.com/company/luxelyne-transfers/",
+      "https://share.google/DjXBNRIxleBeGZXsX",
       "https://wa.me/447460019129"
     ]
   }
@@ -102,6 +104,13 @@ export function TaxiServiceSchema() {
         "latitude": 51.6056,
         "longitude": 0.1018
       },
+      "hasMap": "https://share.google/DjXBNRIxleBeGZXsX",
+      "sameAs": [
+        "https://share.google/DjXBNRIxleBeGZXsX",
+        "https://www.facebook.com/luxelynetransfers",
+        "https://www.instagram.com/luxelynetransfers/",
+        "https://www.linkedin.com/company/luxelyne-transfers/"
+      ],
       "openingHoursSpecification": {
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": [

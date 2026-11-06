@@ -16,7 +16,7 @@ export default function BannerCTA() {
           viewport={{ once: true }}
           className="text-3xl lg:text-4xl font-extrabold mb-6 leading-snug text-black"
         >
-          Safe & Reliable UK Airport Transfers
+          Book With a Licensed UK Private Hire Operator
         </motion.h2>
 
         {/* Subheading */}
@@ -27,8 +27,8 @@ export default function BannerCTA() {
           viewport={{ once: true }}
           className="max-w-3xl text-lg lg:text-xl mb-8 font-light text-neutral-850"
         >
-          Whether traveling from Heathrow, Gatwick, Stansted, Luton, or London City—
-          <span className="font-semibold text-black">Luxelyne Transfers</span> is your trusted partner for comfortable, direct private hire journeys across London and beyond.
+          Whether you need a 24/7 transfer to Heathrow, Gatwick, Stansted, Luton, or London City, or a direct long-distance private hire journey anywhere in the UK—
+          <span className="font-semibold text-black">Luxelyne Transfers</span> delivers fixed-fare comfort on every run.
         </motion.p>
 
         {/* CTA Button */}
@@ -43,7 +43,7 @@ export default function BannerCTA() {
             onClick={() => (window.location.href = "/#book-now")}
             className="bg-black hover:bg-neutral-900 text-white hover:text-white px-8 py-6 text-lg font-semibold shadow-lg rounded-xl transition-all"
           >
-            Get an Instant Quote
+            Get an Instant Fixed Quote
           </Button>
         </motion.div>
       </div>

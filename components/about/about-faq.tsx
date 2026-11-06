@@ -8,24 +8,24 @@ export default function AboutFAQSection() {
 
   const faqs = [
     {
-      q: "How does flight delay tracking work?",
-      a: "We integrate directly with live flight arrival feeds. By tracking your flight number in real time, we automatically adjust your taxi pickup time for any delays or early arrivals. Your driver will enter the terminal accordingly, meaning zero waiting stress for you.",
+      q: "Are you a licensed private hire operator?",
+      a: "Yes. Luxelyne Transfers LTD (UK Company No. 16665396) is a fully licensed private hire operator. In accordance with UK private hire regulations, all journeys are pre-booked, officially logged, and fulfilled exclusively by licensed, DBS-vetted private hire drivers in PHV-compliant vehicles.",
     },
     {
-      q: "What is your waiting time policy for airport pickups?",
-      a: "Every airport transfer includes 45 minutes of complimentary waiting time starting from the moment your flight lands. This gives you plenty of time to clear passport control, collect your baggage, and exit to the arrivals hall.",
+      q: "Do you specialize in long-distance private hire runs as well as airport transfers?",
+      a: "Absolutely. Alongside 24/7 transfers to Heathrow, Gatwick, Stansted, Luton, London City, and Southend airports, we specialize in long-distance intercity private hire journeys. We regularly provide direct door-to-door long runs between London, UK airports, cruise terminals (Southampton, Dover, Portsmouth), and cities across England, Wales, and Scotland at competitive fixed rates.",
     },
     {
-      q: "Is parking and meet & greet included in the fare?",
-      a: "Yes, all airport quotes automatically include standard parking fees and meet & greet service. Your driver will be waiting inside the arrivals terminal holding a sign with your name. There are no hidden surcharges.",
+      q: "How does your live flight tracking and airport waiting time work?",
+      a: "When you provide your flight number during booking, our dispatch system tracks your aircraft in real time via live aviation feeds. Whether your flight lands early or is delayed, we automatically adjust your driver's dispatch time and include 45 minutes of complimentary waiting time from the actual landing minute.",
     },
     {
-      q: "What types of vehicles can I book?",
-      a: "We offer a diverse fleet of clean, modern vehicles to suit your requirements, including standard saloons (Mercedes E-Class/BMW 5 Series equivalents), executive chauffeur cars, and spacious MPVs (Mercedes V-Class equivalents) capable of holding up to 8 passengers and extensive luggage.",
+      q: "Is terminal Meet & Greet included in your airport transfer fares?",
+      a: "Yes, every pre-booked airport pickup includes our professional Meet & Greet service and standard terminal parking. Your licensed private hire driver will wait inside the arrivals hall holding a name board, assist with your luggage, and escort you directly to your vehicle—with no hidden extras.",
     },
     {
-      q: "How can I pay for my transfer booking?",
-      a: "We support secure, cashless payments directly on our platform. You can pay using major debit and credit cards, Stripe, or PayPal, ensuring your transaction is protected by industry-standard encryption.",
+      q: "What vehicles are available for airport transfers and long-distance trips?",
+      a: "Our licensed private hire fleet is tailored for both high-luggage airport runs and extended motorway travel. You can book modern Saloons, Executive Business Class sedans (Mercedes E-Class equivalents), spacious Estate cars, and 8-seater Luxury MPVs (Mercedes V-Class equivalents) ideal for families, corporate groups, and long-distance comfort.",
     },
   ]
 
@@ -57,7 +57,7 @@ export default function AboutFAQSection() {
             Frequently Asked Questions
           </h2>
           <p className="text-neutral-500 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-            Find answers to common questions about our booking procedures, airport pickup guidelines, and fleets.
+            Everything you need to know about booking with a licensed UK private hire operator for airport transfers and long-distance journeys.
           </p>
         </div>
 
