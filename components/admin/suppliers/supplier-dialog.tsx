@@ -15,20 +15,30 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Eye, EyeOff, Loader2, Building2, Mail, Lock, User, Phone, FileText } from "lucide-react"
+import { Eye, EyeOff, Loader2, Building2, Mail, Lock, User, Phone, Palette, Check } from "lucide-react"
 import type { Supplier } from "@/types/supplier"
 import { saveSupplier } from "@/app/admin/suppliers/action"
+import {
+  SUPPLIER_COLOR_PALETTE,
+  getSupplierColor,
+  pickNextSupplierColor,
+  getSupplierAvatarStyle,
+  getSupplierBadgeStyle,
+  getSupplierInitials,
+} from "@/lib/supplier-colors"
 import { toast } from "sonner"
 
 interface SupplierDialogProps {
   open: boolean
   setOpen: (open: boolean) => void
   supplier?: Supplier | null
+  existingSuppliers?: Supplier[]
   onSuccess: (saved: Supplier) => void
 }
 
 interface FormValues {
   name: string
+  color: string
   support_email: string
   username: string
   password: string
@@ -41,6 +51,7 @@ export default function SupplierDialog({
   open,
   setOpen,
   supplier,
+  existingSuppliers = [],
   onSuccess,
 }: SupplierDialogProps) {
   const [loading, setLoading] = useState(false)
@@ -58,6 +69,7 @@ export default function SupplierDialog({
   } = useForm<FormValues>({
     defaultValues: {
       name: "",
+      color: SUPPLIER_COLOR_PALETTE[0].hex,
       support_email: "",
       username: "",
       password: "",
@@ -68,11 +80,14 @@ export default function SupplierDialog({
   })
 
   const isActive = watch("is_active")
+  const watchedName = watch("name")
+  const selectedColor = watch("color") || SUPPLIER_COLOR_PALETTE[0].hex
 
   useEffect(() => {
     if (supplier) {
       reset({
         name: supplier.name || "",
+        color: getSupplierColor(supplier),
         support_email: supplier.support_email || "",
         username: supplier.username || "",
         password: supplier.password || "",
@@ -81,8 +96,10 @@ export default function SupplierDialog({
         is_active: supplier.is_active ?? true,
       })
     } else {
+      const nextDefaultColor = pickNextSupplierColor(existingSuppliers)
       reset({
         name: "",
+        color: nextDefaultColor,
         support_email: "",
         username: "",
         password: "",
@@ -92,7 +109,7 @@ export default function SupplierDialog({
       })
     }
     setShowPassword(false)
-  }, [supplier, reset, open])
+  }, [supplier, existingSuppliers, reset, open])
 
   const onSubmit = async (values: FormValues) => {
     setLoading(true)
@@ -100,6 +117,7 @@ export default function SupplierDialog({
       const res = await saveSupplier({
         ...(supplier?.id ? { id: supplier.id } : {}),
         name: values.name,
+        color: values.color || pickNextSupplierColor(existingSuppliers),
         support_email: values.support_email || null,
         username: values.username || null,
         password: values.password || null,
@@ -167,6 +185,74 @@ export default function SupplierDialog({
             {errors.name && (
               <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>
             )}
+          </div>
+
+          {/* Supplier Brand Color Picker */}
+          <div className="p-3.5 bg-gray-50 rounded-lg border border-gray-200/80 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-gray-600 flex items-center gap-1.5">
+                <Palette className="w-3.5 h-3.5 text-lime-600" />
+                Supplier Badge & Avatar Color
+              </Label>
+
+              {/* Live Preview of Avatar & Booking Pill */}
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-7 h-7 rounded-md font-bold flex items-center justify-center text-[11px] shadow-2xs shrink-0"
+                  style={getSupplierAvatarStyle(selectedColor)}
+                  title="Supplier Avatar Preview"
+                >
+                  {getSupplierInitials(watchedName || supplier?.name || "SP")}
+                </div>
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border"
+                  style={getSupplierBadgeStyle(selectedColor)}
+                  title="Bookings Badge Preview"
+                >
+                  <Building2 className="w-3 h-3 shrink-0" />
+                  <span className="truncate max-w-[110px]">
+                    {watchedName?.trim() || supplier?.name || "Supplier"}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {SUPPLIER_COLOR_PALETTE.map((option) => {
+                const isSelected =
+                  selectedColor.toLowerCase() === option.hex.toLowerCase()
+                return (
+                  <button
+                    key={option.hex}
+                    type="button"
+                    onClick={() => setValue("color", option.hex, { shouldDirty: true })}
+                    className={`w-6 h-6 rounded-md flex items-center justify-center transition-transform ${
+                      isSelected
+                        ? "ring-2 ring-offset-2 ring-slate-900 scale-110"
+                        : "hover:scale-110 opacity-90 hover:opacity-100"
+                    }`}
+                    style={{ backgroundColor: option.hex }}
+                    title={option.name}
+                  >
+                    {isSelected && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                  </button>
+                )
+              })}
+
+              {/* Custom Color Input */}
+              <label
+                className="inline-flex items-center gap-1.5 ml-auto px-2 py-1 rounded-md bg-white border border-gray-200 text-[11px] font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition"
+                title="Pick custom color"
+              >
+                <input
+                  type="color"
+                  value={selectedColor}
+                  onChange={(e) => setValue("color", e.target.value, { shouldDirty: true })}
+                  className="w-4 h-4 rounded cursor-pointer border-0 p-0 bg-transparent"
+                />
+                <span className="font-mono uppercase text-[10px]">{selectedColor}</span>
+              </label>
+            </div>
           </div>
 
           {/* Customer Support Email (Optional) */}

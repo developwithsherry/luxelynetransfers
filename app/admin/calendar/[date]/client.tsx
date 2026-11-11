@@ -34,6 +34,7 @@ import {
   normalizeBookingDateYMD,
 } from "@/lib/calendar-utils"
 import { formatLocation } from "@/components/format-location/format-location"
+import { getSupplierBadgeStyle } from "@/lib/supplier-colors"
 
 interface Props {
   dateStr: string
@@ -484,10 +485,13 @@ export default function CalendarDateDetailClient({ dateStr, allBookings }: Props
                       </div>
 
                       {job.supplier?.name ? (
-                        <div className="flex items-center gap-1 text-xs font-semibold text-purple-700 truncate">
+                        <span
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border truncate max-w-[160px]"
+                          style={getSupplierBadgeStyle(job.supplier)}
+                        >
                           <Building2 className="w-3 h-3 shrink-0" />
                           <span className="truncate">{job.supplier.name}</span>
-                        </div>
+                        </span>
                       ) : (
                         <span className="text-[11px] font-medium text-slate-400 block">
                           Direct Website Booking

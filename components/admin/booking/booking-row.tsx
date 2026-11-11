@@ -9,6 +9,7 @@ import { Trash2, Loader2, Globe, Building2, UserPlus, UserCheck, ArrowRight } fr
 import { deleteBooking } from "@/app/admin/bookings/action"
 import { AssignDriverDialog } from "./assign-driver-dialog"
 import { QuickStatusPopover } from "./quick-status-popover"
+import { getSupplierBadgeStyle } from "@/lib/supplier-colors"
 import { toast } from "sonner"
 import type { ColumnKey } from "./column-visibility-toggle"
 import { DEFAULT_VISIBLE_COLUMNS } from "./column-visibility-toggle"
@@ -141,8 +142,11 @@ export default function BookingRow({
                 Website
               </span>
             ) : booking.supplier?.name ? (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 w-fit">
-                <Building2 className="w-3 h-3 text-purple-600" />
+              <span
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border w-fit"
+                style={getSupplierBadgeStyle(booking.supplier)}
+              >
+                <Building2 className="w-3 h-3 shrink-0" />
                 {booking.supplier.name}
               </span>
             ) : (

@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Loader2, Trash2 } from "lucide-react"
 import BookingRow from "./booking-row"
 import { QuickStatusPopover } from "./quick-status-popover"
+import { getSupplierBadgeStyle } from "@/lib/supplier-colors"
 import { Button } from "@/components/ui/button"
 import { deleteBooking } from "@/app/admin/bookings/action"
 import { toast } from "sonner"
@@ -226,7 +227,10 @@ export default function BookingsTable({
                         Website
                       </span>
                     ) : booking.supplier?.name ? (
-                      <span className="text-[10px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md font-bold border border-purple-200 truncate max-w-[100px]">
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-md font-bold border truncate max-w-[100px]"
+                        style={getSupplierBadgeStyle(booking.supplier)}
+                      >
                         {booking.supplier.name}
                       </span>
                     ) : (

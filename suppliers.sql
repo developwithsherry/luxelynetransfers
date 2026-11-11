@@ -8,6 +8,7 @@
 CREATE TABLE IF NOT EXISTS public.suppliers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
+    color TEXT,
     support_email TEXT,
     username TEXT,
     password TEXT,
@@ -17,6 +18,9 @@ CREATE TABLE IF NOT EXISTS public.suppliers (
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Ensure color column exists for existing tables
+ALTER TABLE public.suppliers ADD COLUMN IF NOT EXISTS color TEXT;
 
 -- 2. Add helpful indexes
 CREATE INDEX IF NOT EXISTS idx_suppliers_name ON public.suppliers (name);

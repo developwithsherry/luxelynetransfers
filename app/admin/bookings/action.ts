@@ -32,7 +32,7 @@ export async function getPendingBooking(): Promise<{ success: boolean; data?: Bo
 
         // 2. Fetch suppliers, drivers, and vehicles in parallel to safely enrich bookings
         const [suppliersRes, driversRes, vehiclesRes] = await Promise.all([
-            supabase.from("suppliers").select("id, name, support_email, phone"),
+            supabase.from("suppliers").select("*"),
             supabase.from("drivers").select("id, name, phone, photo_url, area_operates"),
             supabase.from("vehicle").select("id, name, type, sittingCapacity, laguageCapacity, imageUrl"),
         ]);

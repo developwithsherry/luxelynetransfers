@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { deleteSupplier, toggleSupplierActiveStatus } from "@/app/admin/suppliers/action"
 import { SupplierJobsDialog } from "./supplier-jobs-dialog"
+import { getSupplierAvatarStyle, getSupplierColor } from "@/lib/supplier-colors"
 
 interface SupplierListProps {
   suppliers: Supplier[]
@@ -150,11 +151,17 @@ export function SupplierList({
                     {/* Supplier Partner */}
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                        <div
+                          className="w-9 h-9 rounded-lg font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs"
+                          style={getSupplierAvatarStyle(supplier)}
+                        >
                           {initials}
                         </div>
                         <div className="min-w-0">
-                          <span className="font-bold text-gray-900 group-hover:text-purple-700 transition-colors block truncate max-w-[160px]">
+                          <span
+                            className="font-bold text-gray-900 transition-colors block truncate max-w-[160px]"
+                            style={{ color: undefined }}
+                          >
                             {supplier.name}
                           </span>
                           <span className="text-[10px] text-gray-400 block">

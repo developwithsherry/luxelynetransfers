@@ -38,6 +38,7 @@ import type { Driver } from "@/types/driver"
 import { formatDateUK } from "@/lib/format-util"
 import { formatLocation } from "@/components/format-location/format-location"
 import { QuickStatusPopover } from "@/components/admin/booking/quick-status-popover"
+import { getSupplierBadgeStyle } from "@/lib/supplier-colors"
 
 interface Props {
   initialBookings: Booking[]
@@ -1972,8 +1973,15 @@ export default function AccountsAndReportsClient({
                             </span>
                           ) : (
                             <div>
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-                                <Building2 className="w-2.5 h-2.5" />
+                              <span
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
+                                style={
+                                  b.supplier
+                                    ? getSupplierBadgeStyle(b.supplier)
+                                    : undefined
+                                }
+                              >
+                                <Building2 className="w-2.5 h-2.5 shrink-0" />
                                 {b.supplier?.name || "Offline Direct"}
                               </span>
                               {b.supplier_reference && (

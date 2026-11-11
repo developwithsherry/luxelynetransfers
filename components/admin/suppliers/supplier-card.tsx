@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { deleteSupplier, toggleSupplierActiveStatus } from "@/app/admin/suppliers/action"
 import { SupplierJobsDialog } from "./supplier-jobs-dialog"
+import { getSupplierAvatarStyle } from "@/lib/supplier-colors"
 
 interface SupplierCardProps {
   supplier: Supplier
@@ -126,7 +127,10 @@ export default function SupplierCard({
         <div className="p-5 pb-4 border-b border-gray-100">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-lime-400 to-lime-600 flex items-center justify-center text-black font-bold text-base shadow-sm shrink-0 group-hover:scale-105 transition-transform">
+              <div
+                className="w-11 h-11 rounded-lg flex items-center justify-center font-bold text-base shadow-sm shrink-0 group-hover:scale-105 transition-transform"
+                style={getSupplierAvatarStyle(supplier)}
+              >
                 {initials}
               </div>
               <div className="min-w-0">

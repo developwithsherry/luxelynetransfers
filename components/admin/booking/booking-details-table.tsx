@@ -37,6 +37,11 @@ import { ChangeBookingStatusDialog } from "./change-booking-status-dialog"
 import { AssignDriverDialog } from "./assign-driver-dialog"
 import { EditBookingDialog } from "./edit-booking-dialog"
 import { QuickStatusPopover } from "./quick-status-popover"
+import {
+  getSupplierAvatarStyle,
+  getSupplierBadgeStyle,
+  getSupplierInitials,
+} from "@/lib/supplier-colors"
 import { Button } from "@/components/ui/button"
 import { capitalizeFirstLetter } from "@/lib/capatilze-firstletter"
 import { deleteBooking } from "@/app/admin/bookings/action"
@@ -314,9 +319,19 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
                 Created {booking.created_at ? formatDateUK(booking.created_at) : "N/A"}
               </span>
               <span>•</span>
-              <span className="font-semibold text-slate-700">
-                {isWebsite ? "Website Direct" : booking.supplier?.name || "Offline Direct"}
-              </span>
+              {isWebsite ? (
+                <span className="font-semibold text-slate-700">Website Direct</span>
+              ) : booking.supplier?.name ? (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border"
+                  style={getSupplierBadgeStyle(booking.supplier)}
+                >
+                  <Building2 className="w-3 h-3 shrink-0" />
+                  {booking.supplier.name}
+                </span>
+              ) : (
+                <span className="font-semibold text-slate-700">Offline Direct</span>
+              )}
               {booking.supplier_reference && (
                 <>
                   <span>•</span>
@@ -843,19 +858,29 @@ export function BookingDetailsTable({ booking: initialBooking, onBookingStatusCh
               </div>
             ) : (
               <div className="space-y-3 text-xs">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                    Partner / Supplier
-                  </span>
-                  <p className="font-bold text-slate-950 text-sm mt-0.5">
-                    {booking.supplier?.name || "Offline Direct"}
-                  </p>
-                  {booking.supplier?.support_email && (
-                    <p className="text-slate-500 text-[11px]">{booking.supplier.support_email}</p>
+                <div className="flex items-center gap-3">
+                  {booking.supplier?.name && (
+                    <div
+                      className="w-10 h-10 rounded-xl font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs"
+                      style={getSupplierAvatarStyle(booking.supplier)}
+                    >
+                      {getSupplierInitials(booking.supplier.name)}
+                    </div>
                   )}
-                  {booking.supplier?.phone && (
-                    <p className="text-slate-500 text-[11px]">{booking.supplier.phone}</p>
-                  )}
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Partner / Supplier
+                    </span>
+                    <p className="font-bold text-slate-950 text-sm mt-0.5 truncate">
+                      {booking.supplier?.name || "Offline Direct"}
+                    </p>
+                    {booking.supplier?.support_email && (
+                      <p className="text-slate-500 text-[11px] truncate">{booking.supplier.support_email}</p>
+                    )}
+                    {booking.supplier?.phone && (
+                      <p className="text-slate-500 text-[11px]">{booking.supplier.phone}</p>
+                    )}
+                  </div>
                 </div>
 
                 {booking.supplier_reference && (

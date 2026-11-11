@@ -26,6 +26,12 @@ import type { Booking } from "@/types/booking"
 import { getSupplierJobs } from "@/app/admin/bookings/action"
 import { formatDateUK } from "@/lib/format-util"
 import { formatLocation } from "@/components/format-location/format-location"
+import {
+  getSupplierAvatarStyle,
+  getSupplierBadgeStyle,
+  getSupplierInitials,
+} from "@/lib/supplier-colors"
+import { QuickStatusPopover } from "@/components/admin/booking/quick-status-popover"
 
 interface SupplierJobsDialogProps {
   open: boolean
@@ -33,12 +39,25 @@ interface SupplierJobsDialogProps {
   supplier: Supplier | null
 }
 
+type PaymentFilterType = "all" | "pending" | "unpaid_completed" | "paid" | "paid_to_driver"
+type JobStatusFilterType =
+  | "all"
+  | "pending"
+  | "confirmed"
+  | "covered"
+  | "pob"
+  | "completed"
+  | "complaint"
+  | "cancelled"
+
 export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDialogProps) {
   const [jobs, setJobs] = useState<Booking[]>([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [fromDate, setFromDate] = useState("")
   const [toDate, setToDate] = useState("")
+  const [paymentFilter, setPaymentFilter] = useState<PaymentFilterType>("all")
+  const [jobStatusFilter, setJobStatusFilter] = useState<JobStatusFilterType>("all")
   const [activeTab, setActiveTab] = useState<"all" | "upcoming" | "past">("all")
 
   useEffect(() => {
@@ -47,6 +66,8 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
       setSearchQuery("")
       setFromDate("")
       setToDate("")
+      setPaymentFilter("all")
+      setJobStatusFilter("all")
       setActiveTab("all")
     }
   }, [open, supplier?.id])
@@ -65,10 +86,42 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
     }
   }
 
-  // Filter jobs based on search query and date range
+  // Counts for payment filter pills (computed across all supplier jobs)
+  const paymentCounts = useMemo(() => {
+    let pending = 0
+    let unpaidCompleted = 0
+    let paid = 0
+    let paidToDriver = 0
+
+    jobs.forEach((job) => {
+      const pStatus = (job.payment_status || "pending").toLowerCase().trim()
+      const jStatus = (job.status || "pending").toLowerCase().trim()
+
+      if (pStatus === "paid") {
+        paid++
+      } else if (pStatus === "paid_to_driver") {
+        paidToDriver++
+      } else {
+        pending++
+        if (jStatus === "completed") {
+          unpaidCompleted++
+        }
+      }
+    })
+
+    return {
+      all: jobs.length,
+      pending,
+      unpaidCompleted,
+      paid,
+      paidToDriver,
+    }
+  }, [jobs])
+
+  // Filter jobs based on search query, date range, payment status, and job status
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
-      // Date range filtering
+      // 1. Date range filtering
       if (fromDate && job.date) {
         if (job.date < fromDate) return false
       }
@@ -76,7 +129,28 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
         if (job.date > toDate) return false
       }
 
-      // Search query filtering
+      // 2. Payment status filtering
+      const pStatus = (job.payment_status || "pending").toLowerCase().trim()
+      const jStatus = (job.status || "pending").toLowerCase().trim()
+
+      if (paymentFilter === "pending") {
+        if (pStatus === "paid" || pStatus === "paid_to_driver") return false
+      } else if (paymentFilter === "unpaid_completed") {
+        if (jStatus !== "completed" || pStatus === "paid" || pStatus === "paid_to_driver") {
+          return false
+        }
+      } else if (paymentFilter === "paid") {
+        if (pStatus !== "paid") return false
+      } else if (paymentFilter === "paid_to_driver") {
+        if (pStatus !== "paid_to_driver") return false
+      }
+
+      // 3. Job status filtering
+      if (jobStatusFilter !== "all") {
+        if (jStatus !== jobStatusFilter) return false
+      }
+
+      // 4. Search query filtering
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim()
         const customer = `${job.first_name || ""} ${job.last_name || ""}`.toLowerCase()
@@ -99,7 +173,7 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
 
       return true
     })
-  }, [jobs, searchQuery, fromDate, toDate])
+  }, [jobs, searchQuery, fromDate, toDate, paymentFilter, jobStatusFilter])
 
   const todayStr = new Date().toISOString().split("T")[0]
 
@@ -128,9 +202,17 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
     setSearchQuery("")
     setFromDate("")
     setToDate("")
+    setPaymentFilter("all")
+    setJobStatusFilter("all")
   }
 
-  const hasActiveFilters = Boolean(searchQuery || fromDate || toDate)
+  const hasActiveFilters = Boolean(
+    searchQuery ||
+      fromDate ||
+      toDate ||
+      paymentFilter !== "all" ||
+      jobStatusFilter !== "all"
+  )
 
   const getJobStatusBadge = (status?: string | null) => {
     switch ((status || "").toLowerCase()) {
@@ -160,8 +242,11 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
         <div className="bg-gradient-to-r from-slate-900 to-purple-950 text-white p-6 rounded-t-lg">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-purple-500 text-white font-bold text-xl flex items-center justify-center shrink-0 shadow-lg">
-                <Building2 className="w-7 h-7" />
+              <div
+                className="w-14 h-14 rounded-2xl font-bold text-xl flex items-center justify-center shrink-0 shadow-lg"
+                style={getSupplierAvatarStyle(supplier)}
+              >
+                {getSupplierInitials(supplier.name)}
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -231,7 +316,7 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
             </div>
           </div>
 
-          {/* Filters Bar: Search & Date Range */}
+          {/* Filters Bar: Search, Date Range, Payment Status & Job Status */}
           <div className="p-3.5 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
               {/* Search Bar */}
@@ -285,6 +370,110 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
                 )}
               </div>
             </div>
+
+            {/* Payment Status & Job Status Filter Row */}
+            <div className="pt-2.5 border-t border-gray-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              {/* Payment Status Quick Filter Pills */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 mr-1 flex items-center gap-1">
+                  <CreditCard className="w-3.5 h-3.5 text-gray-400" />
+                  Payment:
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentFilter("all")}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition border ${
+                    paymentFilter === "all"
+                      ? "bg-slate-900 text-white border-slate-900 shadow-2xs"
+                      : "bg-white text-gray-600 border-gray-200 hover:bg-gray-100"
+                  }`}
+                >
+                  All ({paymentCounts.all})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPaymentFilter((prev) => (prev === "pending" ? "all" : "pending"))
+                  }
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition border ${
+                    paymentFilter === "pending"
+                      ? "bg-amber-500 text-white border-amber-500 shadow-2xs"
+                      : "bg-amber-50/70 text-amber-800 border-amber-200 hover:bg-amber-100"
+                  }`}
+                >
+                  Pending / Unpaid ({paymentCounts.pending})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPaymentFilter((prev) =>
+                      prev === "unpaid_completed" ? "all" : "unpaid_completed"
+                    )
+                  }
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition border ${
+                    paymentFilter === "unpaid_completed"
+                      ? "bg-red-600 text-white border-red-600 shadow-2xs"
+                      : "bg-red-50/80 text-red-700 border-red-200 hover:bg-red-100"
+                  }`}
+                >
+                  Unpaid Completed ({paymentCounts.unpaidCompleted})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPaymentFilter((prev) => (prev === "paid" ? "all" : "paid"))
+                  }
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition border ${
+                    paymentFilter === "paid"
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
+                      : "bg-emerald-50/70 text-emerald-800 border-emerald-200 hover:bg-emerald-100"
+                  }`}
+                >
+                  Paid ({paymentCounts.paid})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPaymentFilter((prev) =>
+                      prev === "paid_to_driver" ? "all" : "paid_to_driver"
+                    )
+                  }
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition border ${
+                    paymentFilter === "paid_to_driver"
+                      ? "bg-purple-600 text-white border-purple-600 shadow-2xs"
+                      : "bg-purple-50/70 text-purple-800 border-purple-200 hover:bg-purple-100"
+                  }`}
+                >
+                  Paid to Driver ({paymentCounts.paidToDriver})
+                </button>
+              </div>
+
+              {/* Job Status Dropdown Filter */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                  Job Status:
+                </span>
+                <select
+                  value={jobStatusFilter}
+                  onChange={(e) => setJobStatusFilter(e.target.value as JobStatusFilterType)}
+                  className="h-8 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-slate-900"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="covered">Covered</option>
+                  <option value="pob">POB</option>
+                  <option value="completed">Completed</option>
+                  <option value="complaint">Complaint</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* Tabs: All / Upcoming / Past */}
@@ -324,22 +513,35 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
                         className="p-3.5 rounded-xl border border-gray-200 bg-white hover:border-purple-400 hover:shadow-sm transition-all"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-gray-100">
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex flex-wrap items-center gap-2.5">
                             <span className="font-mono font-bold text-xs text-gray-900">
                               #{job.id?.slice(0, 5).toUpperCase()}
                             </span>
                             {job.supplier_reference && (
-                              <span className="text-[10px] px-2 py-0.5 rounded font-mono font-semibold bg-purple-100 text-purple-800 border border-purple-200">
+                              <span
+                                className="text-[10px] px-2 py-0.5 rounded font-mono font-semibold border"
+                                style={getSupplierBadgeStyle(supplier)}
+                              >
                                 Ref: {job.supplier_reference}
                               </span>
                             )}
-                            <span
-                              className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${getJobStatusBadge(
-                                job.status
-                              )}`}
-                            >
-                              {job.status}
-                            </span>
+                            <QuickStatusPopover
+                              booking={job}
+                              showPaymentBadge={true}
+                              onSuccess={(updated) => {
+                                setJobs((prev) =>
+                                  prev.map((item) =>
+                                    item.id === job.id
+                                      ? {
+                                          ...item,
+                                          status: updated.status,
+                                          payment_status: updated.payment_status,
+                                        }
+                                      : item
+                                  )
+                                )
+                              }}
+                            />
                           </div>
 
                           <div className="flex items-center gap-3">

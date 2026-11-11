@@ -1,6 +1,7 @@
 export interface Supplier {
   id?: string;
   name: string;
+  color?: string | null;
   support_email?: string | null;
   username?: string | null;
   password?: string | null;

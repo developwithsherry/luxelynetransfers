@@ -70,7 +70,7 @@ export async function saveSupplier(
   try {
     const supabase = await createClient()
 
-    const payload = {
+    const basePayload = {
       name: supplier.name.trim(),
       support_email: supplier.support_email?.trim() || null,
       username: supplier.username?.trim() || null,
@@ -80,13 +80,31 @@ export async function saveSupplier(
       is_active: supplier.is_active ?? true,
     }
 
+    const payloadWithColor = {
+      ...basePayload,
+      color: supplier.color?.trim() || null,
+    }
+
     if (supplier.id) {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from("suppliers")
-        .update(payload)
+        .update(payloadWithColor)
         .eq("id", supplier.id)
         .select()
         .single()
+
+      if (error && (error.code === "42703" || error.message?.includes("color"))) {
+        const fallback = await supabase
+          .from("suppliers")
+          .update(basePayload)
+          .eq("id", supplier.id)
+          .select()
+          .single()
+        data = fallback.data
+          ? ({ ...fallback.data, color: payloadWithColor.color } as any)
+          : fallback.data
+        error = fallback.error
+      }
 
       if (error) {
         console.error("Error updating supplier:", error)
@@ -94,13 +112,29 @@ export async function saveSupplier(
       }
 
       revalidatePath("/admin/suppliers")
+      revalidatePath("/admin/bookings")
+      revalidatePath("/admin/dashboard")
+      revalidatePath("/admin/calendar")
+      revalidatePath("/admin/accounts")
       return { success: true, data: data as Supplier }
     } else {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from("suppliers")
-        .insert([payload])
+        .insert([payloadWithColor])
         .select()
         .single()
+
+      if (error && (error.code === "42703" || error.message?.includes("color"))) {
+        const fallback = await supabase
+          .from("suppliers")
+          .insert([basePayload])
+          .select()
+          .single()
+        data = fallback.data
+          ? ({ ...fallback.data, color: payloadWithColor.color } as any)
+          : fallback.data
+        error = fallback.error
+      }
 
       if (error) {
         console.error("Error creating supplier:", error)
@@ -114,6 +148,10 @@ export async function saveSupplier(
       }
 
       revalidatePath("/admin/suppliers")
+      revalidatePath("/admin/bookings")
+      revalidatePath("/admin/dashboard")
+      revalidatePath("/admin/calendar")
+      revalidatePath("/admin/accounts")
       return { success: true, data: data as Supplier }
     }
   } catch (error: any) {

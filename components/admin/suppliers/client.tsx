@@ -378,6 +378,7 @@ export function SuppliersClient() {
         open={dialogOpen}
         setOpen={setDialogOpen}
         supplier={selectedSupplier}
+        existingSuppliers={suppliers}
         onSuccess={handleDialogSuccess}
       />
     </div>
