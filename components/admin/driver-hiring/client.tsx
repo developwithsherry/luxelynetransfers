@@ -525,12 +525,12 @@ export function DriverHiringClient({ initialApplications, dbError }: Props) {
                       className="hover:bg-slate-50/80 transition-colors"
                     >
                       {/* Applicant Name */}
-                      <td className="py-3.5 pl-4 pr-3 whitespace-nowrap">
-                        <div className="font-bold text-slate-900 text-sm">
+                      <td className="py-3.5 pl-4 pr-3 whitespace-nowrap max-w-[190px]">
+                        <div className="font-bold text-slate-900 text-sm truncate max-w-[175px]">
                           {app.full_name}
                         </div>
                         {app.admin_notes && (
-                          <div className="text-[11px] text-amber-700 font-medium truncate max-w-[180px] mt-0.5">
+                          <div className="text-[11px] text-amber-700 font-medium truncate max-w-[175px] mt-0.5">
                             Note: {app.admin_notes}
                           </div>
                         )}
@@ -583,21 +583,21 @@ export function DriverHiringClient({ initialApplications, dbError }: Props) {
                       </td>
 
                       {/* Base Area */}
-                      <td className="py-3.5 px-3 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 font-medium text-slate-800">
+                      <td className="py-3.5 px-3 whitespace-nowrap max-w-[165px]">
+                        <span className="inline-flex items-center gap-1 font-medium text-slate-800 max-w-[150px]">
                           <MapPin className="w-3.5 h-3.5 text-lime-600 shrink-0" />
-                          {app.city_area}
+                          <span className="truncate">{app.city_area}</span>
                         </span>
                       </td>
 
                       {/* Vehicle Category + Make/Model */}
-                      <td className="py-3.5 px-3 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-lime-400">
-                          <Car className="w-3 h-3" />
-                          {app.vehicle_category}
+                      <td className="py-3.5 px-3 whitespace-nowrap max-w-[175px]">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-900 text-lime-400 max-w-[160px]">
+                          <Car className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{app.vehicle_category}</span>
                         </span>
                         {app.vehicle_make_model && (
-                          <div className="text-[11px] text-slate-600 font-medium mt-1">
+                          <div className="text-[11px] text-slate-600 font-medium mt-1 truncate max-w-[160px]">
                             {app.vehicle_make_model}
                           </div>
                         )}

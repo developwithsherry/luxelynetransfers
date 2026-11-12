@@ -39,6 +39,7 @@ interface SupplierCardProps {
   onEdit: (supplier: Supplier) => void
   onDeleted: (id: string) => void
   onStatusChange?: (id: string, isActive: boolean) => void
+  onJobsUpdated?: () => void
 }
 
 export default function SupplierCard({
@@ -46,6 +47,7 @@ export default function SupplierCard({
   onEdit,
   onDeleted,
   onStatusChange,
+  onJobsUpdated,
 }: SupplierCardProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [copiedField, setCopiedField] = useState<string | null>(null)
@@ -369,6 +371,7 @@ export default function SupplierCard({
         open={jobsDialogOpen}
         setOpen={setJobsDialogOpen}
         supplier={supplier}
+        onJobsUpdated={onJobsUpdated}
       />
 
       {/* Delete Confirmation Alert Dialog */}

@@ -12,4 +12,5 @@ export interface Supplier {
   updated_at?: string;
   unpaid_completed_jobs_count?: number;
   unpaid_completed_amount?: number;
+  last_used_at?: string | null;
 }

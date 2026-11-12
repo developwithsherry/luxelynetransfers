@@ -37,6 +37,7 @@ interface SupplierJobsDialogProps {
   open: boolean
   setOpen: (open: boolean) => void
   supplier: Supplier | null
+  onJobsUpdated?: () => void
 }
 
 type PaymentFilterType = "all" | "pending" | "unpaid_completed" | "paid" | "paid_to_driver"
@@ -50,7 +51,7 @@ type JobStatusFilterType =
   | "complaint"
   | "cancelled"
 
-export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDialogProps) {
+export function SupplierJobsDialog({ open, setOpen, supplier, onJobsUpdated }: SupplierJobsDialogProps) {
   const [jobs, setJobs] = useState<Booking[]>([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -540,6 +541,7 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
                                       : item
                                   )
                                 )
+                                onJobsUpdated?.()
                               }}
                             />
                           </div>
@@ -558,30 +560,30 @@ export function SupplierJobsDialog({ open, setOpen, supplier }: SupplierJobsDial
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 text-xs">
-                          <div>
+                          <div className="min-w-0">
                             <span className="text-gray-400 text-[10px] block">Customer</span>
-                            <span className="font-semibold text-gray-900">{customerName}</span>
-                            {job.phone && <span className="text-gray-500 text-[11px] block">{job.phone}</span>}
+                            <span className="font-semibold text-gray-900 truncate block">{customerName}</span>
+                            {job.phone && <span className="text-gray-500 text-[11px] truncate block">{job.phone}</span>}
                           </div>
 
-                          <div>
+                          <div className="min-w-0">
                             <span className="text-gray-400 text-[10px] block">Date & Time</span>
-                            <span className="font-medium text-gray-800">
+                            <span className="font-medium text-gray-800 truncate block">
                               {job.date ? formatDateUK(job.date) : "N/A"} at {job.time || ""}
                             </span>
                             {job.flight_no && (
-                              <span className="text-[11px] text-sky-700 block">
+                              <span className="text-[11px] text-sky-700 truncate block">
                                 Flight: {job.flight_no}
                               </span>
                             )}
                           </div>
 
-                          <div>
+                          <div className="min-w-0">
                             <span className="text-gray-400 text-[10px] block">Journey Route</span>
-                            <div className="truncate text-gray-800" title={job.pickup_location || undefined}>
+                            <div className="truncate text-gray-800">
                               From: {formatLocation(job.pickup_location)}
                             </div>
-                            <div className="truncate text-gray-600 text-[11px]" title={job.drop_off_location || undefined}>
+                            <div className="truncate text-gray-600 text-[11px]">
                               To: {formatLocation(job.drop_off_location)}
                             </div>
                           </div>

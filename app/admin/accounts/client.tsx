@@ -1993,31 +1993,29 @@ export default function AccountsAndReportsClient({
                           )}
                         </td>
 
-                        <td className="py-2.5 px-2.5 whitespace-nowrap">
-                          <div className="font-semibold text-slate-900">{customer}</div>
+                        <td className="py-2.5 px-2.5 whitespace-nowrap max-w-[150px]">
+                          <div className="font-semibold text-slate-900 truncate max-w-[140px]">
+                            {customer}
+                          </div>
                           {b.phone && (
-                            <div className="text-[10px] text-slate-400">{b.phone}</div>
+                            <div className="text-[10px] text-slate-400 truncate max-w-[140px]">
+                              {b.phone}
+                            </div>
                           )}
                         </td>
 
-                        <td className="py-2.5 px-2.5 max-w-[180px] truncate">
-                          <div
-                            className="font-medium text-slate-800 truncate"
-                            title={b.pickup_location || ""}
-                          >
+                        <td className="py-2.5 px-2.5 max-w-[190px]">
+                          <div className="font-medium text-slate-800 truncate max-w-[180px]">
                             {formatLocation(b.pickup_location)}
                           </div>
-                          <div
-                            className="text-[10px] text-slate-400 truncate"
-                            title={b.drop_off_location || ""}
-                          >
+                          <div className="text-[10px] text-slate-400 truncate max-w-[180px]">
                             → {formatLocation(b.drop_off_location)}
                           </div>
                         </td>
 
-                        <td className="py-2.5 px-2.5 whitespace-nowrap">
+                        <td className="py-2.5 px-2.5 whitespace-nowrap max-w-[140px]">
                           {b.driver ? (
-                            <span className="font-semibold text-slate-800">
+                            <span className="font-semibold text-slate-800 truncate block max-w-[130px]">
                               {b.driver.name}
                             </span>
                           ) : (

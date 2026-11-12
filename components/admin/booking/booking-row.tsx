@@ -143,11 +143,11 @@ export default function BookingRow({
               </span>
             ) : booking.supplier?.name ? (
               <span
-                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border w-fit"
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border max-w-[140px]"
                 style={getSupplierBadgeStyle(booking.supplier)}
               >
                 <Building2 className="w-3 h-3 shrink-0" />
-                {booking.supplier.name}
+                <span className="truncate">{booking.supplier.name}</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-700 border border-gray-200">
@@ -159,17 +159,17 @@ export default function BookingRow({
 
         {/* Passenger */}
         {cols.customer && (
-          <td className="px-3 py-2.5 text-xs text-black whitespace-nowrap">
-            <div className="flex items-center gap-1.5">
-              <span className="font-semibold">{customerName}</span>
+          <td className="px-3 py-2.5 text-xs text-black whitespace-nowrap max-w-[160px]">
+            <div className="flex items-center gap-1.5 max-w-[150px]">
+              <span className="font-semibold truncate">{customerName}</span>
               {booking.with_return && (
-                <span className="bg-lime-500 text-white px-1.5 py-0.2 rounded-full text-[9px] font-bold">
+                <span className="bg-lime-500 text-white px-1.5 py-0.2 rounded-full text-[9px] font-bold shrink-0">
                   Return
                 </span>
               )}
             </div>
             {booking.phone && (
-              <div className="text-[11px] text-gray-500 font-normal mt-0.5">
+              <div className="text-[11px] text-gray-500 font-normal mt-0.5 truncate max-w-[140px]">
                 {booking.phone}
               </div>
             )}
@@ -198,12 +198,16 @@ export default function BookingRow({
 
         {/* Journey (Pickup & Drop-off) */}
         {cols.journey && (
-          <td className="px-3 py-2.5 text-xs text-black max-w-[220px] whitespace-normal break-words">
-            <div className="text-xs">
-              <div className="truncate font-medium" title={booking.pickup_location}>{formatLocation(booking.pickup_location)}</div>
-              <div className="flex items-center gap-1 text-[11px] text-gray-500 truncate mt-0.5" title={booking.drop_off_location}>
+          <td className="px-3 py-2.5 text-xs text-black max-w-[220px]">
+            <div className="text-xs max-w-[210px]">
+              <div className="truncate font-medium">
+                {formatLocation(booking.pickup_location)}
+              </div>
+              <div className="flex items-center gap-1 text-[11px] text-gray-500 mt-0.5 max-w-[210px]">
                 <ArrowRight className="w-3 h-3 shrink-0 text-lime-600" />
-                <span className="truncate">{formatLocation(booking.drop_off_location)}</span>
+                <span className="truncate block">
+                  {formatLocation(booking.drop_off_location)}
+                </span>
               </div>
             </div>
           </td>
@@ -211,13 +215,13 @@ export default function BookingRow({
 
         {/* Driver Assignment */}
         {cols.driver && (
-          <td className="px-3 py-2.5 text-xs whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+          <td className="px-3 py-2.5 text-xs whitespace-nowrap max-w-[175px]" onClick={(e) => e.stopPropagation()}>
             {booking.driver ? (
-              <div className="flex items-center gap-2">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-gray-900 flex items-center gap-1">
-                    <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    {booking.driver.name}
+              <div className="flex items-center gap-2 max-w-[165px]">
+                <div className="flex flex-col min-w-0">
+                  <span className="font-semibold text-gray-900 flex items-center gap-1 max-w-[130px]">
+                    <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="truncate">{booking.driver.name}</span>
                   </span>
                   <span className="text-[11px] text-emerald-700 font-bold">
                     Cost: £{Number(booking.driver_price || 0).toFixed(2)}

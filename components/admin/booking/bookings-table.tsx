@@ -260,7 +260,7 @@ export default function BookingsTable({
                       <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
                         Pickup {booking.date ? `• ${booking.date}` : ""}
                       </span>
-                      <p className="text-xs font-bold text-slate-900 leading-snug">
+                      <p className="text-xs font-bold text-slate-900 leading-snug truncate">
                         {booking.pickup_location || "N/A"}
                       </p>
                     </div>
@@ -272,7 +272,7 @@ export default function BookingsTable({
                       <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
                         Destination
                       </span>
-                      <p className="text-xs font-bold text-slate-900 leading-snug">
+                      <p className="text-xs font-bold text-slate-900 leading-snug truncate">
                         {booking.drop_off_location || "N/A"}
                       </p>
                     </div>

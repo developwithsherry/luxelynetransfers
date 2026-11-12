@@ -38,6 +38,7 @@ interface SupplierListProps {
   onEdit: (supplier: Supplier) => void
   onDeleted: (id: string) => void
   onStatusChange?: (id: string, isActive: boolean) => void
+  onJobsUpdated?: () => void
 }
 
 export function SupplierList({
@@ -45,6 +46,7 @@ export function SupplierList({
   onEdit,
   onDeleted,
   onStatusChange,
+  onJobsUpdated,
 }: SupplierListProps) {
   const [selectedSupplierForJobs, setSelectedSupplierForJobs] = useState<Supplier | null>(null)
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null)
@@ -313,12 +315,9 @@ export function SupplierList({
                     </td>
 
                     {/* Notes Preview */}
-                    <td className="py-3 px-3 max-w-[160px]">
+                    <td className="py-3 px-3 max-w-[170px]">
                       {supplier.notes ? (
-                        <span
-                          className="line-clamp-2 text-gray-600 text-[11px] leading-relaxed block"
-                          title={supplier.notes}
-                        >
+                        <span className="truncate max-w-[160px] text-gray-600 text-[11px] leading-relaxed block">
                           {supplier.notes}
                         </span>
                       ) : (
@@ -422,6 +421,7 @@ export function SupplierList({
         open={Boolean(selectedSupplierForJobs)}
         setOpen={(open) => !open && setSelectedSupplierForJobs(null)}
         supplier={selectedSupplierForJobs}
+        onJobsUpdated={onJobsUpdated}
       />
 
       {/* Delete Confirmation Alert Dialog */}

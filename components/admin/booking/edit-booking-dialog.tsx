@@ -49,6 +49,7 @@ import { getDrivers } from "@/app/admin/drivers/action"
 import { updateBooking } from "@/app/admin/bookings/action"
 import { DatePickerInput } from "./date-picker-input"
 import { TimePickerInput, parseTimeString, formatTime24H } from "./time-picker-input"
+import { SupplierSearchSelect } from "./supplier-search-select"
 import { toast } from "sonner"
 
 interface EditBookingDialogProps {
@@ -642,23 +643,16 @@ export function EditBookingDialog({
               <div className="space-y-2.5">
                 <div className="space-y-1">
                   <Label className="text-xs font-medium">Partner Supplier</Label>
-                  <Select value={supplierId} onValueChange={setSupplierId}>
-                    <SelectTrigger className="bg-white text-xs">
-                      <SelectValue placeholder="Select supplier" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">
-                        {sourceType === "website"
-                          ? "Website (Direct Online)"
-                          : "Direct Offline (No Supplier)"}
-                      </SelectItem>
-                      {suppliers.map((sup) => (
-                        <SelectItem key={sup.id} value={sup.id!}>
-                          {sup.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SupplierSearchSelect
+                    suppliers={suppliers}
+                    value={supplierId === "none" ? "" : supplierId}
+                    onChange={(val) => setSupplierId(val || "none")}
+                    noneLabel={
+                      sourceType === "website"
+                        ? "Website (Direct Online)"
+                        : "Direct Offline (No Supplier)"
+                    }
+                  />
                 </div>
 
                 <div className="space-y-1">

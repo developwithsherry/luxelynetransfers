@@ -14,8 +14,9 @@ export async function getSuppliers(): Promise<{ data?: Supplier[]; error?: strin
         .order("created_at", { ascending: false }),
       supabase
         .from("booking")
-        .select("supplier_id, status, payment_status, total_amount")
-        .not("supplier_id", "is", null),
+        .select("supplier_id, status, payment_status, total_amount, created_at")
+        .not("supplier_id", "is", null)
+        .order("created_at", { ascending: false }),
     ])
 
     if (error) {
@@ -29,10 +30,17 @@ export async function getSuppliers(): Promise<{ data?: Supplier[]; error?: strin
     }
 
     const unpaidStatsBySupplier = new Map<string, { count: number; amount: number }>()
+    const lastUsedBySupplier = new Map<string, string>()
+
     if (Array.isArray(bookingsData)) {
       bookingsData.forEach((b: any) => {
         const supplierId = b.supplier_id
         if (!supplierId) return
+
+        if (b.created_at && !lastUsedBySupplier.has(supplierId)) {
+          lastUsedBySupplier.set(supplierId, b.created_at)
+        }
+
         const isCompleted = (b.status || "").toLowerCase().trim() === "completed"
         const pStatus = (b.payment_status || "").toLowerCase().trim()
         const isPaid = pStatus === "paid" || pStatus === "paid_to_driver"
@@ -50,10 +58,12 @@ export async function getSuppliers(): Promise<{ data?: Supplier[]; error?: strin
 
     const enrichedSuppliers = ((data as Supplier[]) || []).map((supplier) => {
       const unpaid = supplier.id ? unpaidStatsBySupplier.get(supplier.id) : undefined
+      const lastUsed = supplier.id ? lastUsedBySupplier.get(supplier.id) || null : null
       return {
         ...supplier,
         unpaid_completed_jobs_count: unpaid?.count || 0,
         unpaid_completed_amount: unpaid?.amount || 0,
+        last_used_at: lastUsed,
       }
     })
 

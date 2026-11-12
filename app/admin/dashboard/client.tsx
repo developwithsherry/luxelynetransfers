@@ -848,10 +848,12 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
                         </td>
 
                         {/* Passenger */}
-                        <td className="py-4 px-3 whitespace-nowrap">
-                          <div className="font-semibold text-slate-900">{customerName}</div>
+                        <td className="py-4 px-3 whitespace-nowrap max-w-[170px]">
+                          <div className="font-semibold text-slate-900 truncate max-w-[160px]">
+                            {customerName}
+                          </div>
                           {b.phone ? (
-                            <div className="text-[11px] text-slate-400 font-normal mt-0.5">
+                            <div className="text-[11px] text-slate-400 font-normal mt-0.5 truncate max-w-[160px]">
                               {b.phone}
                             </div>
                           ) : (
@@ -862,17 +864,14 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
                         </td>
 
                         {/* Route */}
-                        <td
-                          className="py-4 px-3 max-w-[260px]"
-                          title={`${b.pickup_location || ""} → ${b.drop_off_location || ""}`}
-                        >
-                          <div className="font-medium text-slate-900 truncate">
+                        <td className="py-4 px-3 max-w-[240px]">
+                          <div className="font-medium text-slate-900 truncate max-w-[230px]">
                             {formatLocation(b.pickup_location)}
                           </div>
                           {b.drop_off_location && (
-                            <div className="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-1">
-                              <span className="text-lime-600 font-bold">→</span>
-                              <span className="truncate">
+                            <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1 max-w-[230px]">
+                              <span className="text-lime-600 font-bold shrink-0">→</span>
+                              <span className="truncate block">
                                 {formatLocation(b.drop_off_location)}
                               </span>
                             </div>
@@ -880,11 +879,11 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
                         </td>
 
                         {/* Driver Allocation */}
-                        <td className="py-4 px-3 whitespace-nowrap">
+                        <td className="py-4 px-3 whitespace-nowrap max-w-[180px]">
                           {b.driver ? (
-                            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-50/90 text-emerald-900 border border-emerald-200 font-semibold text-xs">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              <span>{b.driver.name}</span>
+                            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-50/90 text-emerald-900 border border-emerald-200 font-semibold text-xs max-w-[170px]">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                              <span className="truncate">{b.driver.name}</span>
                             </div>
                           ) : (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100/90 text-amber-950 border border-amber-300 font-semibold text-[11px]">
@@ -1021,7 +1020,7 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
                           <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
                             Pickup
                           </span>
-                          <p className="text-xs font-bold text-slate-900 leading-snug">
+                          <p className="text-xs font-bold text-slate-900 leading-snug truncate">
                             {formatLocation(b.pickup_location)}
                           </p>
                         </div>
@@ -1033,7 +1032,7 @@ export default function DashboardPage({ bookings, driverAlerts = [] }: Props) {
                           <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
                             Destination
                           </span>
-                          <p className="text-xs font-bold text-slate-900 leading-snug">
+                          <p className="text-xs font-bold text-slate-900 leading-snug truncate">
                             {formatLocation(b.drop_off_location)}
                           </p>
                         </div>

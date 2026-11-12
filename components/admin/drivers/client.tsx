@@ -14,8 +14,8 @@ import {
   Search,
   Loader2,
   ShieldCheck,
-  FileCheck,
-  Car,
+  Briefcase,
+  PoundSterling,
   Database,
   Plus,
   Copy,
@@ -157,17 +157,21 @@ export function DriversClient() {
     })
   }, [drivers, searchQuery, statusFilter])
 
-  // Statistics
+  // Statistics (including Total Jobs and Total Amount from status rows on the page)
   const stats = useMemo(() => {
     const total = drivers.length
     const active = drivers.filter((d) => d.is_active ?? true).length
-    const withLicense = drivers.filter((d) => Boolean(d.driving_license_url)).length
-    const withVehicle = drivers.filter(
-      (d) => Boolean(d.vehicle_model || d.vehicle_reg || (d.vehicle_images && d.vehicle_images.length > 0))
-    ).length
+    const totalJobs = filteredDrivers.reduce(
+      (sum, d) => sum + ((d.is_active ?? true) ? Number(d.unpaid_completed_jobs_count || 0) : 0),
+      0
+    )
+    const totalAmount = filteredDrivers.reduce(
+      (sum, d) => sum + ((d.is_active ?? true) ? Number(d.unpaid_completed_amount || 0) : 0),
+      0
+    )
     const expiredDocs = drivers.filter((d) => isDriverDocExpired(d)).length
-    return { total, active, withLicense, withVehicle, expiredDocs }
-  }, [drivers])
+    return { total, active, totalJobs, totalAmount, expiredDocs }
+  }, [drivers, filteredDrivers])
 
   const copySqlInstruction = async () => {
     try {
@@ -265,27 +269,31 @@ export function DriversClient() {
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Driving Licenses
+              Total Jobs
             </span>
-            <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg">
-              <FileCheck className="w-4 h-4" />
+            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-lg">
+              <Briefcase className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{stats.withLicense}</p>
-          <span className="text-xs text-gray-400">Verified driving licenses</span>
+          <p className={`text-2xl font-bold mt-2 ${stats.totalJobs > 0 ? "text-rose-600" : "text-gray-900"}`}>
+            {stats.totalJobs}
+          </p>
+          <span className="text-xs text-gray-400">Unpaid completed driver jobs</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Vehicle Docs
+              Total Amount
             </span>
             <div className="p-1.5 bg-lime-100 text-lime-800 rounded-lg">
-              <Car className="w-4 h-4" />
+              <PoundSterling className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{stats.withVehicle}</p>
-          <span className="text-xs text-gray-400">With vehicles registered</span>
+          <p className={`text-2xl font-bold mt-2 ${stats.totalAmount > 0 ? "text-rose-600" : "text-gray-900"}`}>
+            £{stats.totalAmount.toFixed(2)}
+          </p>
+          <span className="text-xs text-gray-400">Total unpaid driver amount</span>
         </div>
       </div>
 

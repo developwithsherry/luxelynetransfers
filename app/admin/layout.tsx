@@ -9,6 +9,7 @@ import { SidebarProvider, useSidebar } from "@/context/sidebar-context"
 import { UKLiveClock } from "@/components/admin/uk-live-clock"
 import { AdminPwaNotificationManager } from "@/components/admin/pwa-notification-manager"
 import { MobileBottomNav } from "@/components/admin/mobile-bottom-nav"
+import { AdminHoverMarquee } from "@/components/admin/admin-hover-marquee"
 
 function getMobileScreenMeta(pathname: string): {
   title: string
@@ -171,6 +172,8 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
 
       {/* Native Mobile Bottom Navigation Bar (Home, Bookings, Drivers, Menu) */}
       <MobileBottomNav />
+      {/* Global Slow Hover Marquee for All Truncated Admin Details */}
+      <AdminHoverMarquee />
     </div>
   )
 }

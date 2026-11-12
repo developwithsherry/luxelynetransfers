@@ -32,6 +32,7 @@ import { createBooking } from "@/lib/create-booking"
 import type { Supplier } from "@/types/supplier"
 import { DatePickerInput } from "./date-picker-input"
 import { TimePickerInput } from "./time-picker-input"
+import { SupplierSearchSelect, recordRecentSupplierId } from "./supplier-search-select"
 
 interface CreateBookingDialogProps {
   onBookingCreated: (booking: Booking) => void
@@ -237,6 +238,9 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
       const result = await createBooking(bookingData)
 
       if (result.success && result.data) {
+        if (formData.supplierId && formData.supplierId !== "none") {
+          recordRecentSupplierId(formData.supplierId)
+        }
         const createdId = result.data.id || result.data.booking_id || ""
         const systemRef = createdId ? `#${createdId.slice(0, 5).toUpperCase()}` : ""
         toast.success(`Booking created successfully! ${systemRef ? `Reference: ${systemRef}` : ""}`)
@@ -323,22 +327,12 @@ export function CreateBookingDialog({ onBookingCreated, trigger }: CreateBooking
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="supplierId" className="text-xs font-medium">Select Supplier</Label>
-                <Select
-                  value={formData.supplierId || "none"}
-                  onValueChange={(val) => handleInputChange("supplierId", val === "none" ? "" : val)}
-                >
-                  <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Select supplier (or leave direct)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Direct Offline Booking (No Supplier)</SelectItem>
-                    {suppliers.map((sup) => (
-                      <SelectItem key={sup.id} value={sup.id!}>
-                        {sup.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SupplierSearchSelect
+                  suppliers={suppliers}
+                  value={formData.supplierId}
+                  onChange={(val) => handleInputChange("supplierId", val)}
+                  noneLabel="Direct Offline Booking (No Supplier)"
+                />
               </div>
 
               <div className="space-y-1.5">

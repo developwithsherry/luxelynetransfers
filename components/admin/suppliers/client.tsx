@@ -13,11 +13,9 @@ import {
   Building2,
   Search,
   Loader2,
-  Users,
   ShieldCheck,
-  Mail,
-  KeyRound,
-  AlertCircle,
+  Briefcase,
+  PoundSterling,
   Database,
   Plus,
   Copy,
@@ -40,8 +38,8 @@ export function SuppliersClient() {
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null)
   const [copiedSql, setCopiedSql] = useState<boolean>(false)
 
-  const fetchSuppliers = async () => {
-    setLoading(true)
+  const fetchSuppliers = async (silent = false) => {
+    if (!silent) setLoading(true)
     setErrorMessage(null)
     try {
       const res = await getSuppliers()
@@ -54,7 +52,7 @@ export function SuppliersClient() {
       setErrorMessage(err.message || "Failed to load suppliers")
       toast.error("Failed to load suppliers")
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
@@ -115,14 +113,20 @@ export function SuppliersClient() {
     })
   }, [suppliers, searchQuery, statusFilter])
 
-  // Summary Metrics
+  // Summary Metrics (including Total Jobs and Total Amount from status rows on the page)
   const stats = useMemo(() => {
     const total = suppliers.length
     const active = suppliers.filter((s) => s.is_active ?? true).length
-    const withEmail = suppliers.filter((s) => Boolean(s.support_email)).length
-    const withCreds = suppliers.filter((s) => Boolean(s.username || s.password)).length
-    return { total, active, withEmail, withCreds }
-  }, [suppliers])
+    const totalJobs = filteredSuppliers.reduce(
+      (sum, s) => sum + ((s.is_active ?? true) ? Number(s.unpaid_completed_jobs_count || 0) : 0),
+      0
+    )
+    const totalAmount = filteredSuppliers.reduce(
+      (sum, s) => sum + ((s.is_active ?? true) ? Number(s.unpaid_completed_amount || 0) : 0),
+      0
+    )
+    return { total, active, totalJobs, totalAmount }
+  }, [suppliers, filteredSuppliers])
 
   const copySqlInstruction = async () => {
     try {
@@ -180,7 +184,7 @@ export function SuppliersClient() {
             </Button>
             <Button
               size="sm"
-              onClick={fetchSuppliers}
+              onClick={() => fetchSuppliers()}
               className="bg-amber-600 hover:bg-amber-700 text-white text-xs"
             >
               Retry Sync
@@ -220,27 +224,31 @@ export function SuppliersClient() {
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Support Contacts
+              Total Jobs
             </span>
-            <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg">
-              <Mail className="w-4 h-4" />
+            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-lg">
+              <Briefcase className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{stats.withEmail}</p>
-          <span className="text-xs text-gray-400">With support email saved</span>
+          <p className={`text-2xl font-bold mt-2 ${stats.totalJobs > 0 ? "text-rose-600" : "text-gray-900"}`}>
+            {stats.totalJobs}
+          </p>
+          <span className="text-xs text-gray-400">Unpaid completed supplier jobs</span>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Portal Logins
+              Total Amount
             </span>
-            <div className="p-1.5 bg-lime-100 text-lime-800 rounded-lg">
-              <KeyRound className="w-4 h-4" />
+            <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg">
+              <PoundSterling className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{stats.withCreds}</p>
-          <span className="text-xs text-gray-400">With username/password saved</span>
+          <p className={`text-2xl font-bold mt-2 ${stats.totalAmount > 0 ? "text-rose-600" : "text-gray-900"}`}>
+            £{stats.totalAmount.toFixed(2)}
+          </p>
+          <span className="text-xs text-gray-400">Total unpaid supplier amount</span>
         </div>
       </div>
 
@@ -336,6 +344,7 @@ export function SuppliersClient() {
             onEdit={handleEdit}
             onDeleted={handleDeleted}
             onStatusChange={handleStatusChange}
+            onJobsUpdated={() => fetchSuppliers(true)}
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -346,6 +355,7 @@ export function SuppliersClient() {
                 onEdit={handleEdit}
                 onDeleted={handleDeleted}
                 onStatusChange={handleStatusChange}
+                onJobsUpdated={() => fetchSuppliers(true)}
               />
             ))}
           </div>
